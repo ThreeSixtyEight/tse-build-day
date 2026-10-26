@@ -1,0 +1,19 @@
+---
+// Working notes from the brief, shown alongside a section until final copy lands.
+interface Props {
+  items: string[];
+}
+
+const { items } = Astro.props;
+---
+
+<aside class="notes" aria-label="Build notes">
+  <p class="notes__label">Notes</p>
+  <ul>{items.map((item) => <li>{item}</li>)}</ul>
+</aside>
+
+<style>
+  .notes { border-left: 2px solid var(--line); color: var(--muted); font-size: 0.875rem; margin-top: 1.5rem; padding-left: 1rem; }
+  .notes__label { font-weight: 700; margin: 0 0 0.25rem; }
+  .notes ul { margin: 0; padding-left: 1.25rem; }
+</style>

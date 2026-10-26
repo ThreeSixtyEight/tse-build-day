@@ -1,39 +1,102 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getCollection, getEntries, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Notes from '../components/Notes.astro';
+import Quote from '../components/Quote.astro';
 import { site } from '../site.config';
 
 const sections = (await getCollection('sections')).sort((a, b) => a.data.order - b.data.order);
-const rendered = await Promise.all(sections.map(async (s) => ({ s, Content: (await render(s)).Content })));
+const rendered = await Promise.all(
+  sections.map(async (s) => ({
+    s,
+    Content: (await render(s)).Content,
+    quotes: await getEntries(s.data.quotes),
+  })),
+);
 ---
 
 <BaseLayout>
-  <section class="hero">
+  <!-- Entry gate: the visitor joins the second line here. -->
+  <section class="hero" id="entry" data-section="entry">
     <div class="wrap">
       <h1>{site.siteName}</h1>
       <p>{site.siteDescription}</p>
+      <div class="actions">
+        <a href="#line" class="button" data-join="sound">Join with sound</a>
+        <a href="#line" class="button" data-join="no-sound">Join without sound</a>
+      </div>
+      <Notes
+        items={[
+          'The visitor should feel part of the second line, not like they are watching it go by.',
+          'Sound starts only after the visitor opts in. Captions on by default, with a transcript link.',
+          'The reduced-motion, no-sound version still tells the full story.',
+          'Analytics: entry, joining the line, sound on and off.',
+        ]}
+      />
     </div>
   </section>
 
-  <div id="content">
+  <!-- The second line: one section per file in src/content/sections. -->
+  <div id="line">
     {
-      rendered.map(({ s, Content }) => (
-        <section class="section">
+      rendered.map(({ s, Content, quotes }) => (
+        <section class="section" id={s.id} data-section={s.id}>
           <div class="wrap">
             <h2>{s.data.title}</h2>
             <Content />
+            {quotes.map((q) => (
+              <Quote {...q.data} />
+            ))}
+            {s.data.caption && <p class="caption">{s.data.caption}</p>}
+            <Notes
+              items={[
+                `Purpose: ${s.data.purpose}`,
+                `Directives: ${s.data.directives.length ? s.data.directives.join(', ') : 'TBD'}`,
+                `Key interaction: ${s.data.interaction}`,
+                `Main content type: ${s.data.media ?? 'TBD'}`,
+              ]}
+            />
           </div>
         </section>
       ))
     }
   </div>
+
+  <section class="section" id="listen" data-section="listen">
+    <div class="wrap">
+      <h2>Listen</h2>
+      <p>Official music embeds go here.</p>
+      <Notes
+        items={[
+          'Official Spotify, Apple Music or YouTube embeds only. No AI voice or AI music.',
+          'Analytics: embed clicks.',
+        ]}
+      />
+    </div>
+  </section>
+
+  <!-- End of the line. Reaching this section is tracked. -->
+  <section class="section" id="end" data-section="end">
+    <div class="wrap">
+      <h2>End of the line</h2>
+      <p>For music, tour dates and the store, visit <a href={site.officialSite}>Jon Batiste's official site</a>.</p>
+      <Notes
+        items={[
+          "His site already handles the store, newsletter and tour, so we link out rather than rebuild them.",
+          'Analytics: visitor reaches the end.',
+        ]}
+      />
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
   .hero { padding-block: clamp(4rem, 12vw, 8rem); background: #f5f5f5; }
   .hero h1 { font-size: clamp(2.25rem, 6vw, 3.5rem); line-height: 1.1; margin: 0 0 1rem; }
   .hero p { color: var(--muted); font-size: 1.125rem; margin: 0; max-width: 40rem; }
+  .actions { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }
+  .button { border: 1px solid currentColor; padding: 0.5rem 1rem; text-decoration: none; }
   .section { padding-block: 3rem; border-bottom: 1px solid var(--line); }
-  .section:last-child { border-bottom: 0; }
   .section h2 { margin-top: 0; }
+  .caption { color: var(--muted); font-size: 0.875rem; }
 </style>
