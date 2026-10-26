@@ -1,6 +1,6 @@
-# Astro Starter
+# Build Day Site
 
-A blank Astro site for the team to build on. Static output, deployed on Netlify.
+The scaffold for the Build Day fan site: Jon Batiste's story told through a New Orleans second line. Structure only, no design yet. Static output, deployed on Netlify.
 
 ## Run locally
 
@@ -16,8 +16,13 @@ npm run dev     # or: netlify dev
 | Site name, description, nav | `src/site.config.ts` |
 | Header / footer | `src/components/` |
 | Page layout (`<head>`, header, footer) | `src/layouts/BaseLayout.astro` |
-| Home page (hero + content sections) | `src/pages/index.astro` |
-| Content sections (Markdown) | `src/content/sections/` |
+| Home page (entry gate, the line, listen, end) | `src/pages/index.astro` |
+| Transcript page | `src/pages/transcript.astro` |
+| Credits page | `src/pages/credits.astro` |
+| Second line sections (Markdown, one per section) | `src/content/sections/` |
+| Sourced, dated quotes | `src/data/quotes.json` |
+| Media and culture credits | `src/data/credits.json` |
+| Build notes / quote blocks | `src/components/Notes.astro`, `src/components/Quote.astro` |
 | Collection schemas | `src/content.config.ts` |
 | Global styles | `src/styles/global.css` |
 

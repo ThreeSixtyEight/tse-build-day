@@ -1,6 +1,8 @@
 ---
 title: Section 2
 order: 2
+purpose: TBD
+interaction: TBD
 ---
 
-Placeholder content for section 2. Edit or replace this file in `src/content/sections/`.
+Draft copy for section 2. Jon's words appear only as sourced, dated quotes, added through `quotes`.

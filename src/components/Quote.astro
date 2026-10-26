@@ -1,0 +1,25 @@
+---
+// A sourced, dated quote. Source and date are required; never invent a quote.
+interface Props {
+  text: string;
+  source: string;
+  date: string;
+  url?: string;
+}
+
+const { text, source, date, url } = Astro.props;
+---
+
+<figure class="quote">
+  <blockquote><p>{text}</p></blockquote>
+  <figcaption>
+    {url ? <a href={url}>{source}</a> : source}, {date}
+  </figcaption>
+</figure>
+
+<style>
+  .quote { margin: 1.5rem 0; }
+  .quote blockquote { margin: 0; font-size: 1.25rem; }
+  .quote blockquote p { margin: 0; }
+  .quote figcaption { color: var(--muted); font-size: 0.875rem; margin-top: 0.5rem; }
+</style>

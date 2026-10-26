@@ -5,11 +5,17 @@ const year = new Date().getFullYear();
 
 <footer class="footer">
   <div class="wrap">
+    <p>An unofficial fan site. Not affiliated with or endorsed by Jon Batiste.</p>
+    <p>
+      <a href="/transcript">Transcript</a> · <a href="/credits">Credits</a> ·
+      <a href={site.officialSite}>Official site</a>
+    </p>
     <p>© {year} {site.siteName}</p>
   </div>
 </footer>
 
 <style>
   .footer { border-top: 1px solid var(--line); color: var(--muted); padding-block: 2rem; margin-top: 4rem; }
-  .footer p { margin: 0; }
+  .footer p { margin: 0 0 0.5rem; }
+  .footer p:last-child { margin: 0; }
 </style>
