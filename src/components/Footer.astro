@@ -5,43 +5,11 @@ const year = new Date().getFullYear();
 
 <footer class="footer">
   <div class="wrap">
-    <p class="footer__kicker label">Got a brief, a hunch, or half an idea?</p>
-    <a class="footer__big display" href={`mailto:${site.email}`}>
-      Let's <span class="serif">talk</span><span class="dot">.</span>
-    </a>
-    <div class="footer__grid">
-      <div>
-        <p class="label muted">Say hello</p>
-        <a href={`mailto:${site.email}`}>{site.email}</a>
-      </div>
-      <div>
-        <p class="label muted">Studio</p>
-        <p>{site.location}</p>
-      </div>
-      <div>
-        <p class="label muted">Follow</p>
-        <ul>{site.socials.map((s) => <li><a href={s.href} rel="noopener" target="_blank">{s.label}</a></li>)}</ul>
-      </div>
-    </div>
-    <div class="footer__base label">
-      <span>© {year} {site.siteName}</span>
-      <span>Made together on Build Day</span>
-    </div>
+    <p>© {year} {site.siteName}</p>
   </div>
 </footer>
 
 <style>
-  .footer { background: var(--ink); color: var(--paper); padding-top: clamp(4rem, 10vw, 8rem); margin-top: clamp(4rem, 10vw, 8rem); }
-  .footer__kicker { color: var(--signal); margin: 0 0 1rem; }
-  .footer__big { display: inline-block; font-size: clamp(4rem, 17vw, 15rem); text-decoration: none; transition: color 0.4s var(--ease); }
-  .footer__big:hover { color: var(--signal); }
-  .footer__big .serif { font-weight: 400; letter-spacing: -0.02em; }
-  .dot { color: var(--signal); }
-  .footer__big:hover .dot { color: var(--paper); }
-  .footer__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-top: clamp(3rem, 6vw, 5rem); padding-top: 2rem; border-top: 1px solid rgba(241, 236, 226, 0.2); }
-  .footer__grid p, .footer__grid ul { margin: 0 0 0.4rem; padding: 0; list-style: none; }
-  .footer__grid a { text-decoration: none; }
-  .footer__grid a:hover { color: var(--signal); }
-  .muted { opacity: 0.55; }
-  .footer__base { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 1rem; padding-block: 2.5rem; opacity: 0.55; }
+  .footer { border-top: 1px solid var(--line); color: var(--muted); padding-block: 2rem; margin-top: 4rem; }
+  .footer p { margin: 0; }
 </style>
