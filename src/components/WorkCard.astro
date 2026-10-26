@@ -1,0 +1,62 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { cdn, cdnSrcset } from '../lib/images';
+
+interface Props {
+  item: CollectionEntry<'work'>;
+  index: number;
+  size?: 'large' | 'small';
+}
+
+const { item, index, size = 'small' } = Astro.props;
+const { title, client, year, disciplines, cover, coverAlt, accent } = item.data;
+const aspect = size === 'large' ? 16 / 10 : 4 / 5;
+---
+
+<a href={`/work/${item.id}`} class:list={['card', 'reveal', `card--${size}`]} style={`--accent:${accent}`}>
+  <div class="card__media">
+    <img
+      src={cdn(cover, 900, { height: Math.round(900 / aspect) })}
+      srcset={cdnSrcset(cover, [480, 900, 1400], { aspect })}
+      sizes={size === 'large' ? '(min-width: 900px) 66vw, 100vw' : '(min-width: 900px) 33vw, 100vw'}
+      alt={coverAlt}
+      loading={index < 2 ? 'eager' : 'lazy'}
+      width="900"
+      height={Math.round(900 / aspect)}
+    />
+    <span class="card__num label">{String(index + 1).padStart(2, '0')}</span>
+  </div>
+  <div class="card__meta">
+    <p class="label">{client} · {year}</p>
+    <h3>{title}</h3>
+    <p class="card__tags label">{disciplines.join(' / ')}</p>
+  </div>
+</a>
+
+<style>
+  .card { display: block; text-decoration: none; }
+  .card__media { position: relative; overflow: hidden; border-radius: 4px; background: var(--paper-2); }
+  .card__media::after {
+    content: ''; position: absolute; inset: 0; background: var(--accent);
+    mix-blend-mode: multiply; opacity: 0; transition: opacity 0.5s var(--ease);
+  }
+  .card img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; transition: transform 1s var(--ease); }
+  .card--large img { aspect-ratio: 16 / 10; }
+  .card:hover img { transform: scale(1.045); }
+  .card:hover .card__media::after { opacity: 0.35; }
+  .card__num {
+    position: absolute; top: 1rem; left: 1rem; z-index: 1;
+    background: var(--paper); padding: 0.3rem 0.55rem; border-radius: 999px;
+  }
+  .card__meta { padding-top: 1rem; }
+  .card__meta p { margin: 0; color: var(--ink-soft); }
+  .card h3 {
+    margin: 0.35rem 0 0.5rem; font-size: clamp(1.4rem, 2.4vw, 2.1rem);
+    line-height: 1.02; letter-spacing: -0.035em; font-weight: 600;
+    background: linear-gradient(var(--accent), var(--accent)) 0 100% / 0 2px no-repeat;
+    transition: background-size 0.5s var(--ease);
+    display: inline;
+  }
+  .card:hover h3 { background-size: 100% 2px; }
+  .card__tags { margin-top: 0.6rem !important; }
+</style>

@@ -1,0 +1,64 @@
+---
+import { site } from '../site.config';
+const path = Astro.url.pathname;
+---
+
+<header class="header">
+  <div class="wrap header__inner">
+    <a href="/" class="logo" aria-label={`${site.siteName} — home`}>
+      <span class="logo__mark" aria-hidden="true"></span>
+      <span class="logo__text">{site.shortName}</span>
+    </a>
+    <nav aria-label="Main">
+      <ul>
+        {
+          site.nav.map((item) => (
+            <li>
+              <a href={item.href} aria-current={path.startsWith(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <a class="header__cta label" href={`mailto:${site.email}`}>Start a project</a>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--paper) 86%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .header__inner { display: flex; align-items: center; gap: 2rem; height: 4.25rem; }
+  .logo { display: inline-flex; align-items: center; gap: 0.6rem; text-decoration: none; font-weight: 700; font-size: 1.35rem; letter-spacing: -0.04em; }
+  .logo__mark {
+    width: 1.4rem; height: 1.4rem; border-radius: 50%;
+    border: 3.5px solid var(--ink); position: relative;
+    transition: transform 0.8s var(--ease);
+  }
+  .logo__mark::after {
+    content: ''; position: absolute; width: 0.5rem; height: 0.5rem; border-radius: 50%;
+    background: var(--signal); top: -0.35rem; right: -0.35rem;
+  }
+  .logo:hover .logo__mark { transform: rotate(368deg); }
+  nav { margin-left: auto; }
+  nav ul { display: flex; gap: clamp(1rem, 3vw, 2.25rem); list-style: none; margin: 0; padding: 0; }
+  nav a { text-decoration: none; font-weight: 500; position: relative; }
+  nav a::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -0.2rem; height: 2px;
+    background: var(--signal); transform: scaleX(0); transform-origin: left; transition: transform 0.35s var(--ease);
+  }
+  nav a:hover::after, nav a[aria-current='page']::after { transform: scaleX(1); }
+  .header__cta { text-decoration: none; padding: 0.55rem 1rem; border-radius: 999px; background: var(--ink); color: var(--paper); transition: background 0.3s; }
+  .header__cta:hover { background: var(--signal); color: var(--ink); }
+  @media (max-width: 640px) {
+    .header__inner { gap: 1rem; }
+    .header__cta { display: none; }
+  }
+</style>

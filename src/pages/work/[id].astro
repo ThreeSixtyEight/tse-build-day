@@ -1,0 +1,95 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getWork } from '../../lib/content';
+import { cdn } from '../../lib/images';
+
+export async function getStaticPaths() {
+  const work = await getWork();
+  return work.map((item, i) => ({
+    params: { id: item.id },
+    props: { item, next: work[(i + 1) % work.length] },
+  }));
+}
+
+const { item, next } = Astro.props;
+const { Content } = await render(item);
+const { title, client, summary, year, disciplines, cover, coverAlt, accent, results } = item.data;
+---
+
+<BaseLayout title={`${client} — ${title}`} description={summary}>
+  <article style={`--accent:${accent}`}>
+    <header class="wrap head">
+      <a class="label back" href="/work">← All work</a>
+      <p class="label client">{client}</p>
+      <h1 class="display">{title}</h1>
+      <p class="summary">{summary}</p>
+      <dl class="facts">
+        <div><dt class="label">Year</dt><dd>{year}</dd></div>
+        <div><dt class="label">Disciplines</dt><dd>{disciplines.join(', ')}</dd></div>
+      </dl>
+    </header>
+
+    <figure class="cover">
+      <img
+        src={cdn(cover, 1600, { height: 900 })}
+        srcset={`${cdn(cover, 800, { height: 450 })} 800w, ${cdn(cover, 1600, { height: 900 })} 1600w, ${cdn(cover, 2400, { height: 1350 })} 2400w`}
+        sizes="100vw"
+        alt={coverAlt}
+        width="1600"
+        height="900"
+      />
+    </figure>
+
+    <div class="wrap body">
+      {
+        results.length > 0 && (
+          <aside class="results">
+            {results.map((r) => (
+              <div class="reveal">
+                <p class="value">{r.value}</p>
+                <p class="label">{r.label}</p>
+              </div>
+            ))}
+          </aside>
+        )
+      }
+      <div class="prose"><Content /></div>
+    </div>
+
+    {
+      next && next.id !== item.id && (
+        <a class="wrap next" href={`/work/${next.id}`}>
+          <span class="label">Next project — {next.data.client}</span>
+          <span class="display">{next.data.title} →</span>
+        </a>
+      )
+    }
+  </article>
+</BaseLayout>
+
+<style>
+  .head { padding-block: clamp(2.5rem, 6vw, 5rem) clamp(2rem, 4vw, 3rem); }
+  .back { text-decoration: none; color: var(--ink-soft); }
+  .back:hover { color: var(--accent); }
+  .client { color: var(--accent); margin: 2.5rem 0 1rem; }
+  h1 { font-size: clamp(2.75rem, 8vw, 7.5rem); max-width: 14ch; animation: rise 1s var(--ease) both; }
+  .summary { font-size: clamp(1.15rem, 2vw, 1.5rem); max-width: 40rem; line-height: 1.4; margin: 2rem 0; }
+  .facts { display: flex; flex-wrap: wrap; gap: 3rem; margin: 0; padding-top: 1.25rem; border-top: 1px solid var(--line); }
+  .facts dt { color: var(--ink-soft); }
+  .facts dd { margin: 0.25rem 0 0; font-weight: 500; }
+  .cover { margin: 0; }
+  .cover img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; max-height: 85vh; }
+  .body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: clamp(2rem, 6vw, 6rem); padding-block: clamp(3rem, 7vw, 6rem); }
+  .results { display: flex; flex-direction: column; gap: 2rem; position: sticky; top: 6rem; align-self: start; }
+  .results p { margin: 0; }
+  .value { font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 700; letter-spacing: -0.05em; line-height: 1; color: var(--accent); }
+  .results .label { color: var(--ink-soft); margin-top: 0.4rem; max-width: 18rem; }
+  .next { display: flex; flex-direction: column; gap: 1rem; text-decoration: none; padding-block: 3rem; border-top: 1px solid var(--ink); }
+  .next .display { font-size: clamp(2rem, 6vw, 5rem); transition: color 0.3s; }
+  .next:hover .display { color: var(--accent); }
+  @media (max-width: 860px) {
+    .body { grid-template-columns: 1fr; }
+    .results { position: static; flex-direction: row; flex-wrap: wrap; }
+  }
+</style>

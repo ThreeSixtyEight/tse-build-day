@@ -1,0 +1,197 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import WorkCard from '../components/WorkCard.astro';
+import { getFeaturedWork, getServices, getJournal, getTeam, formatDate } from '../lib/content';
+import { cdn } from '../lib/images';
+
+const featured = await getFeaturedWork();
+const services = await getServices();
+const team = await getTeam();
+const journal = (await getJournal()).slice(0, 2);
+const marquee = services.flatMap((s) => s.data.capabilities);
+---
+
+<BaseLayout>
+  <section class="hero wrap">
+    <p class="hero__eyebrow label"><span class="pulse"></span> Independent creative agency — booking new projects</p>
+    <h1 class="display hero__title">
+      <span class="line l1">We turn ideas</span>
+      <span class="line l2">a full <span class="serif">circle</span></span>
+      <span class="line l3">
+        <span class="degrees" aria-hidden="true">
+          <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" /><circle class="sat" cx="78" cy="22" r="9" /></svg>
+        </span>
+        + eight<span class="accent">°</span>
+      </span>
+    </h1>
+    <div class="hero__foot">
+      <p class="hero__lede">
+        Three Sixty Eight is a studio of strategists, designers and engineers. We go all the way around a problem —
+        <span class="serif">then a little further</span> — to make brands, campaigns and products people remember.
+      </p>
+      <div class="hero__actions">
+        <a class="btn btn--signal" href="/work">See the work <span class="arrow">→</span></a>
+        <a class="btn" href="/studio">Meet the studio</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      {[...marquee, ...marquee].map((cap) => <span>{cap}<i>✦</i></span>)}
+    </div>
+  </div>
+
+  <section class="wrap work">
+    <div class="section-head">
+      <h2 class="display">Selected <span class="serif">work</span></h2>
+      <a class="btn" href="/work">All projects <span class="arrow">→</span></a>
+    </div>
+    <div class="work__grid">
+      {featured.map((item, i) => <WorkCard item={item} index={i} size={i === 0 ? 'large' : 'small'} />)}
+    </div>
+  </section>
+
+  <section class="wrap services">
+    <div class="section-head">
+      <h2 class="display">What we <span class="serif">do</span></h2>
+      <span class="label">{services.length} disciplines, one team</span>
+    </div>
+    <ol class="services__list">
+      {
+        services.map((s, i) => (
+          <li class="service reveal">
+            <span class="service__num label">0{i + 1}</span>
+            <h3 class="service__title">{s.data.title}</h3>
+            <p class="service__desc">{s.data.description}</p>
+            <ul class="service__caps">{s.data.capabilities.map((c) => <li class="label">{c}</li>)}</ul>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="wrap studio">
+    <figure class="studio__img reveal">
+      <img
+        src={cdn('/img/studio.png', 1200, { height: 900 })}
+        srcset={`${cdn('/img/studio.png', 700, { height: 525 })} 700w, ${cdn('/img/studio.png', 1200, { height: 900 })} 1200w`}
+        sizes="(min-width: 900px) 55vw, 100vw"
+        alt="Overhead view of the studio table covered in printed layouts, moodboards and markers"
+        loading="lazy"
+        width="1200"
+        height="900"
+      />
+      <figcaption class="label">The big table, mid-Build Day</figcaption>
+    </figure>
+    <div class="studio__copy reveal">
+      <p class="label accent-text">The studio</p>
+      <h2 class="display">Small team. <span class="serif">Big table.</span></h2>
+      <p>
+        We're {team.length} people who'd rather be in the same room than in the same email thread. Strategy, design and
+        engineering sit side by side, so ideas don't get lost in the handoff.
+      </p>
+      <dl class="stats">
+        <div><dt class="label">Founded</dt><dd>2014</dd></div>
+        <div><dt class="label">Projects shipped</dt><dd>200+</dd></div>
+        <div><dt class="label">Degrees</dt><dd>368°</dd></div>
+      </dl>
+      <a class="btn" href="/studio">Meet everyone <span class="arrow">→</span></a>
+    </div>
+  </section>
+
+  <section class="wrap journal">
+    <div class="section-head">
+      <h2 class="display">From the <span class="serif">journal</span></h2>
+      <a class="btn" href="/journal">Read more <span class="arrow">→</span></a>
+    </div>
+    <div class="journal__grid">
+      {
+        journal.map(({ post, author }) => (
+          <a class="post reveal" href={`/journal/${post.id}`}>
+            <p class="label">{formatDate(post.data.date)} · {author?.data.name}</p>
+            <h3>{post.data.title}</h3>
+            <p class="post__excerpt">{post.data.excerpt}</p>
+            <span class="label post__more">Read →</span>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero { padding-top: clamp(3rem, 8vw, 6.5rem); padding-bottom: clamp(3rem, 6vw, 5rem); }
+  .hero__eyebrow { display: flex; align-items: center; gap: 0.6rem; margin: 0 0 2rem; color: var(--ink-soft); animation: rise 0.8s var(--ease) both; }
+  .pulse { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--signal); box-shadow: 0 0 0 0 var(--signal); animation: ping 2s infinite; }
+  @keyframes ping { 70% { box-shadow: 0 0 0 10px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+
+  .hero__title { font-size: clamp(3.4rem, 12.5vw, 12.5rem); }
+  .line { display: block; animation: rise 1s var(--ease) both; }
+  .l2 { animation-delay: 0.12s; padding-left: clamp(1rem, 9vw, 10rem); }
+  .l3 { animation-delay: 0.24s; display: flex; align-items: center; gap: 0.15em; }
+  .hero__title .serif { font-weight: 400; color: var(--signal); }
+  .accent { color: var(--signal); }
+  .degrees { display: inline-block; width: 0.82em; height: 0.82em; animation: spin 14s linear infinite; }
+  .degrees svg { width: 100%; height: 100%; overflow: visible; }
+  .degrees circle { fill: none; stroke: var(--ink); stroke-width: 13; }
+  .degrees .sat { fill: var(--signal); stroke: none; }
+
+  .hero__foot { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 2rem; align-items: end; margin-top: clamp(2.5rem, 5vw, 4.5rem); animation: rise 1s 0.4s var(--ease) both; }
+  .hero__lede { font-size: clamp(1.15rem, 1.8vw, 1.45rem); line-height: 1.4; max-width: 36rem; margin: 0; }
+  .hero__lede .serif { font-size: 1.12em; }
+  .hero__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: flex-end; }
+
+  .marquee { overflow: hidden; background: var(--ink); color: var(--paper); padding-block: 1.1rem; transform: rotate(-1.5deg); margin: 1rem -1rem clamp(4rem, 9vw, 7rem); }
+  .marquee__track { display: flex; width: max-content; animation: scroll 40s linear infinite; }
+  .marquee span { font-size: clamp(1.25rem, 2.5vw, 2rem); font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; display: inline-flex; align-items: center; }
+  .marquee i { font-style: normal; color: var(--signal); margin-inline: 1.5rem; font-size: 0.7em; }
+  @keyframes scroll { to { transform: translateX(-50%); } }
+
+  .work__grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: clamp(1.5rem, 3vw, 2.5rem); row-gap: clamp(2.5rem, 5vw, 4.5rem); }
+  .work__grid > :global(:nth-child(1)) { grid-column: 1 / span 8; }
+  .work__grid > :global(:nth-child(2)) { grid-column: 9 / span 4; margin-top: clamp(4rem, 12vw, 11rem); }
+  .work__grid > :global(:nth-child(3)) { grid-column: 3 / span 5; }
+  .work__grid > :global(:nth-child(n + 4)) { grid-column: span 6; }
+
+  .services { margin-top: clamp(5rem, 10vw, 9rem); }
+  .services__list { list-style: none; margin: 0; padding: 0; }
+  .service {
+    display: grid; grid-template-columns: 4rem minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem;
+    align-items: baseline; padding-block: 2rem; border-bottom: 1px solid var(--line);
+    transition: padding 0.4s var(--ease), background 0.4s var(--ease);
+  }
+  .service:hover { background: var(--paper-2); padding-inline: 1rem; }
+  .service__num { color: var(--signal); }
+  .service__title { margin: 0; font-size: clamp(1.6rem, 3.2vw, 2.8rem); letter-spacing: -0.04em; line-height: 1; font-weight: 600; }
+  .service__desc { margin: 0; color: var(--ink-soft); }
+  .service__caps { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .service__caps li { border: 1px solid var(--line); border-radius: 999px; padding: 0.25rem 0.6rem; font-size: 0.68rem; }
+
+  .studio { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: clamp(2rem, 6vw, 6rem); align-items: center; margin-top: clamp(5rem, 10vw, 9rem); }
+  .studio__img { margin: 0; position: relative; }
+  .studio__img img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 4px; }
+  .studio__img figcaption { position: absolute; bottom: -1rem; right: 1.5rem; background: var(--signal); padding: 0.5rem 0.8rem; transform: rotate(-3deg); }
+  .studio__copy h2 { font-size: clamp(2.5rem, 5.5vw, 4.75rem); margin-bottom: 1.5rem; }
+  .accent-text { color: var(--signal); margin: 0 0 1rem; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 2rem 0; padding-block: 1.25rem; border-block: 1px solid var(--line); }
+  .stats dt { color: var(--ink-soft); }
+  .stats dd { margin: 0.3rem 0 0; font-size: clamp(1.6rem, 3vw, 2.4rem); font-weight: 700; letter-spacing: -0.04em; }
+
+  .journal { margin-top: clamp(5rem, 10vw, 9rem); }
+  .journal__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(1.5rem, 3vw, 2.5rem); }
+  .post { display: flex; flex-direction: column; gap: 0.75rem; padding: clamp(1.5rem, 3vw, 2.5rem); border: 1px solid var(--ink); border-radius: 4px; text-decoration: none; transition: background 0.4s var(--ease), transform 0.4s var(--ease); }
+  .post:hover { background: var(--ink); color: var(--paper); transform: rotate(-0.6deg); }
+  .post p { margin: 0; }
+  .post h3 { margin: 0.5rem 0 0; font-size: clamp(1.6rem, 3vw, 2.5rem); letter-spacing: -0.04em; line-height: 1; font-weight: 600; }
+  .post__excerpt { opacity: 0.75; }
+  .post__more { margin-top: auto !important; padding-top: 1rem; color: var(--signal); }
+
+  @media (max-width: 900px) {
+    .hero__foot, .studio, .journal__grid { grid-template-columns: 1fr; }
+    .hero__actions { justify-content: flex-start; }
+    .work__grid > :global(*) { grid-column: 1 / -1 !important; margin-top: 0 !important; }
+    .service { grid-template-columns: 3rem minmax(0, 1fr); }
+    .service__desc, .service__caps { grid-column: 2; }
+  }
+</style>

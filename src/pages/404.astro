@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Page not found">
+  <section class="wrap lost">
+    <p class="label">Error 404</p>
+    <h1 class="display">We went <span class="serif">too far</span> around.</h1>
+    <p>That page doesn't exist — maybe it moved, maybe it never did.</p>
+    <a class="btn btn--signal" href="/">Back to the start <span class="arrow">→</span></a>
+  </section>
+</BaseLayout>
+
+<style>
+  .lost { padding-block: clamp(4rem, 12vw, 10rem); }
+  .lost .label { color: var(--signal); }
+  h1 { font-size: clamp(3rem, 10vw, 9rem); max-width: 12ch; margin: 1rem 0 2rem; }
+  h1 .serif { font-weight: 400; color: var(--signal); }
+  .lost > p:not(.label) { font-size: 1.25rem; margin-bottom: 2rem; }
+</style>

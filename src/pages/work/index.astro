@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import { getWork } from '../../lib/content';
+
+const work = await getWork();
+---
+
+<BaseLayout title="Work" description="Brand identities, campaigns, digital products and spaces made by Three Sixty Eight.">
+  <section class="wrap intro">
+    <p class="label">Index — {work.length} projects</p>
+    <h1 class="display">The <span class="serif">work</span></h1>
+  </section>
+  <section class="wrap">
+    {
+      work.length ? (
+        <div class="grid">
+          {work.map((item, i) => <WorkCard item={item} index={i} />)}
+        </div>
+      ) : (
+        <p class="empty">No projects yet — add a Markdown file to <code>src/content/work</code> to publish one.</p>
+      )
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .intro { padding-block: clamp(3rem, 8vw, 6rem) clamp(2rem, 5vw, 4rem); }
+  .intro .label { color: var(--ink-soft); margin: 0 0 1rem; }
+  h1 { font-size: clamp(4rem, 15vw, 13rem); }
+  h1 .serif { color: var(--signal); font-weight: 400; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: clamp(1.5rem, 3vw, 2.5rem); row-gap: 3.5rem; }
+  .grid > :global(:nth-child(3n + 2)) { margin-top: 3rem; }
+  .empty { border: 1px dashed var(--ink); padding: 3rem; text-align: center; }
+  @media (max-width: 760px) { .grid > :global(*) { margin-top: 0 !important; } }
+</style>

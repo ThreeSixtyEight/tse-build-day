@@ -1,0 +1,52 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getJournal, formatDate } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const posts = await getJournal();
+  return posts.map(({ post, author }) => ({ params: { id: post.id }, props: { post, author } }));
+}
+
+const { post, author } = Astro.props;
+const { Content } = await render(post);
+---
+
+<BaseLayout title={post.data.title} description={post.data.excerpt}>
+  <article class="wrap">
+    <header class="head">
+      <a class="label back" href="/journal">← Journal</a>
+      <p class="label meta">{formatDate(post.data.date)} · {post.data.tags.join(' / ')}</p>
+      <h1 class="display">{post.data.title}</h1>
+      <p class="excerpt serif">{post.data.excerpt}</p>
+    </header>
+    <div class="body">
+      {
+        author && (
+          <aside class="author">
+            <p class="label">Written by</p>
+            <p class="name">{author.data.name}</p>
+            <p class="label role">{author.data.role}</p>
+          </aside>
+        )
+      }
+      <div class="prose"><Content /></div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .head { padding-block: clamp(2.5rem, 6vw, 5rem) 3rem; border-bottom: 1px solid var(--ink); }
+  .back { text-decoration: none; color: var(--ink-soft); }
+  .back:hover { color: var(--signal); }
+  .meta { color: var(--signal); margin: 2.5rem 0 1rem; }
+  h1 { font-size: clamp(2.75rem, 8vw, 7rem); max-width: 16ch; animation: rise 1s var(--ease) both; }
+  .excerpt { font-size: clamp(1.4rem, 2.6vw, 2rem); line-height: 1.25; max-width: 40rem; margin: 2rem 0 0; color: var(--ink-soft); }
+  .body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2.5fr); gap: clamp(2rem, 6vw, 6rem); padding-top: 3rem; }
+  .author { position: sticky; top: 6rem; align-self: start; }
+  .author p { margin: 0; }
+  .author .label:first-child { color: var(--ink-soft); }
+  .name { font-size: 1.4rem; font-weight: 600; letter-spacing: -0.03em; margin-top: 0.4rem !important; }
+  .role { color: var(--signal); margin-top: 0.25rem !important; }
+  @media (max-width: 860px) { .body { grid-template-columns: 1fr; } .author { position: static; } }
+</style>
