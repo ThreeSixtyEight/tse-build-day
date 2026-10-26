@@ -1,8 +1,0 @@
-[
-  { "id": "maya-okafor", "name": "Maya Okafor", "role": "Founder & Creative Director", "bio": "Started the studio on a kitchen table. Still believes the best ideas fit on a sticky note.", "favouriteTool": "A 2B pencil", "order": 1 },
-  { "id": "jonas-lind", "name": "Jonas Lind", "role": "Design Director", "bio": "Type nerd, grid obsessive, and the person who will notice your kerning from across the room.", "favouriteTool": "Glyphs", "order": 2 },
-  { "id": "priya-raman", "name": "Priya Raman", "role": "Head of Strategy", "bio": "Turns fuzzy briefs into sharp questions, and sharp questions into work that lands.", "favouriteTool": "The word 'why'", "order": 3 },
-  { "id": "theo-marsh", "name": "Theo Marsh", "role": "Lead Engineer", "bio": "Builds the things the designers dream up — then makes them load in under a second.", "favouriteTool": "Astro", "order": 4 },
-  { "id": "ines-duarte", "name": "Inês Duarte", "role": "Motion Designer", "bio": "Makes logos dance and transitions breathe. Has opinions about easing curves.", "favouriteTool": "After Effects", "order": 5 },
-  { "id": "sam-whitaker", "name": "Sam Whitaker", "role": "Producer", "bio": "Keeps the trains on time and the snacks well stocked. Secretly the studio's best copywriter.", "favouriteTool": "A very long spreadsheet", "order": 6 }
-]
