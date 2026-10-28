@@ -130,13 +130,12 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
             <QuoteReveal {...pianoQuote} />
           </div>
         )}
+        {/* The theater follows chapter 2, after he boards the bus: a spotlight follows the pointer across Jon at the piano. */}
+        {s.data.order === 2 && <TheaterSpotlight />}
         </>
       ))
     }
   </div>
-
-  <!-- The theater: a spotlight follows the pointer across Jon at the piano. -->
-  <TheaterSpotlight />
 
   <section class="section" id="listen" data-section="listen" style={bg('listen')}>
     <div class="wrap">
