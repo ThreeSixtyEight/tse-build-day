@@ -8,6 +8,9 @@ import Takeaway from './Takeaway.astro';
 
 interface Props {
   id: string;
+  number: number;
+  // Gold line above the heading: the chapter number, a dash, then the place and year.
+  eyebrow?: string;
   heading: string;
   body: string;
   cutout: { src: string; alt: string; bleed?: boolean; full?: boolean };
@@ -19,7 +22,7 @@ interface Props {
   dark?: boolean;
 }
 
-const { id, heading, body, cutout, prop, background, quote, caption, takeaway, dark } = Astro.props;
+const { id, number, eyebrow, heading, body, cutout, prop, background, quote, caption, takeaway, dark } = Astro.props;
 ---
 
 <section
@@ -41,6 +44,13 @@ const { id, heading, body, cutout, prop, background, quote, caption, takeaway, d
     }
   </div>
   <div class="flat__text">
+    {
+      eyebrow && (
+        <p class="flat__eyebrow">
+          <span class="flat__num">{String(number).padStart(2, '0')}</span> – {eyebrow}
+        </p>
+      )
+    }
     <h2>{heading}</h2>
     {body.split(/\n\s*\n/).map((para) => <p>{para.trim()}</p>)}
     {quote && <Quote {...quote} />}
@@ -66,6 +76,8 @@ const { id, heading, body, cutout, prop, background, quote, caption, takeaway, d
     background: #efe7d8;
   }
   .flat__text { position: relative; z-index: 1; padding-inline: 1rem clamp(1.5rem, 6vw, 6rem); max-width: 38rem; }
+  .flat__eyebrow { margin: 0 0 0.75rem; color: #b5832a; }
+  .flat__num { font-family: 'Melodrama', serif; font-weight: 700; }
   .flat h2 { margin: 0 0 1rem; font-size: clamp(2.25rem, 5vw, 4rem); }
   .flat__art { position: relative; align-self: stretch; }
   .flat__prop, .flat__cutout { position: absolute; max-width: none; }

@@ -37,6 +37,8 @@ const sections = defineCollection({
     // Each chapter is two panels: the full-screen scene, then a flat neutral panel with a cutout and text.
     flat: z
       .object({
+        // Gold line above the heading, after the chapter number: the place and year, e.g. "Kenner, Louisiana, mid-1990s".
+        eyebrow: z.string().optional(),
         heading: z.string(),
         body: z.string(),
         // Transparent cutout in front, and an optional prop behind it that moves slower as the page scrolls.
