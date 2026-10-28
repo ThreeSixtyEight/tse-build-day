@@ -330,19 +330,12 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
 </script>
 
 <style>
-  /* Cinematic scroll: every section fills the screen and locks into place. Sections taller than the screen still scroll through. */
-  :global(html) { scroll-snap-type: y mandatory; }
-  .hero, .section { scroll-snap-align: start; }
-  :global(.footer) { scroll-snap-align: end; }
+  /* Every section fills the screen; scrolling is free, with no snapping. */
   .section { display: flex; flex-direction: column; justify-content: center; min-height: 100svh; }
 
   /* Hero: the Figma frame scaled to cover the screen, cropped at the sides on tall screens. */
   .hero { position: relative; height: 300svh; background: #8bbdce; }
   .hero__pin { position: sticky; top: 0; height: 100svh; overflow: hidden; }
-  /* More snap points: the street scene, then the end of the pan. */
-  .hero::before, .hero::after { content: ''; position: absolute; height: 100svh; scroll-snap-align: start; }
-  .hero::before { top: 100svh; }
-  .hero::after { bottom: 0; }
   .hero__stage {
     position: absolute;
     left: 50%;

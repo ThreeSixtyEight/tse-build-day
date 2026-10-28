@@ -51,10 +51,8 @@ const { id, number, heading, body, cutout, prop, quote, caption, notes } = Astro
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
     align-items: center;
-    /* The page's full-screen panel rules are scoped to index.astro, so a flat panel sets its own:
-       a whole screen tall and a snap stop, or mandatory snapping scrolls straight past it. */
+    /* The page's full-screen panel rule is scoped to index.astro, so a flat panel sets its own height. */
     min-height: 100svh;
-    scroll-snap-align: start;
     padding-block: 3rem;
     overflow: hidden;
     color: var(--text);
