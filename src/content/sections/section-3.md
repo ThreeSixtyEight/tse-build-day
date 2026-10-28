@@ -11,11 +11,14 @@ interaction: "Collect the melodica, Jon's love riot instrument."
 caption: Juilliard and the subway, New York, 2004–2011
 quotes:
   - love-riot
-scenes:
-  # Intro: the audition. Placeholder photo until the scene art lands.
-  - photo: 1771868557440-ab1f8e4d6006
-    text: "Juilliard is all travertine and good posture. At his audition Jon Batiste can't read the sheet music in front of him. So he plays what he hears, and the music in his heart opens the door to Juilliard."
-  # Resolution: the subway. Same placeholder photo.
-  - photo: 1771868557440-ab1f8e4d6006
-    text: "But his free spirit keeps running into the school's rules. His teachers send him to a psychologist, as if being free were a condition to be cured. So Jon takes the music underground, where a melodica and a band can wake up a whole subway car."
+# One panel: the subway. The Juilliard audition scene was cut.
+fullScreen: false
+flat:
+  heading: The New York love riots
+  body: "But his free spirit keeps running into the school's rules. His teachers send him to a psychologist, as if being free were a condition to be cured. So Jon takes the music underground, where a melodica and a band can wake up a whole subway car."
+  quote: love-riot
+  caption: Juilliard and the subway, New York, 2004–2011
+  cutout:
+    src: /chapter-3/subway-melodica.webp
+    alt: Painting of a teenager in a striped T-shirt leaning on a green subway pillar, playing a melodica, his open case on the platform beside him
 ---
