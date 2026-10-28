@@ -1,0 +1,91 @@
+---
+// A large quote that sits underneath the section before it. Put both inside a `.lift` wrapper:
+// the quote is held on screen (sticky to the bottom) behind the first section, so scrolling lifts that
+// section up and off it, as if it had been resting on top. The quote sharpens into place as it's uncovered.
+// Text, source and date come from src/data/quotes.json: Jon's words only as sourced, dated quotes.
+interface Props {
+  text: string;
+  source: string;
+  date: string;
+  url?: string;
+}
+
+const { text, source, date, url } = Astro.props;
+---
+
+<section class="section quote-reveal" id="quote" data-section="quote">
+  <figure class="quote-reveal__figure" data-quote-reveal>
+    <blockquote><p>“{text}”</p></blockquote>
+    <figcaption>{url ? <a href={url}>{source}</a> : source}, {date}</figcaption>
+  </figure>
+</section>
+
+<style>
+  /* The wrapper bounds the sticky quote; the section before it stays on top and casts a shadow as it lifts.
+     That section's content sits on its bottom edge, so the quote shows right below it (the piano's keys). */
+  :global(.lift) { position: relative; }
+  :global(.lift > .section:first-child) {
+    position: relative;
+    z-index: 1;
+    justify-content: flex-end;
+    padding-bottom: 0;
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+  }
+
+  .quote-reveal {
+    position: sticky;
+    bottom: 0;
+    z-index: 0;
+    display: grid;
+    place-items: center;
+    height: 100svh;
+    padding: 4rem var(--gutter);
+    background: radial-gradient(ellipse 80% 70% at 50% 45%, #3b1f42, #140b17 75%);
+    color: #f6e2cf;
+    scroll-snap-align: start;
+  }
+  .quote-reveal__figure { width: min(100%, 14em); margin: 0; text-align: center; font-size: clamp(2.75rem, 8vw, 7.5rem); }
+  .quote-reveal blockquote { margin: 0; }
+  .quote-reveal blockquote p {
+    margin: 0;
+    font-family: 'Melodrama', Georgia, serif;
+    font-weight: 700;
+    font-size: 1em;
+    line-height: 0.98;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .quote-reveal figcaption {
+    margin-top: clamp(1.5rem, 3vw, 2.5rem);
+    font-family: 'Excon', system-ui, sans-serif;
+    font-size: clamp(0.875rem, 1.3vw, 1rem);
+    color: #e8a27a;
+  }
+  .quote-reveal figcaption a { color: inherit; }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // As the section above lifts off, the quote settles: it starts soft and slightly large, and lands sharp.
+  const quote = document.querySelector<HTMLElement>('[data-quote-reveal]');
+  const cover = quote?.closest('.lift')?.firstElementChild;
+  if (quote && cover) {
+    gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
+      gsap.fromTo(
+        quote,
+        { scale: 1.08, opacity: 0.2, filter: 'blur(6px)' },
+        {
+          scale: 1,
+          opacity: 1,
+          filter: 'blur(0px)',
+          ease: 'none',
+          scrollTrigger: { trigger: cover, start: 'bottom bottom', end: 'bottom 25%', scrub: true },
+        },
+      );
+    });
+  }
+</script>

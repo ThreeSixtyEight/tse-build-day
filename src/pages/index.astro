@@ -6,11 +6,14 @@ import ChapterFlat from '../components/ChapterFlat.astro';
 import Quote from '../components/Quote.astro';
 import Piano from '../components/Piano.astro';
 import TheaterSpotlight from '../components/TheaterSpotlight.astro';
+import QuoteReveal from '../components/QuoteReveal.astro';
 import { site } from '../site.config';
 
 const sections = (await getCollection('sections')).sort((a, b) => a.data.order - b.data.order);
 const credits = await getCollection('credits');
 const allQuotes = await getCollection('quotes');
+// The large quote the piano lifts off: any id from src/data/quotes.json.
+const pianoQuote = (await getEntry('quotes', 'alvin-batiste'))!.data;
 const rendered = await Promise.all(
   sections.map(async (s) => ({
     s,
@@ -131,10 +134,13 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
     }
   </div>
 
-  <!-- The piano: play along after the second line. -->
-  <section class="section" id="piano" data-section="piano">
-    <Piano />
-  </section>
+  <!-- The piano: play along after the second line. Scrolling lifts it off a quote underneath. -->
+  <div class="lift">
+    <section class="section" id="piano" data-section="piano">
+      <Piano />
+    </section>
+    <QuoteReveal {...pianoQuote} />
+  </div>
 
   <!-- The theater: a spotlight follows the pointer across Jon at the piano. -->
   <TheaterSpotlight />
