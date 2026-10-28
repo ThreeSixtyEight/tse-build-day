@@ -15,4 +15,13 @@ scenes:
   # Resolution. Placeholder photo, same as Listen.
   - photo: 1560110734-f03640ca8eda
     text: "His mother isn't a musician but she can hear a drum too many. So she moves Jon to the piano, the instrument Duke Ellington led his orchestra from. Mothers around here are usually right."
+flat:
+  heading: The kid who kept the beat
+  body: Before the piano there were drums. In a family full of drummers, he starts out keeping time, and from age eight he plays percussion with the Batiste Brothers.
+  cutout:
+    src: /chapter-1/jon-drums.webp
+    alt: A small boy in a green sweater playing a toy drum set
+  notes:
+    - "Photo: confirm the source and licence, and whether it's Jon, before the alt text or caption names him."
+    - "Cutout lost the head of the raised mallet and the small left tom; touch up in Photoshop if it shows."
 ---
