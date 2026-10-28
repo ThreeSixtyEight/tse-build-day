@@ -81,7 +81,8 @@ const { id, number, heading, body, cutout, prop, background, quote, caption, tak
     object-fit: cover;
     object-position: 36% center;
   }
-  .flat--painted .flat__text { z-index: 2; }
+  /* Extra room on the left so the copy clears the painting. */
+  .flat--painted .flat__text { z-index: 2; padding-left: 3rem; }
   .flat--painted::before {
     content: '';
     position: absolute;
@@ -97,6 +98,7 @@ const { id, number, heading, body, cutout, prop, background, quote, caption, tak
     .flat { grid-template-columns: 1fr; grid-template-rows: 45svh auto; align-content: start; }
     .flat__art { order: 0; }
     .flat__text { order: 1; padding-block: 1rem 3rem; }
+    .flat--painted .flat__text { padding-left: 1rem; }
     .flat__cutout { left: 50%; translate: -50% 0; height: 95%; }
     .flat__cutout--bleed { left: 0; translate: none; width: 100%; height: auto; bottom: 4%; }
     .flat__prop { left: -10%; width: 120%; bottom: 8%; }
