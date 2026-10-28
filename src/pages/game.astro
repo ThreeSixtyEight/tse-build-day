@@ -5,6 +5,7 @@
 // The world is low-poly shapes built in code (Three.js). With sound on, a synth drum keeps time and
 // each step plays the tuba line: an instrument the visitor plays, not recorded or AI music.
 import BaseLayout from '../layouts/BaseLayout.astro';
+import RollButton from '../components/RollButton.astro';
 ---
 
 <BaseLayout title="Game">
@@ -17,7 +18,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <span class="game__mult" data-game-mult>×1</span>
         <span><strong data-game-blocks>0.0</strong> blocks</span>
       </p>
-      <button type="button" class="game__leave" data-game-leave>Leave the line</button>
+      <RollButton label="Leave the line" data-game-leave />
     </div>
 
     <p class="game__toast" data-game-toast aria-live="polite"></p>
@@ -35,22 +36,22 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <h1 class="game__title">Here comes the second line.</h1>
       <p>Step off the curb and join it. Step on the beat, catch the handkerchiefs, mind the potholes.</p>
       <p class="game__keys">Space to step. Arrow keys to move. On a phone, tap to step and swipe to move.</p>
-      <button type="button" class="game__button" data-game-join>Join the line</button>
+      <RollButton label="Join the line" tone="dark" data-game-join />
     </div>
 
     <div class="game__panel" data-game-end hidden>
       <h2 class="game__title">You walked with the line.</h2>
       <p data-game-summary></p>
       <div class="game__actions">
-        <button type="button" class="game__button" data-game-again>Go again</button>
-        <a class="game__button game__button--quiet" href="/">Back to the site</a>
+        <RollButton label="Go again" tone="dark" data-game-again />
+        <RollButton label="Back to the site" tone="dark" href="/" />
       </div>
     </div>
 
     <div class="game__panel" data-game-flat hidden>
       <h1 class="game__title">The line can't start here.</h1>
       <p>This game needs a browser with 3D graphics turned on.</p>
-      <a class="game__button" href="/">Back to the site</a>
+      <RollButton label="Back to the site" tone="dark" href="/" />
     </div>
   </section>
 </BaseLayout>
@@ -88,17 +89,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     border-radius: 999px;
   }
   .game__mult { padding: 0 0.4rem; border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 4px; font-size: 0.75rem; }
-  .game__leave {
-    pointer-events: auto;
-    font: inherit;
-    font-size: 0.875rem;
-    padding: 0.45rem 1rem;
-    border: 0;
-    border-radius: 999px;
-    background: var(--bg);
-    color: var(--text);
-    cursor: pointer;
-  }
 
   .game__toast {
     position: absolute;
@@ -164,17 +154,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .game__panel p { margin: 0 0 1rem; color: var(--muted); }
   .game__keys { font-size: 0.875rem; }
   .game__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; }
-  .game__button {
-    display: inline-block;
-    font: inherit;
-    padding: 0.75rem 1.5rem;
-    border: 1px solid var(--text);
-    background: var(--text);
-    color: var(--bg);
-    text-decoration: none;
-    cursor: pointer;
-  }
-  .game__button--quiet { background: var(--bg); color: var(--text); }
   .game button:focus-visible, .game a:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
   .game [hidden] { display: none; }
 

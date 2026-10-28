@@ -1,0 +1,93 @@
+---
+// The site's button, from the Build Day Figma (frame 87:334): a white pill built from a stack of rounded bars,
+// so little star-shaped notches show at its sides where two bars meet. On hover the bars roll up two places
+// and the label rolls up and out while a copy rises in from below (0.78s, the design's easing).
+// A link when given href, otherwise a <button>. Other attributes (data-*, aria-*) pass through.
+// tone="dark" is a black pill with white text, for light backgrounds.
+interface Props {
+  label: string;
+  href?: string;
+  tone?: 'light' | 'dark';
+  class?: string;
+  [attr: string]: unknown;
+}
+
+const { label, href, tone = 'light', class: className, ...rest } = Astro.props;
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag class:list={['roll', `roll--${tone}`, className]} href={href} type={href ? undefined : 'button'} {...rest}>
+  <span class="roll__bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+  <span class="roll__text">
+    <span class="roll__label">{label}</span>
+    <span class="roll__label roll__label--next" aria-hidden="true">{label}</span>
+  </span>
+</Tag>
+
+<style>
+  .roll {
+    --roll-ease: cubic-bezier(0.475, -0.032, 0, 1.043);
+    --roll-time: 0.78s;
+    --roll-fill: #fff;
+    --roll-ink: #000;
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 156px;
+    height: 38px;
+    padding: 0 22px;
+    overflow: hidden;
+    border: 0;
+    background: none;
+    color: var(--roll-ink);
+    font: 400 18.868px / 1 'Excon', system-ui, sans-serif;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+  .roll--dark { --roll-fill: #000; --roll-ink: #fff; }
+
+  /* Four bars, 36px tall with 15px corners, starting 16px above the button as in the design. */
+  .roll__bars {
+    position: absolute;
+    z-index: -1;
+    inset: -16px 0 auto;
+    height: 144px;
+    transition: translate var(--roll-time) var(--roll-ease);
+  }
+  .roll__bars i {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 36px;
+    border-radius: 15px;
+    background: var(--roll-fill);
+  }
+  .roll__bars i:nth-child(2) { top: 36px; }
+  .roll__bars i:nth-child(3) { top: 72px; }
+  .roll__bars i:nth-child(4) { top: 108px; }
+
+  .roll__text { display: grid; }
+  .roll__label {
+    grid-area: 1 / 1;
+    transition: translate var(--roll-time) var(--roll-ease), opacity var(--roll-time) var(--roll-ease);
+  }
+  .roll__label--next { translate: 0 27px; opacity: 0; }
+
+  .roll:is(:hover, :focus-visible) .roll__bars { translate: 0 -72px; }
+  .roll:is(:hover, :focus-visible) .roll__label { translate: 0 -27px; opacity: 0; }
+  .roll:is(:hover, :focus-visible) .roll__label--next { translate: 0 0; opacity: 1; }
+
+  .roll:focus-visible { outline: 2px solid var(--roll-fill); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .roll__bars, .roll__label { transition: none; }
+    .roll:is(:hover, :focus-visible) .roll__bars,
+    .roll:is(:hover, :focus-visible) .roll__label { translate: none; }
+    .roll:is(:hover, :focus-visible) .roll__label { opacity: 1; }
+    .roll:is(:hover, :focus-visible) .roll__label--next { opacity: 0; }
+  }
+</style>

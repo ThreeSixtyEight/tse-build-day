@@ -1,12 +1,13 @@
 ---
 // Instruments: built from the Build Day Figma design (file nQtBzavYKQTFVBcSVrPy8T, frame 60:369).
-// Four instruments float around a centred title, question and ticket-shaped button on dark green.
+// Four instruments float around a centred title, question and button on dark green.
 // The melodica and tambourine carry the design's painted (impasto) effect: they are Figma's renders of those
 // layers, rotation included, cut out with the original images' alpha. The trumpet and sousaphone have no effect,
 // so they are the original images, rotated here as in the design.
 // Hovering or tapping an instrument plays a short synth sound for it when sound is on.
 // Positions and sizes are the design's, as percentages of its 1440 × 900 frame; the stage crops what runs off it.
 import BaseLayout from '../layouts/BaseLayout.astro';
+import RollButton from '../components/RollButton.astro';
 
 type Instrument = {
   id: string;
@@ -47,8 +48,7 @@ const fit = ({ box, inner }: Instrument) =>
 
 <BaseLayout title="Instruments">
   <Fragment slot="head">
-    <!-- Excon is the design's body face. Arnika (headline) isn't freely licensed; Gambetta stands in until Design supplies it. -->
-    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=excon@400&display=swap" />
+    <!-- Excon, the design's body face, loads site-wide. Arnika (headline) isn't freely licensed; Gambetta stands in until Design supplies it. -->
     <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=gambetta@400&display=swap" />
   </Fragment>
 
@@ -71,11 +71,7 @@ const fit = ({ box, inner }: Instrument) =>
           center instead of in the background?
         </p>
       </div>
-      <a class="ticket" href="/#line">
-        <img class="ticket__end" src="/instrument/ticket-left.svg" alt="" width="13.5" height="45" />
-        <span class="ticket__label">Start the story</span>
-        <img class="ticket__end ticket__end--right" src="/instrument/ticket-right.svg" alt="" width="13.5" height="45" />
-      </a>
+      <RollButton href="/#line" label="Start the story" />
     </div>
   </section>
 </BaseLayout>
@@ -154,29 +150,6 @@ const fit = ({ box, inner }: Instrument) =>
     line-height: normal;
     color: #eaeaea;
   }
-
-  /* Ticket-shaped button: notched ends from the design, top and bottom rules between. */
-  .ticket {
-    display: flex;
-    align-items: stretch;
-    height: 45px;
-    color: #eaeaea;
-    text-decoration: none;
-    font-family: 'Excon', system-ui, sans-serif;
-    font-size: 16px;
-  }
-  .ticket__end { display: block; width: 13.5px; height: 45px; }
-  .ticket__end--right { transform: scaleX(-1); }
-  .ticket__label {
-    display: flex;
-    align-items: center;
-    padding: 0 19px;
-    border-block: 1px solid #fff;
-    white-space: nowrap;
-    transition: background 200ms ease;
-  }
-  .ticket:hover .ticket__label { background: rgba(255, 255, 255, 0.08); }
-  .ticket:focus-visible { outline: 2px solid #eaeaea; outline-offset: 4px; }
 
   /* Narrow screens: instruments grow relative to the width so they still read, and stay clear of the text. */
   @media (max-width: 40em) {
