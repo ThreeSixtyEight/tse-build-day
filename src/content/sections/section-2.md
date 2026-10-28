@@ -1,5 +1,5 @@
 ---
-title: Snug Harbor gig
+title: On the grown folks’ stage
 order: 2
 story: "The night at Snug Harbor. At jazz camp, clarinetist Alvin Batiste asks him to play with his band, the Jazztronauts. It's his first professional gig outside the family band and his first time on the Snug Harbor stage: he's 15, nervous, and sharing the stage with Alvin. He keeps playing with them until he leaves for Juilliard, and other musicians start to take notice."
 purpose: "Limerence, iconoclastic. The night at Snug Harbor: his first professional gig outside the family band."
@@ -29,4 +29,6 @@ flat:
     - "Collectible: clarinet or handkerchief, team to decide."
 ---
 
-On Frenchmen Street there's a band behind every open door. Playing at Snug Harbor is clarinetist Alvin Batiste, with a new kid on piano: 15-year-old Jon Batiste.
+On Frenchmen Street there’s a band behind every open door. Playing at Snug Harbor is clarinetist Alvin Batiste, with a new kid on piano: 15-year-old Jon Batiste.
+
+It's Jon's first real gig outside the family and he's nervous. He'll tell you so himself. He plays anyway, and Alvin keeps calling him back...
