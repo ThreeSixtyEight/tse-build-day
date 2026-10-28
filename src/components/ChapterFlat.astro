@@ -11,7 +11,7 @@ interface Props {
   id: string;
   // Gold line above the heading: the place and year.
   eyebrow?: string;
-  heading: string;
+  heading?: string;
   body: string;
   cutout: { src: string; alt: string; bleed?: boolean; full?: boolean };
   prop?: { src: string; alt: string };
@@ -51,7 +51,7 @@ const { id, eyebrow, heading, body, cutout, prop, background, quote, caption, ta
         </p>
       )
     }
-    <h2>{heading}</h2>
+    {heading && <h2>{heading}</h2>}
     {body.split(/\n\s*\n/).map((para) => <p>{para.trim()}</p>)}
     {quote && <Quote {...quote} />}
     {caption && <p class="caption">{caption}</p>}
