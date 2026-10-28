@@ -2,7 +2,8 @@
 // A chapter's second panel: flat neutral background, a cutout figure on the left with text beside it and a
 // prop behind it. As the page scrolls the prop drifts slower than the cutout, so the two separate in depth.
 // A bleed cutout instead rolls in from the left as the panel scrolls into view, and comes to rest flush with the
-// left edge of the screen; it never moves right of it, so no gap opens. Reduced motion: no drift or roll.
+// left edge of the screen; it never moves right of it, so no gap opens. A full-width cutout rises into place
+// faster than the page while the text drifts slower. Reduced motion: no drift, roll or rise.
 import Quote from './Quote.astro';
 import Takeaway from './Takeaway.astro';
 
@@ -35,7 +36,7 @@ const { id, number, eyebrow, heading, body, cutout, prop, background, quote, cap
     {!background && prop && <img class="flat__prop" src={prop.src} alt={prop.alt} data-drift="0.15" />}
     {
       background ? null : cutout.full ? (
-        <img class="flat__cutout flat__cutout--full" src={cutout.src} alt={cutout.alt} />
+        <img class="flat__cutout flat__cutout--full" src={cutout.src} alt={cutout.alt} data-rise="0.35" />
       ) : cutout.bleed ? (
         <img class="flat__cutout flat__cutout--bleed" src={cutout.src} alt={cutout.alt} data-roll />
       ) : (
@@ -43,7 +44,7 @@ const { id, number, eyebrow, heading, body, cutout, prop, background, quote, cap
       )
     }
   </div>
-  <div class="flat__text">
+  <div class="flat__text" data-drift={!background && cutout.full ? 0.12 : undefined}>
     {
       eyebrow && (
         <p class="flat__eyebrow">
@@ -146,14 +147,18 @@ const { id, number, eyebrow, heading, body, cutout, prop, background, quote, cap
   gsap.registerPlugin(ScrollTrigger);
 
   // Depth as the page scrolls: each layer shifts against the panel's own movement by its data-drift share.
+  // A data-rise layer (the full-width cutout) does the opposite on the way in: it starts lower, cropped by the
+  // panel's bottom edge, rises faster than the page and settles on that edge once the panel fills the screen,
+  // then scrolls away with the panel, so no gap ever opens under it.
   gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
-    const layers = [...document.querySelectorAll<HTMLElement>('.flat [data-drift]')];
+    const layers = [...document.querySelectorAll<HTMLElement>('.flat [data-drift], .flat [data-rise]')];
     const tick = () => {
       for (const el of layers) {
         const panel = el.closest<HTMLElement>('.flat')!;
         const offset = panel.getBoundingClientRect().top;
         if (Math.abs(offset) > innerHeight * 1.5) continue;
-        el.style.transform = `translateY(${-offset * Number(el.dataset.drift)}px)`;
+        const y = el.dataset.rise ? Math.max(0, offset) * Number(el.dataset.rise) : -offset * Number(el.dataset.drift);
+        el.style.transform = `translateY(${y}px)`;
       }
     };
     gsap.ticker.add(tick);

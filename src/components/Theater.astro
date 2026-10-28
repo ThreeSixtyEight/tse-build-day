@@ -1,0 +1,32 @@
+---
+// The theater: the painted stage (public/theater/stage.jpg), filling the screen, cropped at the edges to fit.
+---
+
+<section class="section theater" id="theater" data-section="theater">
+  <img
+    class="theater__img"
+    src="/theater/stage.jpg"
+    width="1992"
+    height="1121"
+    loading="lazy"
+    alt="Painting of a pianist in a green striped suit at a grand piano in a pool of light, facing rows of empty red theater seats"
+  />
+</section>
+
+<style>
+  .theater {
+    position: relative;
+    min-height: 100svh;
+    padding: 0;
+    overflow: hidden;
+    background: #000;
+  }
+  .theater__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+  }
+</style>

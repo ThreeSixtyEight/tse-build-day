@@ -5,7 +5,7 @@ import ChapterFlat from '../components/ChapterFlat.astro';
 import Takeaway from '../components/Takeaway.astro';
 import Quote from '../components/Quote.astro';
 import Piano from '../components/Piano.astro';
-import TheaterSpotlight from '../components/TheaterSpotlight.astro';
+import Theater from '../components/Theater.astro';
 import MusicStaff from '../components/MusicStaff.astro';
 import QuoteReveal from '../components/QuoteReveal.astro';
 import { site } from '../site.config';
@@ -139,10 +139,10 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
             <QuoteReveal {...pianoQuote} />
           </div>
         )}
-        {/* The theater follows chapter 2, after he boards the bus: a spotlight follows the pointer across Jon at the piano. */}
+        {/* The theater follows chapter 2, after he boards the bus: the painted stage, Jon at the piano. */}
         {s.data.order === 2 && (
           <>
-            <TheaterSpotlight />
+            <Theater />
             {/* Below the theater, it fades into a dark band with a playable music staff. */}
             <MusicStaff />
           </>
