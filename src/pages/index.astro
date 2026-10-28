@@ -67,7 +67,18 @@ const rendered = await Promise.all(
   <section class="section" id="listen" data-section="listen">
     <div class="wrap">
       <h2>Listen</h2>
-      <p>Official music embeds go here.</p>
+      <!-- Official Spotify artist embed: only Jon Batiste's own catalogue plays here. -->
+      <iframe
+        class="spotify"
+        title="Jon Batiste on Spotify"
+        src="https://open.spotify.com/embed/artist/0eRbECAGCLLiTyVXPBRexU?utm_source=generator"
+        width="100%"
+        height="352"
+        frameborder="0"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"
+        data-embed="spotify"
+      ></iframe>
       <Notes
         items={[
           'Official Spotify, Apple Music or YouTube embeds only. No AI voice or AI music.',
@@ -156,6 +167,7 @@ const rendered = await Promise.all(
   .section { padding-block: 3rem; border-bottom: 1px solid var(--line); }
   .section h2 { margin-top: 0; }
   .caption { color: var(--muted); font-size: 0.875rem; }
+  .spotify { border: 0; border-radius: 12px; max-width: 40rem; }
   .entry { border-top: 1px solid var(--line); margin-top: 1.5rem; padding-top: 1rem; }
   .entry h3, .section h3 { font-size: 1.125rem; margin: 1.5rem 0 0.5rem; }
 </style>
