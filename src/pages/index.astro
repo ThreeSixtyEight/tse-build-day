@@ -3,6 +3,7 @@ import { getCollection, getEntries, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Notes from '../components/Notes.astro';
 import Quote from '../components/Quote.astro';
+import FallIn from '../components/FallIn.astro';
 import { site } from '../site.config';
 
 const sections = (await getCollection('sections')).sort((a, b) => a.data.order - b.data.order);
@@ -37,6 +38,9 @@ const rendered = await Promise.all(
       />
     </div>
   </section>
+
+  <!-- Prototype: the camera drops from above the street into the back of the line. -->
+  <FallIn />
 
   <!-- The second line: one section per file in src/content/sections. -->
   <div id="line">

@@ -1,0 +1,249 @@
+---
+// Fall In: scrolling drops the camera from above the street into the back of the second line.
+// The shot lives in src/theatre/fall-in.state.json. To edit it, run `npm run dev`, open /?studio,
+// keyframe in the Theatre.js editor, export the project and replace that file.
+// Reduced motion shows four stills of the same shot; without WebGL the captions read as plain text.
+const items = [
+  { id: 'handkerchief', label: 'Handkerchief' },
+  { id: 'umbrella', label: 'Umbrella' },
+  { id: 'fan', label: 'Fan' },
+  { id: 'tambourine', label: 'Tambourine' },
+];
+// Draft lines: Strategists replace these with final copy.
+const beats = [
+  { from: 0, to: 0.32, text: 'A street in New Orleans' },
+  { from: 0.32, to: 0.7, text: 'The line comes up the block' },
+  { from: 0.7, to: 1.01, text: 'Fall in at the back' },
+];
+---
+
+<section class="fallin" id="fall-in" data-section="fall-in" data-fallin>
+  <div class="fallin__stage">
+    <canvas class="fallin__canvas" aria-hidden="true"></canvas>
+    <p class="visually-hidden">
+      An illustrated New Orleans street seen from above. As you scroll, the view drops into a second line moving up
+      the block, with umbrellas, handkerchiefs and brass, and settles behind your own figure at the back of the line.
+    </p>
+    <ol class="fallin__beats" role="list">
+      {beats.map((b) => <li class="fallin__beat" data-from={b.from} data-to={b.to}>{b.text}</li>)}
+    </ol>
+    <fieldset class="fallin__items" data-items>
+      <legend>What you carry</legend>
+      <div class="fallin__item-row">
+        {items.map((it) => <button type="button" class="fallin__item" data-item={it.id} aria-pressed="false">{it.label}</button>)}
+      </div>
+    </fieldset>
+  </div>
+</section>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import type { Item } from '../scripts/fall-in/cards';
+  import type { FallIn } from '../scripts/fall-in/scene';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const root = document.querySelector<HTMLElement>('[data-fallin]');
+  const canvas = root?.querySelector<HTMLCanvasElement>('canvas');
+  const beats = [...(root?.querySelectorAll<HTMLElement>('.fallin__beat') ?? [])];
+  const picker = root?.querySelector<HTMLElement>('[data-items]');
+  const buttons = [...(picker?.querySelectorAll<HTMLButtonElement>('[data-item]') ?? [])];
+
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hasWebGL = (() => {
+    try {
+      return !!document.createElement('canvas').getContext('webgl2');
+    } catch {
+      return false;
+    }
+  })();
+
+  const savedItem = (): Item => {
+    try {
+      return (sessionStorage.getItem('item') as Item) || 'handkerchief';
+    } catch {
+      return 'handkerchief';
+    }
+  };
+
+  if (root && canvas && picker) {
+    let item = savedItem();
+    const markItem = () => buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.item === item)));
+    markItem();
+
+    if (!hasWebGL) {
+      root.classList.add('fallin--static');
+    } else {
+      // Load Three.js and Theatre.js only once the section is close.
+      const near = new IntersectionObserver(
+        async ([entry]) => {
+          if (!entry.isIntersecting) return;
+          near.disconnect();
+          let shot: FallIn;
+          try {
+            const { createFallIn } = await import('../scripts/fall-in/scene');
+            const studio = import.meta.env.DEV && new URLSearchParams(location.search).has('studio');
+            shot = await createFallIn({ canvas, still, item, studio });
+          } catch (err) {
+            // A failed load or WebGL context falls back to the static version.
+            console.error('Fall In could not start', err);
+            root.classList.add('fallin--static');
+            return;
+          }
+          root.classList.add('fallin--ready');
+
+          const show = (p: number) => {
+            beats.forEach((b) => b.classList.toggle('is-active', p >= +b.dataset.from! && p < +b.dataset.to!));
+            picker.classList.toggle('is-active', p > 0.86);
+          };
+
+          if (still) {
+            // Reduced motion: four held frames of the same shot, no movement between them.
+            ScrollTrigger.create({
+              trigger: root,
+              start: 'top top',
+              end: 'bottom bottom',
+              onUpdate: (self) => {
+                const frame = Math.min(3, Math.floor(self.progress * 4)) / 3;
+                shot.seek(frame);
+                show(self.progress);
+              },
+            });
+            shot.seek(0);
+          } else {
+            const proxy = { p: 0 };
+            gsap.to(proxy, {
+              p: 1,
+              ease: 'none',
+              scrollTrigger: { trigger: root, start: 'top top', end: 'bottom bottom', scrub: 0.8 },
+              onUpdate: () => {
+                shot.seek(proxy.p);
+                show(proxy.p);
+              },
+            });
+          }
+          show(0);
+
+          new IntersectionObserver(([e]) => shot.setActive(e.isIntersecting)).observe(root);
+
+          buttons.forEach((b) =>
+            b.addEventListener('click', () => {
+              item = b.dataset.item as Item;
+              try {
+                sessionStorage.setItem('item', item);
+              } catch {}
+              markItem();
+              shot.setItem(item);
+            }),
+          );
+        },
+        { rootMargin: '100% 0px' },
+      );
+      near.observe(root);
+    }
+  }
+</script>
+
+<style>
+  .fallin {
+    --ink: #1d1d1b;
+    --sky: #9fd3ef;
+    position: relative;
+    height: 400vh;
+    background: var(--sky);
+  }
+  .fallin__stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    overflow: hidden;
+  }
+  .fallin__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+  .fallin--ready .fallin__canvas { opacity: 1; }
+
+  .fallin__beats {
+    position: absolute;
+    left: var(--gutter);
+    right: var(--gutter);
+    top: clamp(1.5rem, 8vh, 4rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .fallin__beat {
+    position: absolute;
+    inset: 0 auto auto 0;
+    max-width: 18ch;
+    font-size: clamp(2rem, 6vw, 4rem);
+    font-weight: 800;
+    line-height: 1.05;
+    color: #fff;
+    -webkit-text-stroke: 1.5px var(--ink);
+    text-shadow: 3px 3px 0 var(--ink);
+    opacity: 0;
+    transform: translateY(0.4em);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .fallin__beat.is-active { opacity: 1; transform: none; }
+
+  .fallin__items {
+    position: absolute;
+    left: 50%;
+    bottom: clamp(1rem, 5vh, 2.5rem);
+    transform: translate(-50%, 1rem);
+    width: min(100% - 2 * var(--gutter), 34rem);
+    margin: 0;
+    padding: 0.75rem 1rem 1rem;
+    border: 3px solid var(--ink);
+    background: #fffdf5;
+    box-shadow: 4px 4px 0 var(--ink);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.4s ease, transform 0.4s ease, visibility 0s linear 0.4s;
+  }
+  .fallin__items.is-active { opacity: 1; visibility: visible; transform: translate(-50%, 0); transition-delay: 0s; }
+  .fallin__items legend { font-weight: 700; padding: 0 0.25rem; background: #fffdf5; }
+  .fallin__item-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .fallin__item {
+    flex: 1 1 6rem;
+    font: inherit;
+    padding: 0.5rem 0.75rem;
+    border: 2px solid var(--ink);
+    background: #fff;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .fallin__item[aria-pressed='true'] { background: #f4c430; font-weight: 700; }
+  .fallin__item:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+
+  /* No WebGL: the beats and the picker read as a short static block. */
+  .fallin--static { height: auto; padding-block: 4rem; }
+  .fallin--static .fallin__stage { position: static; height: auto; }
+  .fallin--static .fallin__beats,
+  .fallin--static .fallin__beat,
+  .fallin--static .fallin__items { position: static; opacity: 1; visibility: visible; transform: none; }
+  .fallin--static .fallin__beats { margin-bottom: 2rem; display: grid; gap: 1rem; }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fallin__canvas, .fallin__beat, .fallin__items { transition: none; }
+  }
+</style>
