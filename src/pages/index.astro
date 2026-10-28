@@ -1,7 +1,8 @@
 ---
-import { getCollection, getEntries, render } from 'astro:content';
+import { getCollection, getEntries, getEntry, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Notes from '../components/Notes.astro';
+import ChapterFlat from '../components/ChapterFlat.astro';
 import Quote from '../components/Quote.astro';
 import SectionStaves from '../components/SectionStaves.astro';
 import HorizontalLine from '../components/HorizontalLine.astro';
@@ -17,6 +18,7 @@ const rendered = await Promise.all(
     s,
     Content: (await render(s)).Content,
     quotes: await getEntries(s.data.quotes),
+    flatQuote: s.data.flat?.quote ? (await getEntry(s.data.flat.quote))?.data : undefined,
   })),
 );
 
@@ -25,7 +27,6 @@ const rendered = await Promise.all(
 const photos: Record<string, string> = {
   entry: '1525994886773-080587e161c2',
   'section-1': '1635352934507-cd4ad73275c6',
-  'section-2': '1640583430339-f83d93e77413',
   'section-3': '1771868557440-ab1f8e4d6006',
   // Reused until final photos land: the transcript street for the homecoming, the entry street for the send-off.
   'section-4': '1775227970630-9c03b7406132',
@@ -35,8 +36,10 @@ const photos: Record<string, string> = {
   transcript: '1775227970630-9c03b7406132',
   credits: '1767468200550-e6945e9b7f5f',
 };
-const bg = (id: string) =>
-  photos[id] && `--photo: url(https://images.unsplash.com/photo-${photos[id]}?w=2000&q=70&auto=format&fit=crop)`;
+const bg = (id: string, own?: string) =>
+  own
+    ? `--photo: url(${own})`
+    : photos[id] && `--photo: url(https://images.unsplash.com/photo-${photos[id]}?w=2000&q=70&auto=format&fit=crop)`;
 ---
 
 <BaseLayout>
@@ -66,8 +69,9 @@ const bg = (id: string) =>
   <!-- The second line: one section per file in src/content/sections. -->
   <div id="line">
     {
-      rendered.map(({ s, Content, quotes }) => (
-        <section class="section" id={s.id} data-section={s.id} style={bg(s.id)}>
+      rendered.map(({ s, Content, quotes, flatQuote }) => (
+        <>
+        <section class="section" id={s.id} data-section={s.id} style={bg(s.id, s.data.background)}>
           <div class="wrap">
             <h2>{s.data.title}</h2>
             <Content />
@@ -85,6 +89,10 @@ const bg = (id: string) =>
             />
           </div>
         </section>
+        {s.data.flat && (
+          <ChapterFlat id={`${s.id}-flat`} number={s.data.order} {...s.data.flat} quote={flatQuote} />
+        )}
+        </>
       ))
     }
   </div>

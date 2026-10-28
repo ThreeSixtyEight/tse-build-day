@@ -21,6 +21,21 @@ const sections = defineCollection({
     // Words spoken or sung in this section, shown on the transcript page.
     transcript: z.string().optional(),
     quotes: z.array(reference('quotes')).default([]),
+    // Full-screen scene behind the section's first panel. Without one, the placeholder photo in index.astro shows.
+    background: z.string().optional(),
+    // Each chapter is two panels: the full-screen scene, then a flat neutral panel with a cutout and text.
+    flat: z
+      .object({
+        heading: z.string(),
+        body: z.string(),
+        // Transparent cutout in front, and an optional prop behind it that moves slower as the line slides.
+        cutout: z.object({ src: z.string(), alt: z.string() }),
+        prop: z.object({ src: z.string(), alt: z.string() }).optional(),
+        quote: reference('quotes').optional(),
+        caption: z.string().optional(),
+        notes: z.array(z.string()).default([]),
+      })
+      .optional(),
   }),
 });
 
