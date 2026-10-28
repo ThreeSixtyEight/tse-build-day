@@ -39,7 +39,8 @@ const sections = defineCollection({
       .object({
         // Gold line above the heading, after the chapter number: the place and year, e.g. "Kenner, Louisiana, mid-1990s".
         eyebrow: z.string().optional(),
-        heading: z.string(),
+        // Optional: without one, the panel reads as a continuation of the scene before it.
+        heading: z.string().optional(),
         body: z.string(),
         // Transparent cutout in front, and an optional prop behind it that moves slower as the page scrolls.
         // bleed: a wide cutout cropped at its left end, so it runs off the left edge of the screen.

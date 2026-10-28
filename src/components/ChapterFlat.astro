@@ -13,7 +13,7 @@ interface Props {
   number: number;
   // Gold line above the heading: the chapter number, a dash, then the place and year.
   eyebrow?: string;
-  heading: string;
+  heading?: string;
   body: string;
   cutout: { src: string; alt: string; bleed?: boolean; full?: boolean };
   prop?: { src: string; alt: string };
@@ -47,7 +47,7 @@ const { id, number, eyebrow, heading, body, cutout, prop, background, quote, cap
   </div>
   <div class="flat__text align-left" data-drift={!background && cutout.full ? 0.12 : undefined}>
     {eyebrow && <Eyebrow number={number} text={eyebrow} />}
-    <h2 class="heading heading--xl">{heading}</h2>
+    {heading && <h2 class="heading heading--xl">{heading}</h2>}
     <div class="body">{body.split(/\n\s*\n/).map((para) => <p>{para.trim()}</p>)}</div>
     {quote && <Quote {...quote} />}
     {caption && <p class="caption">{caption}</p>}
