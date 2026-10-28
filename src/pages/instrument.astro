@@ -1,0 +1,659 @@
+---
+// A tiny planet of second line instruments, after ggggarden.com. Drag to turn it; click an instrument for its card.
+// The instruments are simple 3D shapes built in code (Three.js); each plays a short synth sound when sound is on.
+// Without WebGL the menu buttons still open every card.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../site.config';
+
+// What's on the planet, its draft line and where it leads. Copy is draft until Strategy checks it.
+const instruments = [
+  { id: 'parasol', name: 'Parasol', line: 'Raised high when the line starts to move.', label: 'Join the line', href: '/#line' },
+  { id: 'tuba', name: 'Tuba', line: 'The low end every brass band leans on.', label: 'End of the line', href: '/#end' },
+  { id: 'drum', name: 'Bass drum', line: 'The beat the whole street follows.', label: 'Read the story', href: '/#transcript' },
+  { id: 'piano', name: 'Piano', line: 'Hear Jon at the keys.', label: 'Listen', href: '/#listen' },
+  { id: 'sign', name: 'Street sign', line: 'Music, tour dates and the store live on his official site.', label: 'Store and tour', href: site.officialSite },
+];
+---
+
+<BaseLayout title="Instruments">
+  <section class="planet" data-section="instrument" data-planet data-instruments={JSON.stringify(instruments)}>
+    <canvas class="planet__canvas" aria-hidden="true"></canvas>
+    <p class="planet__hint">Drag to turn the planet. Pick an instrument.</p>
+    <div class="planet__label" data-planet-label hidden></div>
+
+    <div class="planet__card" data-planet-card role="dialog" aria-labelledby="planet-card-title" hidden>
+      <button type="button" class="planet__close" data-planet-close aria-label="Close">×</button>
+      <h1 id="planet-card-title" class="planet__title" data-card-title></h1>
+      <p class="planet__line" data-card-line></p>
+      <a class="planet__link" data-card-link></a>
+    </div>
+
+    <nav class="planet__menu" aria-label="Instruments">
+      <ul>
+        {instruments.map((i) => <li><button type="button" data-instrument={i.id}>{i.name}</button></li>)}
+      </ul>
+    </nav>
+  </section>
+</BaseLayout>
+
+<style>
+  .planet {
+    position: relative;
+    height: calc(100svh - 4rem);
+    min-height: 28rem;
+    overflow: hidden;
+    background: linear-gradient(180deg, #b8c7d9 0%, #e4eaef 55%, #f3f2ee 100%);
+  }
+  .planet__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .planet--flat .planet__canvas, .planet--flat .planet__hint { display: none; }
+
+  .planet__hint {
+    position: absolute;
+    top: 1.25rem;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 0.25rem 0.75rem;
+    background: rgba(255, 255, 255, 0.7);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .planet__label {
+    position: absolute;
+    padding: 0.25rem 0.6rem;
+    background: var(--bg);
+    font-size: 0.875rem;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .planet__card {
+    position: absolute;
+    left: 50%;
+    top: 4rem;
+    transform: translateX(-50%);
+    width: min(22rem, calc(100% - 2 * var(--gutter)));
+    padding: 1.5rem 1.25rem 1.25rem;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    text-align: center;
+  }
+  /* On wide screens the card sits top left, clear of the instrument it describes. */
+  @media (min-width: 50em) {
+    .planet__card { left: var(--gutter); top: 4.5rem; transform: none; text-align: left; }
+  }
+  /* On narrow screens the menu sits above the corner sound button instead of beside it. */
+  @media (max-width: 40em) {
+    .planet__menu { padding-inline: var(--gutter); bottom: calc(var(--gutter) + 3.75rem); }
+    .planet__hint { white-space: normal; width: max-content; max-width: calc(100% - 2 * var(--gutter)); text-align: center; }
+  }
+  .planet__title { font-size: 1.25rem; margin: 0 0 0.5rem; }
+  .planet__line { color: var(--muted); margin: 0 0 1rem; }
+  .planet__link {
+    display: inline-block;
+    padding: 0.6rem 1.25rem;
+    background: var(--text);
+    color: var(--bg);
+    text-decoration: none;
+  }
+  .planet__close {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 1.25rem;
+    cursor: pointer;
+  }
+
+  .planet__menu {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 1.5rem;
+    padding-inline: calc(var(--gutter) + 3.5rem);
+  }
+  .planet__menu ul { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; margin: 0; padding: 0; list-style: none; }
+  .planet__menu button {
+    font: inherit;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    border: 0;
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+  }
+  .planet__menu button[aria-pressed='true'] { background: var(--text); color: var(--bg); }
+  .planet button:focus-visible, .planet__link:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+</style>
+
+<script>
+  import * as THREE from 'three';
+  import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+  import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+  import * as Tone from 'tone';
+  import { gsap } from 'gsap';
+  import { isSoundOn } from '../scripts/sound';
+
+  type Instrument = { id: string; name: string; line: string; label: string; href: string };
+
+  const PLANET_RADIUS = 10;
+  // How far from the top of the planet the instruments stand, in radians.
+  const RING = 0.3;
+  // Instrument size on the planet.
+  const SCALE = 0.8;
+
+  const root = document.querySelector<HTMLElement>('[data-planet]')!;
+  const instruments: Instrument[] = JSON.parse(root.dataset.instruments!);
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- Card and menu (work with or without 3D) ----------
+
+  const card = root.querySelector<HTMLElement>('[data-planet-card]')!;
+  const cardTitle = card.querySelector<HTMLElement>('[data-card-title]')!;
+  const cardLine = card.querySelector<HTMLElement>('[data-card-line]')!;
+  const cardLink = card.querySelector<HTMLAnchorElement>('[data-card-link]')!;
+  const menuButtons = [...root.querySelectorAll<HTMLButtonElement>('[data-instrument]')];
+  let lastTrigger: HTMLElement | null = null;
+  let turnTo: (id: string) => void = () => {};
+
+  function openCard(id: string, trigger?: HTMLElement) {
+    const instrument = instruments.find((i) => i.id === id);
+    if (!instrument) return;
+    cardTitle.textContent = instrument.name;
+    cardLine.textContent = instrument.line;
+    cardLink.textContent = instrument.label;
+    cardLink.href = instrument.href;
+    const external = instrument.href.startsWith('http');
+    cardLink.target = external ? '_blank' : '';
+    cardLink.rel = external ? 'noopener' : '';
+    card.hidden = false;
+    menuButtons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.instrument === id)));
+    lastTrigger = trigger ?? null;
+    if (trigger) cardLink.focus({ preventScroll: true });
+    turnTo(id);
+    playSound(id);
+  }
+
+  function closeCard() {
+    card.hidden = true;
+    menuButtons.forEach((b) => b.setAttribute('aria-pressed', 'false'));
+    lastTrigger?.focus({ preventScroll: true });
+    lastTrigger = null;
+  }
+
+  menuButtons.forEach((button) => button.addEventListener('click', () => openCard(button.dataset.instrument!, button)));
+  card.querySelector('[data-planet-close]')!.addEventListener('click', closeCard);
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape' && !card.hidden) closeCard();
+  });
+
+  // ---------- Sound: one short synth phrase per instrument, only while sound is on ----------
+
+  let synths: Record<string, (time: number) => void> | undefined;
+
+  function makeSynths() {
+    const out = new Tone.Volume(-8).toDestination();
+    const shaker = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.003, decay: 0.09, sustain: 0 } }).connect(out);
+    const tuba = new Tone.MonoSynth({
+      oscillator: { type: 'sawtooth' },
+      filter: { type: 'lowpass', Q: 1 },
+      filterEnvelope: { attack: 0.02, decay: 0.3, sustain: 0.4, baseFrequency: 110, octaves: 2.2 },
+      envelope: { attack: 0.03, decay: 0.2, sustain: 0.6, release: 0.3 },
+    }).connect(out);
+    const drum = new Tone.MembraneSynth({ pitchDecay: 0.04, octaves: 6 }).connect(out);
+    const piano = new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: 'triangle' },
+      envelope: { attack: 0.005, decay: 0.4, sustain: 0.15, release: 1.2 },
+    }).connect(out);
+    const bell = new Tone.MetalSynth({ envelope: { attack: 0.001, decay: 0.5, release: 0.2 }, harmonicity: 5.1, resonance: 3200, volume: -16 }).connect(out);
+
+    return {
+      parasol: (t: number) => [0, 0.12, 0.24, 0.42].forEach((d) => shaker.triggerAttackRelease('16n', t + d)),
+      tuba: (t: number) => {
+        tuba.triggerAttackRelease('F1', '8n', t);
+        tuba.triggerAttackRelease('A1', '8n', t + 0.22);
+        tuba.triggerAttackRelease('C2', '4n', t + 0.44);
+      },
+      drum: (t: number) => {
+        drum.triggerAttackRelease('C1', '8n', t);
+        drum.triggerAttackRelease('C1', '8n', t + 0.36);
+      },
+      piano: (t: number) => piano.triggerAttackRelease(['C4', 'E4', 'G4', 'A#4'], '2n', t),
+      sign: (t: number) => bell.triggerAttackRelease('C5', '16n', t),
+    };
+  }
+
+  function playSound(id: string) {
+    if (!isSoundOn()) return;
+    Tone.start();
+    synths ??= makeSynths();
+    synths[id]?.(Tone.now() + 0.02);
+  }
+
+  document.addEventListener('sound:change', () => {
+    Tone.getDestination().mute = !isSoundOn();
+  });
+
+  // ---------- The planet ----------
+
+  const canvas = root.querySelector<HTMLCanvasElement>('canvas')!;
+  let renderer: THREE.WebGLRenderer | undefined;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  } catch {
+    root.classList.add('planet--flat');
+  }
+
+  if (renderer) initPlanet(renderer);
+
+  function initPlanet(renderer: THREE.WebGLRenderer) {
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+
+    const scene = new THREE.Scene();
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environmentIntensity = 0.6;
+
+    const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 200);
+    const target = new THREE.Vector3(0, PLANET_RADIUS + 0.4, 0);
+
+    // Light
+    scene.add(new THREE.HemisphereLight('#e4edf6', '#3f6232', 0.8));
+    const sun = new THREE.DirectionalLight('#fff3df', 2);
+    sun.position.set(8, 30, 14);
+    sun.target.position.copy(target);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    sun.shadow.camera.left = sun.shadow.camera.bottom = -9;
+    sun.shadow.camera.right = sun.shadow.camera.top = 9;
+    sun.shadow.camera.far = 60;
+    sun.shadow.bias = -0.0005;
+    sun.shadow.radius = 4;
+    scene.add(sun, sun.target);
+
+    // Ground: a grassy sphere with a little colour and height variation.
+    const groundGeo = new THREE.SphereGeometry(PLANET_RADIUS, 160, 96);
+    // Turn the sphere's pole away from the top, where the instruments stand.
+    groundGeo.rotateX(Math.PI / 2);
+    const pos = groundGeo.attributes.position;
+    const colors = new Float32Array(pos.count * 3);
+    const light = new THREE.Color('#5f9a43');
+    const dark = new THREE.Color('#2c5a24');
+    const c = new THREE.Color();
+    const v = new THREE.Vector3();
+    for (let i = 0; i < pos.count; i++) {
+      v.fromBufferAttribute(pos, i);
+      const n = Math.sin(v.x * 1.7) * Math.cos(v.z * 1.3) * 0.5 + Math.sin(v.y * 3.1 + v.x) * 0.25 + Math.random() * 0.35;
+      c.copy(dark).lerp(light, THREE.MathUtils.clamp(n * 0.6 + 0.4, 0, 1));
+      c.toArray(colors, i * 3);
+      v.multiplyScalar(1 + (Math.random() - 0.5) * 0.004);
+      pos.setXYZ(i, v.x, v.y, v.z);
+    }
+    groundGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    groundGeo.computeVertexNormals();
+    const ground = new THREE.Mesh(groundGeo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }));
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    // Instruments, spaced around the top of the planet.
+    const builders: Record<string, () => THREE.Group> = { parasol, tuba, drum, piano, sign };
+    const groups: THREE.Group[] = [];
+    const azimuths = new Map<string, number>();
+    const up = new THREE.Vector3(0, 1, 0);
+
+    instruments.forEach((instrument, i) => {
+      const group = builders[instrument.id]();
+      const az = (i / instruments.length) * Math.PI * 2;
+      const normal = new THREE.Vector3(Math.sin(RING) * Math.sin(az), Math.cos(RING), Math.sin(RING) * Math.cos(az));
+      group.position.copy(normal).multiplyScalar(PLANET_RADIUS - 0.02);
+      group.quaternion.setFromUnitVectors(up, normal);
+      group.rotateY(az);
+      group.scale.setScalar(SCALE);
+      group.userData.id = instrument.id;
+      group.traverse((o) => {
+        if ((o as THREE.Mesh).isMesh) o.castShadow = o.receiveShadow = true;
+      });
+      scene.add(group);
+      groups.push(group);
+      azimuths.set(instrument.id, az);
+    });
+
+    // Camera: orbits the top of the planet. Drag to turn; it drifts slowly until the visitor takes over.
+    const controls = new OrbitControls(camera, canvas);
+    controls.target.copy(target);
+    controls.enablePan = false;
+    controls.enableZoom = false;
+    controls.enableDamping = !reduceMotion;
+    controls.dampingFactor = 0.08;
+    controls.rotateSpeed = 0.5;
+    controls.minPolarAngle = 1.15;
+    controls.maxPolarAngle = 1.45;
+    controls.autoRotate = !reduceMotion;
+    controls.autoRotateSpeed = 0.35;
+    camera.position.copy(target).add(new THREE.Vector3().setFromSphericalCoords(11.5, 1.36, 0));
+    controls.update();
+    controls.addEventListener('start', () => (controls.autoRotate = false));
+
+    let turning: gsap.core.Tween | undefined;
+    controls.addEventListener('start', () => turning?.kill());
+
+    turnTo = (id) => {
+      controls.autoRotate = false;
+      turning?.kill();
+      const goal = azimuths.get(id) ?? 0;
+      const start = controls.getAzimuthalAngle();
+      const delta = Math.atan2(Math.sin(goal - start), Math.cos(goal - start));
+      const spherical = new THREE.Spherical().setFromVector3(camera.position.clone().sub(target));
+      const turn = { az: start };
+      const apply = () => {
+        spherical.theta = turn.az;
+        camera.position.copy(target).add(new THREE.Vector3().setFromSpherical(spherical));
+        controls.update();
+      };
+      if (reduceMotion) {
+        turn.az = start + delta;
+        apply();
+      } else {
+        turning = gsap.to(turn, { az: start + delta, duration: 1.2, ease: 'power2.inOut', onUpdate: apply });
+      }
+    };
+
+    // Hover and click
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2();
+    const label = root.querySelector<HTMLElement>('[data-planet-label]')!;
+    let hovered: THREE.Group | null = null;
+    let downAt: { x: number; y: number } | null = null;
+
+    function hit(ev: PointerEvent) {
+      const rect = canvas.getBoundingClientRect();
+      pointer.set(((ev.clientX - rect.left) / rect.width) * 2 - 1, -((ev.clientY - rect.top) / rect.height) * 2 + 1);
+      raycaster.setFromCamera(pointer, camera);
+      const [first] = raycaster.intersectObjects([ground, ...groups], true);
+      let o: THREE.Object3D | null = first?.object ?? null;
+      while (o && !o.userData.id) o = o.parent;
+      return o as THREE.Group | null;
+    }
+
+    canvas.addEventListener('pointermove', (ev) => {
+      if (ev.pointerType !== 'mouse') return;
+      hovered = hit(ev);
+      canvas.style.cursor = hovered ? 'pointer' : 'grab';
+      if (hovered) {
+        const rect = root.getBoundingClientRect();
+        label.textContent = instruments.find((i) => i.id === hovered!.userData.id)!.name;
+        label.style.left = `${ev.clientX - rect.left + 16}px`;
+        label.style.top = `${ev.clientY - rect.top + 16}px`;
+      }
+      label.hidden = !hovered;
+    });
+    canvas.addEventListener('pointerleave', () => {
+      hovered = null;
+      label.hidden = true;
+    });
+    canvas.addEventListener('pointerdown', (ev) => (downAt = { x: ev.clientX, y: ev.clientY }));
+    canvas.addEventListener('pointerup', (ev) => {
+      if (!downAt || Math.hypot(ev.clientX - downAt.x, ev.clientY - downAt.y) > 6) return;
+      const picked = hit(ev);
+      if (!picked) return;
+      hovered = null;
+      label.hidden = true;
+      openCard(picked.userData.id);
+    });
+
+    // Size
+    function resize() {
+      const { clientWidth: w, clientHeight: h } = root;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      // Pull back on narrow screens so the instruments stay in frame.
+      camera.fov = w < h ? 46 : 32;
+      camera.updateProjectionMatrix();
+    }
+    new ResizeObserver(resize).observe(root);
+    resize();
+
+    // Render only while the planet is on screen.
+    let visible = true;
+    new IntersectionObserver(([entry]) => (visible = entry.isIntersecting)).observe(root);
+
+    renderer.setAnimationLoop(() => {
+      if (!visible) return;
+      groups.forEach((g) => {
+        const s = SCALE * (g === hovered ? 1.08 : 1);
+        g.scale.setScalar(reduceMotion ? s : THREE.MathUtils.lerp(g.scale.x, s, 0.15));
+      });
+      controls.update();
+      renderer.render(scene, camera);
+    });
+  }
+
+  // ---------- Instruments, built from simple shapes. Each faces +z and stands on y = 0. ----------
+
+  function mesh(geometry: THREE.BufferGeometry, material: THREE.Material) {
+    return new THREE.Mesh(geometry, material);
+  }
+
+  function brass() {
+    return new THREE.MeshStandardMaterial({ color: '#d6a843', metalness: 0.9, roughness: 0.28 });
+  }
+
+  function parasol() {
+    const g = new THREE.Group();
+    const wood = new THREE.MeshStandardMaterial({ color: '#7a5a34', roughness: 0.6 });
+    const pole = mesh(new THREE.CylinderGeometry(0.035, 0.035, 2.3, 12), wood);
+    pole.position.y = 1.15;
+
+    // Canopy in alternating panels.
+    const panels = 12;
+    const canopyGeo = new THREE.ConeGeometry(1.05, 0.45, panels, 1, true).toNonIndexed();
+    const cpos = canopyGeo.attributes.position;
+    const ccol = new Float32Array(cpos.count * 3);
+    const red = new THREE.Color('#c8402a');
+    const cream = new THREE.Color('#f3ead8');
+    for (let i = 0; i < cpos.count; i += 3) {
+      const cx = (cpos.getX(i) + cpos.getX(i + 1) + cpos.getX(i + 2)) / 3;
+      const cz = (cpos.getZ(i) + cpos.getZ(i + 1) + cpos.getZ(i + 2)) / 3;
+      const panel = Math.floor(((Math.atan2(cz, cx) + Math.PI) / (Math.PI * 2)) * panels) % 2;
+      for (let k = 0; k < 3; k++) (panel ? red : cream).toArray(ccol, (i + k) * 3);
+    }
+    canopyGeo.setAttribute('color', new THREE.BufferAttribute(ccol, 3));
+    canopyGeo.computeVertexNormals();
+    const canopy = mesh(canopyGeo, new THREE.MeshStandardMaterial({ vertexColors: true, side: THREE.DoubleSide, roughness: 0.8 }));
+    canopy.position.y = 2.2;
+
+    const gold = brass();
+    const fringe = mesh(new THREE.TorusGeometry(1.05, 0.03, 8, 64), gold);
+    fringe.rotation.x = Math.PI / 2;
+    fringe.position.y = 1.98;
+    const finial = mesh(new THREE.SphereGeometry(0.07, 16, 12), gold);
+    finial.position.y = 2.47;
+    g.add(pole, canopy, fringe, finial);
+
+    // Tassels hanging from each rib.
+    for (let i = 0; i < panels; i++) {
+      const a = (i / panels) * Math.PI * 2;
+      const tassel = mesh(new THREE.ConeGeometry(0.05, 0.18, 8), gold);
+      tassel.position.set(Math.cos(a) * 1.05, 1.88, Math.sin(a) * 1.05);
+      g.add(tassel);
+    }
+    // Held at an angle, leaning back over the shoulder.
+    g.rotation.set(-0.45, 0, 0.15);
+    return wrap(g);
+  }
+
+  function tuba() {
+    const g = new THREE.Group();
+    const metal = brass();
+    const main = mesh(new THREE.CylinderGeometry(0.17, 0.15, 1.2, 24), metal);
+    main.position.set(0, 0.85, 0);
+    const back = mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.85, 24), metal);
+    back.position.set(0.34, 0.67, 0);
+    const bow = mesh(new THREE.TorusGeometry(0.17, 0.13, 16, 32, Math.PI), metal);
+    bow.rotation.z = Math.PI;
+    bow.position.set(0.17, 0.25, 0);
+    const bell = mesh(
+      new THREE.LatheGeometry(
+        [
+          new THREE.Vector2(0.17, 0),
+          new THREE.Vector2(0.19, 0.15),
+          new THREE.Vector2(0.25, 0.32),
+          new THREE.Vector2(0.38, 0.47),
+          new THREE.Vector2(0.58, 0.56),
+        ],
+        40,
+      ),
+      new THREE.MeshStandardMaterial({ color: '#d6a843', metalness: 0.9, roughness: 0.28, side: THREE.DoubleSide }),
+    );
+    bell.position.y = 1.45;
+    g.add(main, back, bow, bell);
+
+    // Valves and the lead pipe up to the mouthpiece.
+    for (let i = 0; i < 3; i++) {
+      const valve = mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.34, 16), metal);
+      valve.position.set(0.17 + (i - 1) * 0.11, 1.12, 0.2);
+      const cap = mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.06, 12), metal);
+      cap.position.set(valve.position.x, 1.32, 0.2);
+      g.add(valve, cap);
+    }
+    const lead = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0.34, 1.05, 0),
+      new THREE.Vector3(0.45, 1.25, 0.15),
+      new THREE.Vector3(0.38, 1.5, 0.3),
+      new THREE.Vector3(0.2, 1.6, 0.42),
+    ]);
+    g.add(mesh(new THREE.TubeGeometry(lead, 24, 0.03, 10), metal));
+    const mouthpiece = mesh(new THREE.CylinderGeometry(0.045, 0.025, 0.1, 12), metal);
+    mouthpiece.position.set(0.2, 1.62, 0.45);
+    mouthpiece.rotation.x = Math.PI / 2.4;
+    g.add(mouthpiece);
+    g.position.y = 0.12;
+    g.scale.setScalar(1.15);
+    return wrap(g);
+  }
+
+  function drum() {
+    const g = new THREE.Group();
+    const r = 0.75;
+    const depth = 0.48;
+    const shellMat = new THREE.MeshStandardMaterial({ color: '#b3262c', roughness: 0.35 });
+    const headMat = new THREE.MeshStandardMaterial({ color: '#f2ece0', roughness: 0.7 });
+    const shell = mesh(new THREE.CylinderGeometry(r, r, depth, 48), [shellMat, headMat, headMat] as unknown as THREE.Material);
+    shell.rotation.x = Math.PI / 2;
+    shell.position.y = r;
+    g.add(shell);
+
+    const chrome = new THREE.MeshStandardMaterial({ color: '#d9d9d9', metalness: 1, roughness: 0.2 });
+    for (const z of [-depth / 2, depth / 2]) {
+      const rim = mesh(new THREE.TorusGeometry(r, 0.035, 10, 64), chrome);
+      rim.position.set(0, r, z);
+      g.add(rim);
+    }
+    for (let i = 0; i < 12; i++) {
+      const a = (i / 12) * Math.PI * 2;
+      const rod = mesh(new THREE.CylinderGeometry(0.012, 0.012, depth, 6), chrome);
+      rod.rotation.x = Math.PI / 2;
+      rod.position.set(Math.cos(a) * (r + 0.03), r + Math.sin(a) * (r + 0.03), 0);
+      g.add(rod);
+    }
+
+    // The cymbal mounted on top.
+    const mount = mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.16, 8), chrome);
+    mount.position.y = r * 2 + 0.08;
+    const cymbal = mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.012, 40), brass());
+    cymbal.position.y = r * 2 + 0.16;
+    cymbal.rotation.z = 0.12;
+    g.add(mount, cymbal);
+    return g;
+  }
+
+  function piano() {
+    const g = new THREE.Group();
+    const lacquer = new THREE.MeshStandardMaterial({ color: '#1c1918', roughness: 0.22, metalness: 0.1 });
+    const ivory = new THREE.MeshStandardMaterial({ color: '#f6f2ea', roughness: 0.4 });
+    const ebony = new THREE.MeshStandardMaterial({ color: '#0d0c0c', roughness: 0.3 });
+
+    const body = mesh(new THREE.BoxGeometry(1.6, 1.25, 0.55), lacquer);
+    body.position.set(0, 0.72, -0.12);
+    const lid = mesh(new THREE.BoxGeometry(1.66, 0.05, 0.6), lacquer);
+    lid.position.set(0, 1.37, -0.12);
+    const keybed = mesh(new THREE.BoxGeometry(1.6, 0.08, 0.36), lacquer);
+    keybed.position.set(0, 0.74, 0.3);
+    const keys = mesh(new THREE.BoxGeometry(1.5, 0.04, 0.3), ivory);
+    keys.position.set(0, 0.8, 0.32);
+    const fallboard = mesh(new THREE.BoxGeometry(1.6, 0.24, 0.05), lacquer);
+    fallboard.position.set(0, 0.95, 0.15);
+    g.add(body, lid, keybed, keys, fallboard);
+
+    // Black keys in groups of two and three.
+    const whiteW = 1.5 / 21;
+    [0, 1, 3, 4, 5].forEach((offset) => {
+      for (let octave = 0; octave < 3; octave++) {
+        const x = -0.75 + (octave * 7 + offset + 1) * whiteW;
+        const key = mesh(new THREE.BoxGeometry(whiteW * 0.55, 0.04, 0.18), ebony);
+        key.position.set(x, 0.835, 0.26);
+        g.add(key);
+      }
+    });
+
+    for (const x of [-0.72, 0.72]) {
+      const leg = mesh(new THREE.BoxGeometry(0.08, 0.7, 0.08), lacquer);
+      leg.position.set(x, 0.35, 0.42);
+      g.add(leg);
+    }
+    return g;
+  }
+
+  function sign() {
+    const g = new THREE.Group();
+    const steel = new THREE.MeshStandardMaterial({ color: '#8d9399', metalness: 0.8, roughness: 0.4 });
+    const pole = mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.6, 12), steel);
+    pole.position.y = 1.3;
+
+    const face = document.createElement('canvas');
+    face.width = 512;
+    face.height = 220;
+    const ctx = face.getContext('2d')!;
+    ctx.fillStyle = '#245c3a';
+    ctx.fillRect(0, 0, 512, 220);
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 8;
+    ctx.strokeRect(14, 14, 484, 192);
+    ctx.fillStyle = '#fff';
+    ctx.font = '700 64px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('STORE & TOUR', 256, 92);
+    ctx.font = '500 52px system-ui, sans-serif';
+    ctx.fillText('→', 256, 160);
+    const texture = new THREE.CanvasTexture(face);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = 4;
+
+    const plain = new THREE.MeshStandardMaterial({ color: '#245c3a', roughness: 0.5 });
+    const front = new THREE.MeshStandardMaterial({ map: texture, roughness: 0.5 });
+    const board = mesh(new THREE.BoxGeometry(1.2, 0.52, 0.04), [plain, plain, plain, plain, front, plain] as unknown as THREE.Material);
+    board.position.set(0, 2.25, 0.05);
+    g.add(pole, board);
+    g.rotation.y = -0.25;
+    return wrap(g);
+  }
+
+  // Keeps a builder's own position/rotation when the planet places the group.
+  function wrap(inner: THREE.Group) {
+    const outer = new THREE.Group();
+    outer.add(inner);
+    return outer;
+  }
+</script>
