@@ -5,6 +5,8 @@
   --line: #e5e5e5;
   --max: 1100px;
   --gutter: clamp(1rem, 4vw, 2rem);
+  /* Quotes and eyebrows (Adobe Fonts kit rvf8bga, loaded in BaseLayout). */
+  --font-accent: 'arnika-variable', Georgia, serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
