@@ -31,7 +31,6 @@ for (let octave = 3; octave <= 6; octave++) {
     role="group"
     aria-label="Piano. Press letter and number keys to play."
     aria-describedby="piano-hint"
-    data-cursor
   >
     <g class="piano__keys piano__keys--natural">
       {naturals.map((k) => <rect class="piano__key piano__key--natural" data-note={k.note} x={k.x} width={KEY_W} height={KEY_H} />)}

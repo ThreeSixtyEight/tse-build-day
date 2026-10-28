@@ -1,32 +1,22 @@
 ---
-// Basic Custom Cursor from the Osmo Vault. Follows the mouse and grows over links, buttons and [data-cursor].
+// Curly cursor by Ksenia Kondrashova (codepen.io/ksenia-k/pen/rNoBgbV, MIT): a tapering line that trails the mouse.
+// Adapted for a scrolling page: fixed canvas, viewport coordinates, sharp on high-density screens.
+// Hidden on touch screens and for visitors who prefer reduced motion.
 ---
 
-<div class="cursor" aria-hidden="true"></div>
+<canvas class="cursor" aria-hidden="true"></canvas>
 
-<style is:global>
+<style>
   .cursor {
-    z-index: 100;
-    background-color: #ff4c24;
-    border: 1px solid #ff4c24;
-    border-radius: 100em;
-    width: 1em;
-    height: 1em;
-    transition: background-color .375s cubic-bezier(.625, .05, 0, 1), height .375s cubic-bezier(.625, .05, 0, 1), width .375s cubic-bezier(.625, .05, 0, 1);
     position: fixed;
-    inset: 0% auto auto 0%;
+    inset: 0;
+    z-index: 100;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
   }
 
-  body:has( a:hover) .cursor,
-  body:has( button:hover) .cursor,
-  body:has( [data-cursor]:hover) .cursor{
-    width: 3em;
-    height: 3em;
-    background-color: rgba(255, 76, 36, 0.3);
-  }
-
-  @media (hover: none) and (pointer: coarse) {
+  @media (hover: none) and (pointer: coarse), (prefers-reduced-motion: reduce) {
     .cursor {
       display: none;
     }
@@ -34,23 +24,97 @@
 </style>
 
 <script>
-  import { gsap } from 'gsap';
+  function initCurlyCursor(canvas: HTMLCanvasElement) {
+    const ctx = canvas.getContext('2d')!;
 
-  function initBasicCustomCursor() {
+    // for intro motion
+    let mouseMoved = false;
 
-    gsap.set(".cursor", {xPercent:-50, yPercent: -50});
+    const pointer = {
+      x: 0.5 * window.innerWidth,
+      y: 0.5 * window.innerHeight,
+    };
+    const params = {
+      pointsNumber: 40,
+      widthFactor: 0.3,
+      mouseThreshold: 0.6,
+      spring: 0.4,
+      friction: 0.5,
+    };
 
-    let xTo = gsap.quickTo(".cursor", "x", {duration: 0.6, ease: "power3"});
-    let yTo = gsap.quickTo(".cursor", "y", {duration: 0.6, ease: "power3"});
+    const trail = new Array(params.pointsNumber);
+    for (let i = 0; i < params.pointsNumber; i++) {
+      trail[i] = {
+        x: pointer.x,
+        y: pointer.y,
+        dx: 0,
+        dy: 0,
+      };
+    }
 
-    window.addEventListener("mousemove", e => {
-      xTo(e.clientX);
-      yTo(e.clientY);
+    window.addEventListener('click', (e) => {
+      updateMousePosition(e.clientX, e.clientY);
     });
+    window.addEventListener('mousemove', (e) => {
+      mouseMoved = true;
+      updateMousePosition(e.clientX, e.clientY);
+    });
+
+    function updateMousePosition(eX: number, eY: number) {
+      pointer.x = eX;
+      pointer.y = eY;
+    }
+
+    setupCanvas();
+    update(0);
+    window.addEventListener('resize', setupCanvas);
+
+    function update(t: number) {
+      // for intro motion
+      if (!mouseMoved) {
+        pointer.x = (0.5 + 0.3 * Math.cos(0.002 * t) * Math.sin(0.005 * t)) * window.innerWidth;
+        pointer.y = (0.5 + 0.2 * Math.cos(0.005 * t) + 0.1 * Math.cos(0.01 * t)) * window.innerHeight;
+      }
+
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      trail.forEach((p, pIdx) => {
+        const prev = pIdx === 0 ? pointer : trail[pIdx - 1];
+        const spring = pIdx === 0 ? 0.4 * params.spring : params.spring;
+        p.dx += (prev.x - p.x) * spring;
+        p.dy += (prev.y - p.y) * spring;
+        p.dx *= params.friction;
+        p.dy *= params.friction;
+        p.x += p.dx;
+        p.y += p.dy;
+      });
+
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(trail[0].x, trail[0].y);
+
+      for (let i = 1; i < trail.length - 1; i++) {
+        const xc = 0.5 * (trail[i].x + trail[i + 1].x);
+        const yc = 0.5 * (trail[i].y + trail[i + 1].y);
+        ctx.quadraticCurveTo(trail[i].x, trail[i].y, xc, yc);
+        ctx.lineWidth = params.widthFactor * (params.pointsNumber - i);
+        ctx.stroke();
+      }
+      ctx.lineTo(trail[trail.length - 1].x, trail[trail.length - 1].y);
+      ctx.stroke();
+
+      window.requestAnimationFrame(update);
+    }
+
+    function setupCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#000';
+    }
   }
 
-  // Initialize Basic Custom Cursor
-  document.addEventListener('DOMContentLoaded', () => {
-    initBasicCustomCursor();
-  });
+  // Only run where the canvas is shown: not on touch screens or with reduced motion.
+  const canvas = document.querySelector<HTMLCanvasElement>('canvas.cursor');
+  if (canvas && getComputedStyle(canvas).display !== 'none') initCurlyCursor(canvas);
 </script>
