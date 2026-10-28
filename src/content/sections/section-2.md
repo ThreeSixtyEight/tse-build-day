@@ -16,16 +16,13 @@ background: /chapter-2/snug-harbor.webp
 flat:
   heading: Leaving for New York
   body: He keeps playing with the Jazztronauts through high school. In 2004 he graduates and heads north to Juilliard.
-  # Placeholders until Corey's cutout and bus land: swap the files, keep the paths.
   cutout:
-    src: /chapter-2/jon-teen.svg
-    alt: Teenage Jon in a green jacket, holding a suitcase and a melodica
-  prop:
-    src: /chapter-2/bus.svg
-    alt: ""
+    src: /chapter-2/bus-boarding.webp
+    alt: A teenager in a green T-shirt boards a Greyhound bus with a suitcase and a melodica
+    bleed: true
   caption: New Orleans, 2004
   notes:
-    - "Art: cutout and bus are placeholders for Corey's files."
+    - "Art: the Greyhound name and logo are on the bus. Check we can show them, or paint them out."
     - "Quote TBD: needs a sourced line about leaving home."
     - "Fact check: the Greyhound trip and the melodica at departure need a source before the copy mentions them."
     - "Collectible: clarinet or handkerchief, team to decide."

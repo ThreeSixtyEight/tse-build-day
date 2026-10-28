@@ -10,7 +10,7 @@ interface Props {
   number: number;
   heading: string;
   body: string;
-  cutout: { src: string; alt: string };
+  cutout: { src: string; alt: string; bleed?: boolean };
   prop?: { src: string; alt: string };
   quote?: { text: string; source: string; date: string; url?: string };
   caption?: string;
@@ -23,7 +23,7 @@ const { id, number, heading, body, cutout, prop, quote, caption, notes } = Astro
 <section class="section flat" id={id} data-section={id}>
   <div class="flat__art" aria-hidden={cutout.alt ? undefined : 'true'}>
     {prop && <img class="flat__prop" src={prop.src} alt={prop.alt} data-drift="0.15" />}
-    <img class="flat__cutout" src={cutout.src} alt={cutout.alt} data-drift="0.04" />
+    <img class:list={['flat__cutout', { 'flat__cutout--bleed': cutout.bleed }]} src={cutout.src} alt={cutout.alt} data-drift="0.04" />
   </div>
   <div class="flat__text">
     <p class="flat__num">{String(number).padStart(2, '0')}</p>
@@ -44,6 +44,11 @@ const { id, number, heading, body, cutout, prop, quote, caption, notes } = Astro
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
     align-items: center;
+    /* The page's full-screen panel rules are scoped to index.astro, so a flat panel sets its own:
+       a whole screen tall and a snap stop, or mandatory snapping scrolls straight past it. */
+    min-height: 100svh;
+    scroll-snap-align: start;
+    padding-block: 3rem;
     overflow: hidden;
     color: var(--text);
     background: #efe7d8;
@@ -64,12 +69,14 @@ const { id, number, heading, body, cutout, prop, quote, caption, notes } = Astro
   .flat__prop, .flat__cutout { position: absolute; max-width: none; }
   .flat__prop { left: -30%; bottom: 12%; width: 115%; }
   .flat__cutout { left: 18%; bottom: 0; height: 82%; width: auto; }
+  .flat__cutout--bleed { left: 0; bottom: 14%; width: 100%; height: auto; }
 
   @media (max-width: 760px) {
     .flat { grid-template-columns: 1fr; grid-template-rows: 45svh auto; align-content: start; }
     .flat__art { order: 0; }
     .flat__text { order: 1; padding-block: 1rem 3rem; }
     .flat__cutout { left: 50%; translate: -50% 0; height: 95%; }
+    .flat__cutout--bleed { left: 0; translate: none; width: 100%; height: auto; bottom: 4%; }
     .flat__prop { left: -10%; width: 120%; bottom: 8%; }
   }
 </style>

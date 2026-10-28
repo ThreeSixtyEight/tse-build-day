@@ -32,7 +32,8 @@ const sections = defineCollection({
         heading: z.string(),
         body: z.string(),
         // Transparent cutout in front, and an optional prop behind it that moves slower as the page scrolls.
-        cutout: z.object({ src: z.string(), alt: z.string() }),
+        // bleed: a wide cutout cropped at its left end, so it runs off the left edge of the screen.
+        cutout: z.object({ src: z.string(), alt: z.string(), bleed: z.boolean().default(false) }),
         prop: z.object({ src: z.string(), alt: z.string() }).optional(),
         quote: reference('quotes').optional(),
         caption: z.string().optional(),
