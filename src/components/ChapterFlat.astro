@@ -48,7 +48,7 @@ const { id, number, eyebrow, heading, body, cutout, prop, background, quote, cap
     {
       eyebrow && (
         <p class="flat__eyebrow">
-          <span class="flat__num">{String(number).padStart(2, '0')}</span> – {eyebrow}
+          {String(number).padStart(2, '0')} – {eyebrow}
         </p>
       )
     }
@@ -77,8 +77,8 @@ const { id, number, eyebrow, heading, body, cutout, prop, background, quote, cap
     background: #efe7d8;
   }
   .flat__text { position: relative; z-index: 1; padding-inline: 1rem clamp(1.5rem, 6vw, 6rem); max-width: 38rem; }
-  .flat__eyebrow { margin: 0 0 0.75rem; color: #b5832a; }
-  .flat__num { font-family: 'Melodrama', serif; font-weight: 700; }
+  /* Same type as the chapter 2 eyebrow: gold Melodrama, bold, spaced capitals. */
+  .flat__eyebrow { margin: 0 0 0.75rem; font-family: 'Melodrama', serif; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #b5832a; }
   .flat h2 { margin: 0 0 2rem; font-size: clamp(2.25rem, 5vw, 4rem); }
   .flat__art { position: relative; align-self: stretch; }
   .flat__prop, .flat__cutout { position: absolute; max-width: none; }
