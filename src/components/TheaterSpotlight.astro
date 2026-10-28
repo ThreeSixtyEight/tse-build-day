@@ -37,13 +37,20 @@
   }
   /* Once the scene renders it covers the fallback. The scene stretches its image to the box it's given, so the box
      keeps the painting's proportions and covers the section, cropped at the edges like the fallback. */
+  /* The scene fills the section and crops the painting to it in its shader (the image size baked into
+     spotlight.json's compiled shaders must match stage.jpg: 1992 × 1121).
+     overflow and the canvas rule keep it filling the section even though Unicorn writes a fixed pixel size on
+     its canvas, so a resize can't leave the canvas at its old size. */
   .spotlight-cursor__wrap {
     position: absolute;
-    left: 50%;
-    top: 50%;
-    width: max(100%, 100svh * 1992 / 1121);
-    aspect-ratio: 1992 / 1121;
-    translate: -50% -50%;
+    inset: 0;
+    overflow: hidden;
+  }
+  .spotlight-cursor__wrap :global(canvas) {
+    position: absolute;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
   }
 </style>
 
@@ -75,7 +82,7 @@
     document.head.append(script);
   }
 
-  const section = document.querySelector('#theater');
+  const section = document.querySelector<HTMLElement>('#theater');
   if (section) {
     const io = new IntersectionObserver(
       ([entry]) => {
