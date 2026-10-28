@@ -3,6 +3,7 @@ import { getCollection, getEntries, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Notes from '../components/Notes.astro';
 import Quote from '../components/Quote.astro';
+import SectionStaves from '../components/SectionStaves.astro';
 import { site } from '../site.config';
 
 const sections = (await getCollection('sections')).sort((a, b) => a.data.order - b.data.order);
@@ -179,6 +180,9 @@ const bg = (id: string) =>
       }
     </div>
   </section>
+
+  <!-- Section transitions: a playable music staff at every seam. -->
+  <SectionStaves />
 </BaseLayout>
 
 <style>
