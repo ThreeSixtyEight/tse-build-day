@@ -39,8 +39,11 @@ const sections = defineCollection({
       .object({
         // Gold line above the heading, after the chapter number: the place and year, e.g. "Kenner, Louisiana, mid-1990s".
         eyebrow: z.string().optional(),
-        heading: z.string(),
-        body: z.string(),
+        // Headings only show under an eyebrow.
+        heading: z.string().optional(),
+        body: z.string().optional(),
+        // A smaller heading (h3) below the body, e.g. "But New York calls louder."
+        subheading: z.string().optional(),
         // Transparent cutout in front, and an optional prop behind it that moves slower as the page scrolls.
         // bleed: a wide cutout cropped at its left end, so it runs off the left edge of the screen.
         // full: the cutout spans the panel's whole width, standing on its bottom edge, with the text over its empty side.
@@ -49,7 +52,6 @@ const sections = defineCollection({
         // A painting that fills the whole panel behind the text, fading into the panel colour on the text side.
         // With one, the cutout and prop aren't shown.
         background: z.object({ src: z.string(), alt: z.string() }).optional(),
-        quote: reference('quotes').optional(),
         caption: z.string().optional(),
         // A dark panel with white text instead of the light one.
         dark: z.boolean().default(false),

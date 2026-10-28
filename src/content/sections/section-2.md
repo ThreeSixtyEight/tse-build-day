@@ -9,7 +9,6 @@ directives:
   - "No St. Aug uniforms without permission"
   - "The Greyhound bus trip is unsourced: keep it out of the copy until it's confirmed"
 interaction: "Collect the clarinet, Alvin Batiste's instrument."
-takeaway: "Pass it on. Share the Louis \"Satchmo\" Armstrong Summer Jazz Camp, held at NOCCA for students 10 to 21, with a young musician you know."
 media: still
 eyebrow: Frenchmen Street, New Orleans
 # Cut from the scene: the quote and the caption below the copy.
@@ -18,8 +17,7 @@ eyebrow: Frenchmen Street, New Orleans
 #   - fresh-air-lineage
 background: /chapter-2/snug-harbor.webp
 flat:
-  heading: Leaving for New York
-  body: It's Jon's first real gig outside the family and he's nervous. He'll tell you so himself. He plays anyway, and Alvin keeps calling him back. But New York calls louder.
+  subheading: But New York calls louder.
   cutout:
     src: /chapter-2/bus-boarding.webp
     alt: Painting of a teenager in a green T-shirt boarding a bus with a suitcase and a melodica
@@ -30,3 +28,5 @@ flat:
 ---
 
 On Frenchmen Street there's a band behind every open door. Playing at Snug Harbor is clarinetist Alvin Batiste, with a new kid on piano: 15-year-old Jon Batiste.
+
+It's Jon's first real gig outside the family and he's nervous. He'll tell you so himself. He plays anyway, and Alvin keeps calling him back.

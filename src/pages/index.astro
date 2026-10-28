@@ -1,26 +1,20 @@
 ---
-import { getCollection, getEntries, getEntry, render } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ChapterFlat from '../components/ChapterFlat.astro';
 import Eyebrow from '../components/Eyebrow.astro';
 import Takeaway from '../components/Takeaway.astro';
-import Quote from '../components/Quote.astro';
 import Piano from '../components/Piano.astro';
 import Theater from '../components/Theater.astro';
 import MusicStaff from '../components/MusicStaff.astro';
 import BackgroundMusic from '../components/BackgroundMusic.astro';
-import QuoteReveal from '../components/QuoteReveal.astro';
 import { site } from '../site.config';
 
 const sections = (await getCollection('sections')).sort((a, b) => a.data.order - b.data.order);
-// The large quote the piano lifts off: any id from src/data/quotes.json.
-const pianoQuote = (await getEntry('quotes', 'fresh-air-family'))!.data;
 const rendered = await Promise.all(
   sections.map(async (s) => ({
     s,
     Content: (await render(s)).Content,
-    quotes: await getEntries(s.data.quotes),
-    flatQuote: s.data.flat?.quote ? (await getEntry(s.data.flat.quote))?.data : undefined,
   })),
 );
 
@@ -29,9 +23,7 @@ const rendered = await Promise.all(
 const photos: Record<string, string> = {
   entry: '1525994886773-080587e161c2',
   'section-3': '1771868557440-ab1f8e4d6006',
-  listen: '1560110734-f03640ca8eda',
 };
-const quoteFirst = (text: string) => text.startsWith('[Quote]');
 const photoVar = (photo: string) =>
   `--photo: url(https://images.unsplash.com/photo-${photo}?w=2000&q=70&auto=format&fit=crop)`;
 const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[id] && photoVar(photos[id]));
@@ -73,7 +65,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
        and a chapter with a flat panel ends on it. -->
   <div id="line">
     {
-      rendered.map(({ s, Content, quotes, flatQuote }) => (
+      rendered.map(({ s, Content }) => (
         <>
         {s.data.fullScreen && (s.data.scenes.length ? (
           s.data.scenes.map((scene, i) => {
@@ -87,12 +79,9 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
                 style={scene.photo && photoVar(scene.photo)}
               >
                 <div class="wrap align-left">
-                  {i === 0 && <h2 class="heading heading--xl">{s.data.title}</h2>}
-                  {/* "[Quote] …" in the copy puts the chapter's quote before the text instead of after it. */}
-                  {last && quoteFirst(scene.text) && quotes.map((q) => <Quote {...q.data} />)}
+                  {/* No eyebrow on a scene, so no heading. A "[Quote] " marker left in the copy is dropped. */}
                   <p class="body body--xl">{scene.text.replace(/^\[Quote\]\s*/, '')}</p>
                   {i === 0 && s.data.caption && <p class="caption">{s.data.caption}</p>}
-                  {last && !quoteFirst(scene.text) && quotes.map((q) => <Quote {...q.data} />)}
                   {last && !s.data.flat && s.data.takeaway && <Takeaway text={s.data.takeaway} />}
                 </div>
               </section>
@@ -102,11 +91,9 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
           <section class:list={['section', { 'section--stage': s.data.background }]} id={s.id} data-section={s.id} style={bg(s.id, s.data.background)}>
             <div class="wrap align-left">
               {s.data.eyebrow && <Eyebrow number={s.data.order} text={s.data.eyebrow} />}
-              <h2 class="heading heading--xl">{s.data.title}</h2>
+              {/* A heading only shows under an eyebrow. */}
+              {s.data.eyebrow && <h2 class="heading heading--xl">{s.data.title}</h2>}
               <div class="body"><Content /></div>
-              {quotes.map((q) => (
-                <Quote {...q.data} />
-              ))}
               {s.data.caption && <p class="caption">{s.data.caption}</p>}
               {!s.data.flat && s.data.takeaway && <Takeaway text={s.data.takeaway} />}
             </div>
@@ -117,25 +104,14 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
             id={s.data.fullScreen ? `${s.id}-flat` : s.id}
             number={s.data.order}
             {...s.data.flat}
-            quote={flatQuote}
             takeaway={s.data.takeaway}
           />
         )}
-        {/* The piano follows chapter 1, where Jon moves from drums to piano. Scrolling lifts it off a quote underneath. */}
+        {/* The piano follows chapter 1, where Jon moves from drums to piano. */}
         {s.data.order === 1 && (
-          <div class="lift">
-            <section class="section section--keys" id="piano" data-section="piano">
-              {/* Lead-in above the keys: his mother moves him from the drums to the piano. */}
-              <div class="keys-intro">
-                <div class="wrap align-center">
-                  <h3 class="heading heading--lg">His mother hears one drum too many.</h3>
-                  <p class="body body--lead">So she moves Jon to the piano–the one from Duke Ellington’s orchestra. Mothers around here are usually right.</p>
-                </div>
-              </div>
-              <Piano />
-            </section>
-            <QuoteReveal {...pianoQuote} />
-          </div>
+          <section class="section section--keys" id="piano" data-section="piano">
+            <Piano />
+          </section>
         )}
         {/* The theater follows chapter 2, after he boards the bus: the painted stage, Jon at the piano. */}
         {s.data.order === 2 && (
@@ -150,9 +126,17 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
     }
   </div>
 
-  <section class="section" id="listen" data-section="listen" style={bg('listen')}>
-    <div class="wrap align-left">
-      <h2 class="heading heading--xl">Listen</h2>
+
+  <!-- End of the line, in the style of the hero: the night street painting filling the screen inside the same painted
+       border, the copy and the Spotify embed centred over it. Reaching this section is tracked. -->
+  <section class="section end" id="end" data-section="end">
+    <img class="end__img" src="/end/street.webp" width="1904" height="2000" loading="lazy" alt="Painting of an empty French Quarter street at dusk under a swirling night sky, iron balconies on either side" />
+    <div class="end__border" aria-hidden="true"></div>
+    <div class="end__text wrap align-center">
+      <h2 class="heading heading--xl">End of the line</h2>
+      <p class="body body--lead">For music, tour dates and the store, visit <a href={site.officialSite}>Jon Batiste's official site</a>.</p>
+      {/* His site already handles the store, newsletter and tour, so we link out rather than rebuild them.
+          Analytics: visitor reaches the end. */}
       <!-- Official Spotify artist embed: only Jon Batiste's own catalogue plays here. -->
       <iframe
         class="spotify"
@@ -167,19 +151,6 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
       ></iframe>
       {/* Ending: We Are through an official embed, the only place Jon's music plays. Swap the artist embed for We Are.
           Official Spotify, Apple Music or YouTube embeds only. No AI voice or AI music. Analytics: embed clicks. */}
-    </div>
-  </section>
-
-  <!-- End of the line, in the style of the hero: the night street painting filling the screen inside the same painted
-       border, the copy centred in the sky. Reaching this section is tracked. -->
-  <section class="section end" id="end" data-section="end">
-    <img class="end__img" src="/end/street.webp" width="1904" height="2000" loading="lazy" alt="Painting of an empty French Quarter street at dusk under a swirling night sky, iron balconies on either side" />
-    <div class="end__border" aria-hidden="true"></div>
-    <div class="end__text wrap align-center">
-      <h2 class="heading heading--xl">End of the line</h2>
-      <p class="body body--lead">For music, tour dates and the store, visit <a href={site.officialSite}>Jon Batiste's official site</a>.</p>
-      {/* His site already handles the store, newsletter and tour, so we link out rather than rebuild them.
-          Analytics: visitor reaches the end. */}
     </div>
   </section>
 
@@ -395,16 +366,14 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
     }
   }
   /* width: auto so the left margin narrows the column instead of pushing it past the right edge. */
-  .section--stage .wrap { width: auto; max-width: 34rem; margin-inline: clamp(1rem, 6vw, 6rem) auto; }
+  .section--stage .wrap { width: auto; box-sizing: content-box; max-width: 34.25rem; margin-inline: clamp(1rem, 6vw, 6rem) auto; }
   /* The piano panel is just the painted keys, right below the chapter before it: no screen height, padding or dark backdrop. */
   .section.section--keys { min-height: 0; padding: 0; border-bottom: 0; background: none; }
-  /* Lead-in on a dark band above the keys (centred with .align-center). */
-  .keys-intro { padding-block: clamp(3rem, 8vw, 6rem); color: #fff; background: #2c2e4c; }
 
   .section { padding-block: 3rem; border-bottom: 1px solid var(--line); }
   /* End of the line: the painting covers the screen, anchored on the street so the sky crops first, with the copy
-     high in the sky over a soft dark fade, white like the hero title. */
-  .section.end { position: relative; justify-content: flex-start; padding-block: clamp(5rem, 14svh, 9rem) 0; overflow: hidden; border-bottom: 0; background: #1a1d4a; }
+     and the Spotify embed centred over a soft dark fade, the heading white like the hero title. */
+  .section.end { position: relative; justify-content: center; padding-block: clamp(4rem, 10svh, 6rem); overflow: hidden; border-bottom: 0; background: #1a1d4a; }
   .end__img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: center bottom; }
   .end__border { position: absolute; z-index: 2; }
   .end::before {

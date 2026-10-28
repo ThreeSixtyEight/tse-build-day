@@ -16,7 +16,6 @@ fullScreen: false
 flat:
   heading: The New York love riots
   body: "But his free spirit keeps running into the school's rules. His teachers send him to a psychologist, as if being free were a condition to be cured. So Jon takes the music underground, where a melodica and a band can wake up a whole subway car."
-  quote: love-riot
   caption: Juilliard and the subway, New York, 2004–2011
   dark: true
   cutout:

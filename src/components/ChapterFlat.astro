@@ -5,7 +5,6 @@
 // left edge of the screen; it never moves right of it, so no gap opens. A full-width cutout rises into place
 // faster than the page while the text drifts slower. Reduced motion: no drift, roll or rise.
 import Eyebrow from './Eyebrow.astro';
-import Quote from './Quote.astro';
 import Takeaway from './Takeaway.astro';
 
 interface Props {
@@ -13,18 +12,18 @@ interface Props {
   number: number;
   // Gold line above the heading: the chapter number, a dash, then the place and year.
   eyebrow?: string;
-  heading: string;
-  body: string;
+  heading?: string;
+  body?: string;
+  subheading?: string;
   cutout: { src: string; alt: string; bleed?: boolean; full?: boolean };
   prop?: { src: string; alt: string };
   background?: { src: string; alt: string };
-  quote?: { text: string; source: string; date: string; url?: string };
   caption?: string;
   takeaway?: string;
   dark?: boolean;
 }
 
-const { id, number, eyebrow, heading, body, cutout, prop, background, quote, caption, takeaway, dark } = Astro.props;
+const { id, number, eyebrow, heading, body, subheading, cutout, prop, background, caption, takeaway, dark } = Astro.props;
 ---
 
 <section
@@ -46,10 +45,11 @@ const { id, number, eyebrow, heading, body, cutout, prop, background, quote, cap
     }
   </div>
   <div class="flat__text align-left" data-drift={!background && cutout.full ? 0.12 : undefined}>
+    {/* A heading only shows under an eyebrow. */}
     {eyebrow && <Eyebrow number={number} text={eyebrow} />}
-    <h2 class="heading heading--xl">{heading}</h2>
-    <div class="body">{body.split(/\n\s*\n/).map((para) => <p>{para.trim()}</p>)}</div>
-    {quote && <Quote {...quote} />}
+    {eyebrow && heading && <h2 class="heading heading--xl">{heading}</h2>}
+    {body && <div class="body">{body.split(/\n\s*\n/).map((para) => <p>{para.trim()}</p>)}</div>}
+    {subheading && <h3 class="heading heading--lg">{subheading}</h3>}
     {caption && <p class="caption">{caption}</p>}
     {takeaway && <Takeaway text={takeaway} />}
   </div>
@@ -71,7 +71,8 @@ const { id, number, eyebrow, heading, body, cutout, prop, background, quote, cap
     color: var(--text);
     background: #efe7d8;
   }
-  .flat__text { position: relative; z-index: 1; padding-inline: 1rem clamp(1.5rem, 6vw, 6rem); max-width: 38rem; }
+  /* The text column is 548px wide (Build Day Figma) inside its padding. */
+  .flat__text { position: relative; z-index: 1; box-sizing: content-box; padding-inline: 1rem clamp(1.5rem, 6vw, 6rem); max-width: 34.25rem; }
   .flat__art { position: relative; align-self: stretch; }
   .flat__prop, .flat__cutout { position: absolute; max-width: none; }
   .flat__prop { left: -30%; bottom: 12%; width: 115%; }
