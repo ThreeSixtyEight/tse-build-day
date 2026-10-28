@@ -75,9 +75,9 @@ export async function createFallIn({ canvas, still, instrument, studio }: Option
   // Theatre.js: the shot. Edit with ?studio in dev, export, replace fall-in.state.json.
   const sheet = getProject('Fall In', { state }).sheet('Shot');
   const cam = sheet.object('Camera', {
-    position: { x: 0, y: 48, z: 52 },
-    target: { x: 0, y: 0, z: -16 },
-    fov: types.number(42, { range: [20, 90] }),
+    position: { x: 0, y: 13, z: 44 },
+    target: { x: 0, y: 3, z: -20 },
+    fov: types.number(50, { range: [20, 90] }),
   });
   const crowdObj = sheet.object('Crowd', {
     march: types.number(0, { range: [0, 20] }),
