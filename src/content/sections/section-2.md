@@ -11,7 +11,7 @@ directives:
 interaction: "Collect the clarinet, Alvin Batiste's instrument."
 takeaway: "Pass it on. Share the Louis \"Satchmo\" Armstrong Summer Jazz Camp, held at NOCCA for students 10 to 21, with a young musician you know."
 media: still
-eyebrow: Frenchmen Street, New Orleans
+eyebrow: Frenchmen Street, New Orleans | 2001–2002
 # Cut from the scene: the quote and the caption below the copy.
 # caption: Snug Harbor, Frenchmen Street, New Orleans, 2001–2002
 # quotes:

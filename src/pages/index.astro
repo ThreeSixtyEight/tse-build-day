@@ -130,8 +130,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
               {/* Lead-in above the keys: his mother moves him from the drums to the piano. */}
               <div class="keys-intro">
                 <div class="wrap">
-                  <h3>His mother hears one drum too many.</h3>
-                  <p>So she moves Jon to the piano–the one from Duke Ellington’s orchestra. Mothers around here are usually right.</p>
+                  <p>His mother hears one drum too many. So she moves Jon to the piano–the one from Duke Ellington’s orchestra. Mothers around here are usually right.</p>
                 </div>
               </div>
               <Piano />
@@ -391,23 +390,22 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
       background-position: 0 0, calc(75vw - 0.64 * var(--w)) center;
     }
   }
-  /* 32px from the eyebrow to the headline, 16px from the headline to the copy. */
+  /* 32px from the eyebrow to the headline and from the headline to the copy. */
   .section--stage .eyebrow { margin-bottom: 2rem; }
-  .section.section--stage h2 { margin: 0 0 1rem; }
+  .section.section--stage h2 { margin: 0 0 2rem; }
   .section--stage h2 + :global(p) { margin-top: 0; }
   /* width: auto so the left margin narrows the column instead of pushing it past the right edge. */
   .section--stage .wrap { width: auto; max-width: 34rem; margin-inline: clamp(1rem, 6vw, 6rem) auto; }
   /* The piano panel is just the painted keys, right below the chapter before it: no screen height, padding or dark backdrop. */
   .section.section--keys { min-height: 0; padding: 0; border-bottom: 0; background: none; }
-  /* Centred lead-in on a dark band above the keys. The heading is a step down from the chapter h2. */
+  /* Centred lead-in on a dark band above the keys: body copy only, no heading. */
   .keys-intro { padding-block: clamp(3rem, 8vw, 6rem); text-align: center; color: #fff; background: #2c2e4c; }
-  .keys-intro h3 { margin: 0 0 1rem; font-size: clamp(1.75rem, 3.5vw, 2.75rem); text-wrap: balance; }
   .keys-intro p { max-width: 38rem; margin: 0 auto; font-size: 1.125rem; }
 
   .section { padding-block: 3rem; border-bottom: 1px solid var(--line); }
   /* Matches the gold chapter number on the flat panels. */
   .eyebrow { margin: 0; font-family: 'Melodrama', serif; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #b5832a; }
-  .section h2 { margin: 0.25rem 0 1rem; font-size: clamp(2.25rem, 5vw, 4rem); }
+  .section h2 { margin: 0.25rem 0 2rem; font-size: clamp(2.25rem, 5vw, 4rem); }
   .caption { color: var(--muted); font-size: 0.875rem; }
   .scene__text { font-size: clamp(1.25rem, 2.2vw, 1.75rem); line-height: 1.45; max-width: 38rem; }
   .spotify { border: 0; border-radius: 12px; max-width: 40rem; }
