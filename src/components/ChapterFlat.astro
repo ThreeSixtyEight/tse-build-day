@@ -1,7 +1,7 @@
 ---
 // A chapter's second panel: flat neutral background, a cutout figure on the left with text beside it and a
 // prop behind it. As the page scrolls the prop drifts slower than the cutout, so the two separate in depth.
-// A bleed cutout instead rolls in from the left each time its panel arrives, and comes to rest flush with the
+// A bleed cutout instead rolls in from the left as the panel scrolls into view, and comes to rest flush with the
 // left edge of the screen; it never moves right of it, so no gap opens. Reduced motion: no drift or roll.
 import Quote from './Quote.astro';
 import Takeaway from './Takeaway.astro';
@@ -105,6 +105,9 @@ const { id, number, heading, body, cutout, prop, background, quote, caption, tak
 
 <script>
   import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
 
   // Depth as the page scrolls: each layer shifts against the panel's own movement by its data-drift share.
   gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
@@ -124,25 +127,19 @@ const { id, number, heading, body, cutout, prop, background, quote, caption, tak
     };
   });
 
-  // Bleed cutouts roll slowly left to right into place: they start shifted left by part of their width and end at
-  // x 0, flush with the screen's left edge. Leaving the panel resets them, so the roll plays again on the way back.
+  // Bleed cutouts roll left to right with the scroll: shifted left by part of their width as the panel enters,
+  // at x 0 (flush with the screen's left edge) once the panel fills the screen. Scrolling back rolls them out again.
   gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
-    const rollers = [...document.querySelectorAll<HTMLElement>('.flat [data-roll]')];
-    gsap.set(rollers, { xPercent: -18 });
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          const el = e.target.querySelector<HTMLElement>('[data-roll]')!;
-          if (e.isIntersecting) gsap.to(el, { xPercent: 0, duration: 6, ease: 'power2.out', overwrite: true });
-          else gsap.set(el, { xPercent: -18, overwrite: true });
-        }
-      },
-      { threshold: 0.5 },
-    );
-    rollers.forEach((el) => io.observe(el.closest('.flat')!));
-    return () => {
-      io.disconnect();
-      gsap.set(rollers, { clearProps: 'transform' });
-    };
+    for (const el of document.querySelectorAll<HTMLElement>('.flat [data-roll]')) {
+      gsap.fromTo(
+        el,
+        { xPercent: -18 },
+        {
+          xPercent: 0,
+          ease: 'none',
+          scrollTrigger: { trigger: el.closest('.flat'), start: 'top bottom', end: 'top top', scrub: 1 },
+        },
+      );
+    }
   });
 </script>
