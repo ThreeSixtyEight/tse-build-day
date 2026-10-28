@@ -1,10 +1,12 @@
 ---
 import { site } from '../site.config';
+import Piano from './Piano.astro';
 const year = new Date().getFullYear();
 ---
 
 <footer class="footer">
-  <div class="wrap">
+  <Piano />
+  <div class="wrap footer__text">
     <p>An unofficial fan site. Not affiliated with or endorsed by Jon Batiste. Made by ThreeSixtyEight.</p>
     <p>
       <a href="#transcript">Transcript</a> · <a href="#credits">Credits</a> ·
@@ -15,7 +17,8 @@ const year = new Date().getFullYear();
 </footer>
 
 <style>
-  .footer { border-top: 1px solid var(--line); color: var(--muted); padding-block: 2rem; margin-top: 4rem; }
+  .footer { border-top: 1px solid var(--line); color: var(--muted); padding-bottom: 2rem; margin-top: 4rem; }
+  .footer__text { margin-top: 1.5rem; }
   .footer p { margin: 0 0 0.5rem; }
   .footer p:last-child { margin: 0; }
 </style>

@@ -1,0 +1,40 @@
+---
+// Sound on/off, fixed to the bottom right corner. Play icon while sound is off, pause icon while it's on.
+// Wired up in scripts/sound.ts.
+---
+
+<button type="button" class="sound-toggle" data-sound-toggle aria-pressed="false" aria-label="Sound" title="Sound">
+  <svg class="sound-toggle__icon sound-toggle__icon--play" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M8 5v14l11-7z" />
+  </svg>
+  <svg class="sound-toggle__icon sound-toggle__icon--pause" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M7 5h4v14H7zM13 5h4v14h-4z" />
+  </svg>
+</button>
+
+<script>
+  import '../scripts/sound';
+</script>
+
+<style>
+  .sound-toggle {
+    position: fixed;
+    right: var(--gutter);
+    bottom: var(--gutter);
+    z-index: 50;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    border: 1px solid var(--text);
+    border-radius: 50%;
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+  }
+  .sound-toggle:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+  .sound-toggle__icon { width: 1.25rem; height: 1.25rem; fill: currentColor; }
+  .sound-toggle[aria-pressed='true'] .sound-toggle__icon--play,
+  .sound-toggle[aria-pressed='false'] .sound-toggle__icon--pause { display: none; }
+</style>

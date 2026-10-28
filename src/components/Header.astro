@@ -5,8 +5,6 @@ import { site } from '../site.config';
 <header class="header">
   <div class="wrap header__inner">
     <a href="#entry" class="logo">{site.siteName}</a>
-    <!-- Mute toggle. Placeholder until the sound module wires it up; sound stays off until the visitor opts in. -->
-    <button type="button" class="sound-toggle" data-sound-toggle aria-pressed="false">Sound off</button>
   </div>
 </header>
 
@@ -14,5 +12,4 @@ import { site } from '../site.config';
   .header { border-bottom: 1px solid var(--line); }
   .header__inner { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; min-height: 4rem; }
   .logo { font-weight: 700; text-decoration: none; }
-  .sound-toggle { font: inherit; padding: 0.25rem 0.75rem; }
 </style>

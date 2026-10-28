@@ -1,0 +1,95 @@
+---
+// Entry gate: a full-screen choice of sound or no sound before the visitor joins the line.
+// Shown once per browser tab; a reload keeps the earlier choice. Without JavaScript the gate is skipped.
+import { site } from '../site.config';
+---
+
+<script is:inline>
+  try {
+    if (sessionStorage.getItem('sound')) document.documentElement.classList.add('gate-passed');
+  } catch {}
+</script>
+
+<div class="gate" data-gate role="dialog" aria-modal="true" aria-labelledby="gate-title" aria-describedby="gate-text">
+  <div class="gate__inner wrap">
+    <h2 id="gate-title" class="gate__title">{site.siteName}</h2>
+    <p id="gate-text" class="gate__text">This experience is best experienced with sound.</p>
+    <div class="gate__actions">
+      <button type="button" class="gate__button gate__button--primary" data-join="sound">Join with sound</button>
+      <button type="button" class="gate__button" data-join="no-sound">Join without sound</button>
+    </div>
+  </div>
+</div>
+<noscript><style>.gate { display: none !important; }</style></noscript>
+
+<script>
+  import { savedChoice, setSound } from '../scripts/sound';
+
+  const gate = document.querySelector<HTMLElement>('[data-gate]');
+
+  if (gate) {
+    const others = [...document.body.children].filter(
+      (el): el is HTMLElement => el !== gate && el instanceof HTMLElement && el.tagName !== 'SCRIPT',
+    );
+    const saved = savedChoice();
+
+    const close = () => {
+      others.forEach((el) => (el.inert = false));
+      document.documentElement.classList.remove('gate-open');
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        gate.hidden = true;
+      } else {
+        gate.addEventListener('transitionend', () => (gate.hidden = true), { once: true });
+        gate.classList.add('gate--closing');
+      }
+    };
+
+    if (saved !== null) {
+      setSound(saved);
+      gate.hidden = true;
+    } else {
+      others.forEach((el) => (el.inert = true));
+      document.documentElement.classList.add('gate-open');
+      gate.querySelector('button')?.focus();
+      gate.querySelectorAll('[data-join]').forEach((button) => button.addEventListener('click', close));
+      // Escape counts as joining without sound.
+      gate.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Escape') gate.querySelector<HTMLButtonElement>('[data-join="no-sound"]')?.click();
+      });
+    }
+  }
+</script>
+
+<style>
+  :global(html.gate-open) { overflow: hidden; }
+  :global(html.gate-passed) .gate { display: none; }
+
+  .gate {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: grid;
+    place-items: center;
+    background: var(--bg);
+    text-align: center;
+    transition: opacity 0.6s ease;
+  }
+  .gate--closing { opacity: 0; pointer-events: none; }
+  .gate__title { font-size: clamp(2.25rem, 6vw, 3.5rem); line-height: 1.1; margin: 0 0 1rem; }
+  .gate__text { color: var(--muted); font-size: 1.125rem; margin: 0 0 2rem; }
+  .gate__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; }
+  .gate__button {
+    font: inherit;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--text);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+  }
+  .gate__button--primary { background: var(--text); color: var(--bg); }
+  .gate__button:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gate { transition: none; }
+  }
+</style>

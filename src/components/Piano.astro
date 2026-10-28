@@ -1,0 +1,202 @@
+---
+// Footer piano, after Codrops' Musical Interactions piano (github.com/codrops/MusicalInteractions).
+// Three octaves, C3 to C6. Sound comes from a Tone.js synth, loaded on first use, and follows the site's sound switch (scripts/sound.ts).
+const KEY_W = 40;
+const KEY_H = 200;
+const NATURALS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+const HAS_SHARP = new Set(['C', 'D', 'F', 'G', 'A']);
+
+const naturals: { note: string; x: number }[] = [];
+const sharps: { note: string; x: number }[] = [];
+for (let octave = 3; octave <= 6; octave++) {
+  for (const name of NATURALS) {
+    if (octave === 6 && name !== 'C') break;
+    const x = naturals.length * KEY_W;
+    naturals.push({ note: `${name}${octave}`, x });
+    if (HAS_SHARP.has(name) && octave < 6) sharps.push({ note: `${name}#${octave}`, x: x + KEY_W - 10 });
+  }
+}
+---
+
+<div class="piano" data-piano>
+  <svg
+    class="piano__inner"
+    viewBox={`0 0 ${naturals.length * KEY_W} ${KEY_H}`}
+    preserveAspectRatio="none"
+    tabindex="0"
+    role="group"
+    aria-label="Piano. Press letter and number keys to play."
+    aria-describedby="piano-hint"
+    data-cursor
+  >
+    <g class="piano__keys piano__keys--natural">
+      {naturals.map((k) => <rect class="piano__key piano__key--natural" data-note={k.note} x={k.x} width={KEY_W} height={KEY_H} />)}
+    </g>
+    <g class="piano__keys piano__keys--flat">
+      {sharps.map((k) => <rect class="piano__key piano__key--flat" data-note={k.note} x={k.x} width={20} height={130} />)}
+    </g>
+  </svg>
+  <p id="piano-hint" class="piano__hint wrap">Play along: tap the keys, or click and type.</p>
+</div>
+
+<style>
+  .piano { position: relative; user-select: none; -webkit-user-select: none; }
+  .piano__inner { display: block; width: 100%; height: 8rem; touch-action: manipulation; }
+  .piano__inner:focus { outline: none; }
+  .piano__inner:focus-visible { outline: 2px solid var(--text); outline-offset: -2px; }
+  .piano::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 8rem;
+    pointer-events: none;
+    background: linear-gradient(180deg, var(--bg), rgba(255, 255, 255, 0));
+  }
+  .piano__key--natural { fill: #fff; stroke: #e4e4ec; stroke-width: 0.5px; vector-effect: non-scaling-stroke; }
+  .piano__key--natural.piano__key--active { fill: #f0f0f5; }
+  .piano__key--flat { fill: #e4e4ec; }
+  .piano__key--flat.piano__key--active { fill: #fbce41; }
+  .piano__hint { margin: 0.75rem auto 0; font-size: 0.875rem; }
+
+  @media (max-width: 30em) {
+    .piano__inner, .piano::after { height: 6rem; }
+  }
+</style>
+
+<script>
+  import type { PolySynth } from 'tone';
+  import { isSoundOn, setSound, soundChoiceMade } from '../scripts/sound';
+
+  const HINT_ON = 'Play along: tap the keys, or click and type.';
+  const HINT_OFF = 'Sound is off. Turn it on to hear the keys.';
+
+  // Codrops' layouts: fewer keys on smaller screens, each with its own letter mapping.
+  const LAYOUTS = [
+    { query: '(min-width: 50em)', naturals: 22, whites: 'yuiopasdfghjklzxcvbnm,', blacks: "1234567890'qwert" },
+    { query: '(min-width: 30em)', naturals: 15, whites: 'qwertyuiopasdfg', blacks: '1234567890' },
+    { query: 'all', naturals: 8, whites: 'qwertyui', blacks: '12345' },
+  ];
+
+  function initPiano(root: HTMLElement) {
+    const svg = root.querySelector<SVGSVGElement>('svg.piano__inner')!;
+    const naturalKeys = [...svg.querySelectorAll<SVGRectElement>('.piano__keys--natural > rect')];
+    const flatKeys = [...svg.querySelectorAll<SVGRectElement>('.piano__keys--flat > rect')];
+    const allKeys = [...naturalKeys, ...flatKeys];
+    const keyByNote = new Map(allKeys.map((k) => [k.dataset.note!, k]));
+    const keyWidth = Number(naturalKeys[0].getAttribute('width'));
+    const keyHeight = Number(naturalKeys[0].getAttribute('height'));
+
+    let keyboardMapping = new Map<string, string>();
+    const held = new Set<string>();
+    let mouseDown = false;
+
+    // Sound. The audio context is unlocked inside the visitor's first press, then Tone.js loads and uses it.
+    let audioContext: AudioContext | undefined;
+    let tone: Promise<typeof import('tone')> | undefined;
+    let synth: PolySynth | undefined;
+    const loadTone = () => (tone ??= import('tone'));
+    let ready: Promise<PolySynth> | undefined;
+
+    function getSynth() {
+      audioContext ??= new AudioContext();
+      audioContext.resume();
+      return (ready ??= loadTone().then((Tone) => {
+        Tone.setContext(audioContext!);
+        synth = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'triangle' },
+          envelope: { attack: 0.005, decay: 0.4, sustain: 0.15, release: 1.2 },
+          volume: -10,
+        }).toDestination();
+        return synth;
+      }));
+    }
+
+    function press(note: string) {
+      if (held.has(note)) return;
+      // Pressing a key opts the visitor in, unless they've already chosen sound off.
+      if (!soundChoiceMade()) setSound(true);
+      held.add(note);
+      keyByNote.get(note)?.classList.add('piano__key--active');
+      if (!isSoundOn()) return;
+      getSynth().then((s) => (held.has(note) ? s.triggerAttack(note) : s.triggerAttackRelease(note, '8n')));
+    }
+
+    function release(note: string) {
+      if (!held.delete(note)) return;
+      keyByNote.get(note)?.classList.remove('piano__key--active');
+      synth?.triggerRelease(note);
+    }
+
+    const releaseAll = () => [...held].forEach(release);
+    const noteOf = (ev: Event) => (ev.target as Element).closest<SVGRectElement>('rect[data-note]')?.dataset.note;
+
+    // Mouse and touch. Dragging across keys with the mouse held plays each one.
+    svg.addEventListener('pointerdown', (ev) => {
+      const note = noteOf(ev);
+      if (!note) return;
+      mouseDown = ev.pointerType === 'mouse';
+      press(note);
+    });
+    svg.addEventListener('pointerover', (ev) => {
+      const note = noteOf(ev);
+      if (note && mouseDown) press(note);
+    });
+    svg.addEventListener('pointerout', (ev) => {
+      const note = noteOf(ev);
+      if (note && mouseDown) release(note);
+    });
+    svg.addEventListener('pointerenter', loadTone, { once: true });
+    svg.addEventListener('focus', loadTone, { once: true });
+    window.addEventListener('pointerup', () => {
+      mouseDown = false;
+      releaseAll();
+    });
+    window.addEventListener('pointercancel', releaseAll);
+
+    // Keyboard, only while the piano has focus, so typing elsewhere never makes sound.
+    svg.addEventListener('keydown', (ev) => {
+      if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
+      const note = keyboardMapping.get(ev.key.toLowerCase());
+      if (!note) return;
+      ev.preventDefault();
+      if (!ev.repeat) press(note);
+    });
+    svg.addEventListener('keyup', (ev) => {
+      const note = keyboardMapping.get(ev.key.toLowerCase());
+      if (note) release(note);
+    });
+    svg.addEventListener('blur', releaseAll);
+
+    // Show the layout's keys and map the letters to them.
+    function applyLayout() {
+      const layout = LAYOUTS.find((l) => window.matchMedia(l.query).matches)!;
+      const visibleWidth = layout.naturals * keyWidth;
+      svg.setAttribute('viewBox', `0 0 ${visibleWidth} ${keyHeight}`);
+      const visibleFlats = flatKeys.filter((k) => Number(k.getAttribute('x')) < visibleWidth);
+      keyboardMapping = new Map([
+        ...[...layout.whites].map((c, i) => [c, naturalKeys[i].dataset.note!] as const),
+        ...[...layout.blacks].slice(0, visibleFlats.length).map((c, i) => [c, visibleFlats[i].dataset.note!] as const),
+      ]);
+      releaseAll();
+    }
+
+    LAYOUTS.forEach((l) => window.matchMedia(l.query).addEventListener('change', applyLayout));
+    applyLayout();
+
+    // Follow the site's sound switch: silence the piano at once when it goes off.
+    const hint = root.querySelector('.piano__hint')!;
+    const updateHint = () => (hint.textContent = isSoundOn() || !soundChoiceMade() ? HINT_ON : HINT_OFF);
+    document.addEventListener('sound:change', () => {
+      if (isSoundOn()) {
+        audioContext?.resume();
+      } else {
+        synth?.releaseAll();
+        audioContext?.suspend();
+      }
+      updateHint();
+    });
+    updateHint();
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-piano]').forEach(initPiano);
+</script>
