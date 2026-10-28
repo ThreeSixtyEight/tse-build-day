@@ -117,7 +117,6 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
         {s.data.flat && (
           <ChapterFlat
             id={s.data.fullScreen ? `${s.id}-flat` : s.id}
-            number={s.data.order}
             {...s.data.flat}
             quote={flatQuote}
             takeaway={s.data.takeaway}

@@ -9,8 +9,7 @@ import Takeaway from './Takeaway.astro';
 
 interface Props {
   id: string;
-  number: number;
-  // Gold line above the heading: the chapter number, a dash, then the place and year.
+  // Gold line above the heading: the place and year.
   eyebrow?: string;
   heading: string;
   body: string;
@@ -23,7 +22,7 @@ interface Props {
   dark?: boolean;
 }
 
-const { id, number, eyebrow, heading, body, cutout, prop, background, quote, caption, takeaway, dark } = Astro.props;
+const { id, eyebrow, heading, body, cutout, prop, background, quote, caption, takeaway, dark } = Astro.props;
 ---
 
 <section
@@ -48,7 +47,7 @@ const { id, number, eyebrow, heading, body, cutout, prop, background, quote, cap
     {
       eyebrow && (
         <p class="flat__eyebrow">
-          {String(number).padStart(2, '0')} – {eyebrow}
+          {eyebrow}
         </p>
       )
     }
