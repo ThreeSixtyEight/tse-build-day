@@ -82,7 +82,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
             const last = i === s.data.scenes.length - 1;
             return (
               <section
-                class="section scene"
+                class:list={["section scene", { "section--into-flat": last && s.data.flat }]}
                 id={i ? `${s.id}-${i + 1}` : s.id}
                 data-section={s.id}
                 data-scene={i + 1}
@@ -101,7 +101,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
             );
           })
         ) : (
-          <section class:list={['section', { 'section--stage': s.data.background }]} id={s.id} data-section={s.id} style={bg(s.id, s.data.background)}>
+          <section class:list={['section', { 'section--stage': s.data.background, 'section--into-flat': s.data.flat }]} id={s.id} data-section={s.id} style={bg(s.id, s.data.background)}>
             <div class="wrap">
               <h2>{s.data.title}</h2>
               <Content />
@@ -365,11 +365,22 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
   }
   /* width: auto so the left margin narrows the column instead of pushing it past the right edge. */
   .section--stage .wrap { width: auto; max-width: 34rem; margin-inline: clamp(1rem, 6vw, 6rem) auto; }
+  /* Followed by its flat panel: no divider, and the scene's foot fades into the panel colour so the two read as one story. */
+  .section.section--into-flat {
+    border-bottom: 0;
+    background: linear-gradient(rgb(239 231 216 / 0) 70%, #efe7d8), linear-gradient(rgb(0 0 0 / 0.55), rgb(0 0 0 / 0.55)), var(--photo, none) center / cover #222;
+  }
+  .section.section--stage.section--into-flat {
+    background:
+      linear-gradient(rgb(239 231 216 / 0) 70%, #efe7d8),
+      linear-gradient(90deg, rgb(0 0 0 / 0.8), rgb(0 0 0 / 0.55) 35%, rgb(0 0 0 / 0) 65%),
+      var(--photo) 70% center / cover #222;
+  }
   /* The piano panel is just the painted keys, right below the chapter before it: no screen height, padding or dark backdrop. */
   .section.section--keys { min-height: 0; padding: 0; border-bottom: 0; background: none; }
 
   .section { padding-block: 3rem; border-bottom: 1px solid var(--line); }
-  .section h2 { margin: 0.25rem 0 1rem; font-size: clamp(2.25rem, 5vw, 4rem); }
+  .section h2 { margin: 0.25rem 0 2rem; font-size: clamp(2.25rem, 5vw, 4rem); }
   .caption { color: var(--muted); font-size: 0.875rem; }
   .scene__text { font-size: clamp(1.25rem, 2.2vw, 1.75rem); line-height: 1.45; max-width: 38rem; }
   .spotify { border: 0; border-radius: 12px; max-width: 40rem; }

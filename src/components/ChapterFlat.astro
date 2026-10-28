@@ -8,7 +8,7 @@ import Takeaway from './Takeaway.astro';
 
 interface Props {
   id: string;
-  heading: string;
+  heading?: string;
   body: string;
   cutout: { src: string; alt: string; bleed?: boolean };
   prop?: { src: string; alt: string };
@@ -21,7 +21,7 @@ interface Props {
 const { id, heading, body, cutout, prop, background, quote, caption, takeaway } = Astro.props;
 ---
 
-<section class:list={['section flat', background && 'flat--painted']} id={id} data-section={id}>
+<section class:list={['section flat', background && 'flat--painted', !background && cutout.bleed && 'flat--bleed']} id={id} data-section={id}>
   {background && <img class="flat__bg" src={background.src} alt={background.alt} />}
   <div class="flat__art" aria-hidden={cutout.alt ? undefined : 'true'}>
     {!background && prop && <img class="flat__prop" src={prop.src} alt={prop.alt} data-drift="0.15" />}
@@ -34,7 +34,7 @@ const { id, heading, body, cutout, prop, background, quote, caption, takeaway } 
     }
   </div>
   <div class="flat__text">
-    <h2>{heading}</h2>
+    {heading && <h2>{heading}</h2>}
     {body.split(/\n\s*\n/).map((para) => <p>{para.trim()}</p>)}
     {quote && <Quote {...quote} />}
     {caption && <p class="caption">{caption}</p>}
@@ -59,7 +59,7 @@ const { id, heading, body, cutout, prop, background, quote, caption, takeaway } 
     background: #efe7d8;
   }
   .flat__text { position: relative; z-index: 1; padding-inline: 1rem clamp(1.5rem, 6vw, 6rem); max-width: 38rem; }
-  .flat h2 { margin: 0 0 1rem; font-size: clamp(2.25rem, 5vw, 4rem); }
+  .flat h2 { margin: 0 0 2rem; font-size: clamp(2.25rem, 5vw, 4rem); }
   .flat__art { position: relative; align-self: stretch; }
   .flat__prop, .flat__cutout { position: absolute; max-width: none; }
   .flat__prop { left: -30%; bottom: 12%; width: 115%; }
@@ -100,6 +100,12 @@ const { id, heading, body, cutout, prop, background, quote, caption, takeaway } 
     .flat__cutout--bleed { left: 0; translate: none; width: 100%; height: auto; bottom: 4%; }
     .flat__prop { left: -10%; width: 120%; bottom: 8%; }
   }
+
+  /* A bleed cutout sits in the flow instead of pinned to the panel's foot, so the panel is only as tall as its
+     content and follows straight on from the scene above, with the cutout and the copy centred on the same line. */
+  .flat.flat--bleed { min-height: 0; padding-block: 1.5rem 3rem; grid-template-rows: auto; }
+  .flat.flat--bleed .flat__art { align-self: center; }
+  .flat.flat--bleed .flat__cutout--bleed { position: relative; display: block; bottom: auto; }
 </style>
 
 <script>

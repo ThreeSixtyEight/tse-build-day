@@ -35,7 +35,8 @@ const sections = defineCollection({
     // Each chapter is two panels: the full-screen scene, then a flat neutral panel with a cutout and text.
     flat: z
       .object({
-        heading: z.string(),
+        // Optional: without one, the panel reads as a continuation of the scene before it.
+        heading: z.string().optional(),
         body: z.string(),
         // Transparent cutout in front, and an optional prop behind it that moves slower as the page scrolls.
         // bleed: a wide cutout cropped at its left end, so it runs off the left edge of the screen.
