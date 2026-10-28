@@ -1,10 +1,9 @@
 ---
 // Theater scene with a spotlight that follows the pointer: Osmo's Spotlight Cursor (Unicorn Studio) with its
-// image swapped for Jon at the piano at the Count Basie Theatre. The scene file is public/theater/spotlight.json,
-// Osmo's export with the image layer pointed at public/theater/count-basie.jpg.
+// image swapped for the painted stage (public/theater/stage.jpg). The scene file is public/theater/spotlight.json,
+// Osmo's export with the image layer pointed at that painting.
 // Unicorn Studio loads when the section is near the screen. It's off on phones (data-us-disablemobile), where the
-// dimmed photo shows instead, and the same photo shows if WebGL or the script isn't available.
-// Photo: Jonathan Schilling, CC BY-SA 4.0, credited in src/data/credits.json.
+// dimmed painting shows instead, and the same painting shows if WebGL or the script isn't available.
 ---
 
 <section class="section theater" id="theater" data-section="theater">
@@ -17,14 +16,9 @@
     data-us-dpi="1"
     data-us-lazyload="false"
     role="img"
-    aria-label="Jon Batiste at a grand piano on a dark theater stage, the audience standing below"
+    aria-label="Painting of a pianist in a green striped suit at a grand piano in a pool of light, facing rows of empty red theater seats"
   >
   </div>
-  <p class="theater__caption">Red Bank, 2024</p>
-  <p class="theater__credit">
-    Photo: <a href="https://commons.wikimedia.org/wiki/File:Jon_Batiste_at_the_piano_in_improvised_performance_at_Count_Basie_Theatre.jpg">Jonathan Schilling</a>,{' '}
-    <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>, spotlight added
-  </p>
 </section>
 
 <style>
@@ -38,32 +32,18 @@
   .theater__fallback {
     position: absolute;
     inset: 0;
-    background: url(/theater/count-basie.jpg) center / cover no-repeat;
+    background: url(/theater/stage.jpg) center / cover no-repeat;
     filter: brightness(0.55);
   }
-  /* Once the scene renders it covers the fallback. */
+  /* Once the scene renders it covers the fallback. The scene stretches its image to the box it's given, so the box
+     keeps the painting's proportions and covers the section, cropped at the edges like the fallback. */
   .spotlight-cursor__wrap {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-  }
-  .theater__caption,
-  .theater__credit {
-    position: absolute;
-    z-index: 1;
-    margin: 0;
-    color: rgba(255, 255, 255, 0.75);
-    font-size: 0.75rem;
-    pointer-events: auto;
-  }
-  .theater__caption { left: var(--gutter); bottom: var(--gutter); font-size: 0.875rem; }
-  .theater__credit { right: calc(var(--gutter) + 64px); bottom: var(--gutter); }
-  .theater__credit a { color: inherit; }
-
-  @media (max-width: 40em) {
-    .theater__credit { left: var(--gutter); right: auto; bottom: calc(var(--gutter) + 1.5rem); }
-    .theater__caption { bottom: calc(var(--gutter) + 3rem); }
+    left: 50%;
+    top: 50%;
+    width: max(100%, 100svh * 1992 / 1121);
+    aspect-ratio: 1992 / 1121;
+    translate: -50% -50%;
   }
 </style>
 
