@@ -69,7 +69,17 @@ const sharps = (
   .piano__key--natural.piano__key--active { fill: rgba(120, 70, 170, 0.65); transition: none; }
   .piano__key--flat.piano__key--active { fill: rgba(255, 170, 100, 0.45); transition: none; }
 
-  .piano__hint { margin: 0 auto 1.25rem; font-size: 0.875rem; text-align: center; color: var(--muted); }
+  /* Set like the section headings: Gunter, uppercase, heading size. */
+  .piano__hint {
+    margin: 0 auto 1.25rem;
+    font-family: 'gunter', 'Melodrama', serif;
+    font-weight: 400;
+    font-size: clamp(2.25rem, 5vw, 4rem);
+    line-height: 0.95;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--muted);
+  }
 </style>
 
 <script>
