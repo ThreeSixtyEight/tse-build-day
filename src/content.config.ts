@@ -21,6 +21,9 @@ const sections = defineCollection({
     // Words spoken or sung in this section, shown on the transcript page.
     transcript: z.string().optional(),
     quotes: z.array(reference('quotes')).default([]),
+    // A chapter as full-screen scenes in order (intro, resolution), each a background photo and its copy.
+    // photo: an Unsplash photo id, credited in src/data/credits.json. Without scenes the section shows its body copy.
+    scenes: z.array(z.object({ text: z.string(), photo: z.string().optional() })).default([]),
     // Full-screen scene behind the section's first panel. Without one, the placeholder photo in index.astro shows.
     background: z.string().optional(),
     // Each chapter is two panels: the full-screen scene, then a flat neutral panel with a cutout and text.
@@ -28,7 +31,7 @@ const sections = defineCollection({
       .object({
         heading: z.string(),
         body: z.string(),
-        // Transparent cutout in front, and an optional prop behind it that moves slower as the line slides.
+        // Transparent cutout in front, and an optional prop behind it that moves slower as the page scrolls.
         cutout: z.object({ src: z.string(), alt: z.string() }),
         prop: z.object({ src: z.string(), alt: z.string() }).optional(),
         quote: reference('quotes').optional(),

@@ -4,8 +4,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Notes from '../components/Notes.astro';
 import ChapterFlat from '../components/ChapterFlat.astro';
 import Quote from '../components/Quote.astro';
-import SectionStaves from '../components/SectionStaves.astro';
-import HorizontalLine from '../components/HorizontalLine.astro';
 import Piano from '../components/Piano.astro';
 import TheaterSpotlight from '../components/TheaterSpotlight.astro';
 import { site } from '../site.config';
@@ -26,7 +24,6 @@ const rendered = await Promise.all(
 // ponytail: one 2000px image for every screen, add a srcset-style image-set when the final photos land.
 const photos: Record<string, string> = {
   entry: '1525994886773-080587e161c2',
-  'section-1': '1635352934507-cd4ad73275c6',
   'section-3': '1771868557440-ab1f8e4d6006',
   // Reused until final photos land: the transcript street for the homecoming, the entry street for the send-off.
   'section-4': '1775227970630-9c03b7406132',
@@ -36,15 +33,15 @@ const photos: Record<string, string> = {
   transcript: '1775227970630-9c03b7406132',
   credits: '1767468200550-e6945e9b7f5f',
 };
-const bg = (id: string, own?: string) =>
-  own
-    ? `--photo: url(${own})`
-    : photos[id] && `--photo: url(https://images.unsplash.com/photo-${photos[id]}?w=2000&q=70&auto=format&fit=crop)`;
+const photoVar = (photo: string) =>
+  `--photo: url(https://images.unsplash.com/photo-${photo}?w=2000&q=70&auto=format&fit=crop)`;
+const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[id] && photoVar(photos[id]));
 ---
 
 <BaseLayout>
   <!-- Hero art from Figma (Build Day, frame 60:276), layers in public/hero. Positions are % of the 1440×900 frame. -->
-  <!-- Two screens tall: the art stays pinned while scrolling moves Jon down and the buildings up into the street scene (Figma Frame 28). -->
+  <!-- Three screens tall: the art stays pinned while scrolling drops Jon and lifts the title away, then pans right along the street
+       to Jon leading the second line (Figma Frame 47 → Frame 51). -->
   <section class="hero" id="entry" data-section="entry">
     <!-- Hide the layers until the load-in plays; shown anyway after 3s in case the script fails. -->
     <script is:inline>
@@ -55,7 +52,12 @@ const bg = (id: string, own?: string) =>
       <div class="hero__stage">
         <!-- Sky animation loops silently behind the art. No poster: sky.webp is the whole street scene, so it doubled the buildings while the video buffered. -->
         <video class="hero__sky" src="/hero/sky.mp4" autoplay muted loop playsinline disablepictureinpicture aria-hidden="true"></video>
-        <img class="hero__buildings" src="/hero/buildings.webp" alt="" />
+        <!-- The street and the parade on it move as one layer; the corner building in front sits over the parade. -->
+        <div class="hero__street">
+          <img src="/hero/street.webp" alt="" />
+          <img class="hero__parade" src="/hero/parade.webp" alt="Jon Batiste leading a second line brass band down the street" />
+          <img src="/hero/street-front.webp" alt="" />
+        </div>
         <h1 class="hero__title">
           <span class="hero__line"><span class="hero__small">The</span> Story <span class="hero__small">of</span></span>
           Jon Batiste
@@ -66,29 +68,61 @@ const bg = (id: string, own?: string) =>
     </div>
   </section>
 
-  <!-- The second line: one section per file in src/content/sections. -->
+  <!-- The second line: one section per file in src/content/sections. A chapter with scenes gets one full-screen panel per scene,
+       and a chapter with a flat panel ends on it. -->
   <div id="line">
     {
       rendered.map(({ s, Content, quotes, flatQuote }) => (
         <>
-        <section class="section" id={s.id} data-section={s.id} style={bg(s.id, s.data.background)}>
-          <div class="wrap">
-            <h2>{s.data.title}</h2>
-            <Content />
-            {quotes.map((q) => (
-              <Quote {...q.data} />
-            ))}
-            {s.data.caption && <p class="caption">{s.data.caption}</p>}
-            <Notes
-              items={[
-                `Purpose: ${s.data.purpose}`,
-                `Directives: ${s.data.directives.length ? s.data.directives.join(', ') : 'TBD'}`,
-                `Key interaction: ${s.data.interaction}`,
-                `Main content type: ${s.data.media ?? 'TBD'}`,
-              ]}
-            />
-          </div>
-        </section>
+        {s.data.scenes.length ? (
+          s.data.scenes.map((scene, i) => {
+            const last = i === s.data.scenes.length - 1;
+            return (
+              <section
+                class="section scene"
+                id={i ? `${s.id}-${i + 1}` : s.id}
+                data-section={s.id}
+                data-scene={i + 1}
+                style={scene.photo && photoVar(scene.photo)}
+              >
+                <div class="wrap">
+                  {i === 0 && <h2>{s.data.title}</h2>}
+                  <p class="scene__text">{scene.text}</p>
+                  {i === 0 && s.data.caption && <p class="caption">{s.data.caption}</p>}
+                  {last && quotes.map((q) => <Quote {...q.data} />)}
+                  {last && (
+                    <Notes
+                      items={[
+                        `Purpose: ${s.data.purpose}`,
+                        `Directives: ${s.data.directives.length ? s.data.directives.join(', ') : 'TBD'}`,
+                        `Key interaction: ${s.data.interaction}`,
+                      ]}
+                    />
+                  )}
+                </div>
+              </section>
+            );
+          })
+        ) : (
+          <section class:list={['section', { 'section--stage': s.data.background }]} id={s.id} data-section={s.id} style={bg(s.id, s.data.background)}>
+            <div class="wrap">
+              <h2>{s.data.title}</h2>
+              <Content />
+              {quotes.map((q) => (
+                <Quote {...q.data} />
+              ))}
+              {s.data.caption && <p class="caption">{s.data.caption}</p>}
+              <Notes
+                items={[
+                  `Purpose: ${s.data.purpose}`,
+                  `Directives: ${s.data.directives.length ? s.data.directives.join(', ') : 'TBD'}`,
+                  `Key interaction: ${s.data.interaction}`,
+                  `Main content type: ${s.data.media ?? 'TBD'}`,
+                ]}
+              />
+            </div>
+          </section>
+        )}
         {s.data.flat && (
           <ChapterFlat id={`${s.id}-flat`} number={s.data.order} {...s.data.flat} quote={flatQuote} />
         )}
@@ -198,11 +232,6 @@ const bg = (id: string, own?: string) =>
       }
     </div>
   </section>
-
-  <!-- Section transitions: a playable music staff at every seam. -->
-  <SectionStaves />
-  <!-- The second line scrolls sideways through its stops. -->
-  <HorizontalLine />
 </BaseLayout>
 
 <script>
@@ -211,9 +240,33 @@ const bg = (id: string, own?: string) =>
 
   gsap.registerPlugin(ScrollTrigger);
 
-  // Scroll from the hero to the street: the buildings move up 806px of the 1440-wide frame (Figma Frame 27 → Frame 28),
-  // the title goes with them and Jon drops out before the street settles. The art is pinned by CSS sticky.
+  // Scroll from the hero to the street: the street rises from below the screen, bringing the head of the parade into view,
+  // as the title lifts away 806px of the 1440-wide frame and Jon drops out. Then the street pans right until its right edge meets the screen's, revealing the parade, but no further than Jon at the head of it
+  // (on a phone the street runs on well past him). The art is pinned by CSS sticky.
   const stage = document.querySelector<HTMLElement>('.hero__stage');
+  const street = document.querySelector<HTMLElement>('.hero__street')!;
+  const parade = street.querySelector<HTMLElement>('.hero__parade')!;
+  const pan = () => {
+    // The stage is centred, so it may be cropped at the sides.
+    const stageLeft = (innerWidth - stage!.offsetWidth) / 2;
+    const toEdge = stageLeft + street.offsetLeft + street.offsetWidth - innerWidth;
+    const toJon = stageLeft + street.offsetLeft + parade.offsetLeft - innerWidth * 0.05;
+    return Math.max(0, Math.min(toEdge, toJon));
+  };
+  // How far the street starts below where it settles: just enough to hide the parade under the bottom of the screen.
+  const drop = () => {
+    const stageTop = (innerHeight - stage!.offsetHeight) / 2;
+    return Math.max(0, innerHeight - (stageTop + street.offsetTop + parade.offsetTop));
+  };
+  // Where the street settles: raised until the bottom of the parade is on screen, but never so far that the street's
+  // own bottom edge shows (12px spare covers the mouse parallax).
+  const lift = () => {
+    const stageTop = (innerHeight - stage!.offsetHeight) / 2;
+    const top = stageTop + street.offsetTop;
+    const toParade = innerHeight - (top + parade.offsetTop + parade.offsetHeight) - innerHeight * 0.02;
+    const toEdge = innerHeight + 12 - (top + street.offsetHeight);
+    return Math.min(0, Math.max(toParade, toEdge));
+  };
 
   // Reduced motion: hold the sky on its first frame.
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -221,14 +274,14 @@ const bg = (id: string, own?: string) =>
   }
   const frame = () => stage!.offsetWidth / 1440;
 
-  // Load-in: the buildings rise, then the title drops in from above as Jon rises from below. Slides only, no fades.
+  // Load-in: the street rises, then the title drops in from above as Jon rises from below. Slides only, no fades.
   // Uses yPercent so it stacks with the scroll tween's y.
   const layers = [...stage!.querySelectorAll('img')];
   Promise.all([document.fonts.ready, ...layers.map((img) => img.decode().catch(() => {}))]).then(() => {
     gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
       gsap
         .timeline({ defaults: { ease: 'power3.out' } })
-        .from('.hero__buildings', { yPercent: 8, duration: 1.4 })
+        .from('.hero__street', { yPercent: 8, duration: 1.4 })
         .from('.hero__title', { yPercent: -220, duration: 1.2 }, '-=0.4')
         .from('.hero__jon', { yPercent: 100, duration: 1.2 }, '<');
     });
@@ -241,8 +294,10 @@ const bg = (id: string, own?: string) =>
         defaults: { ease: 'none' },
         scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom bottom', scrub: true, invalidateOnRefresh: true },
       })
-      .to(['.hero__buildings', '.hero__title'], { y: () => -806 * frame(), duration: 1 }, 0)
-      .to('.hero__jon', { y: () => 720 * frame(), duration: 0.6 }, 0);
+      .fromTo('.hero__street', { y: () => drop() }, { y: () => lift(), duration: 1 }, 0)
+      .to('.hero__title', { y: () => -806 * frame(), duration: 1 }, 0)
+      .to('.hero__jon', { y: () => 720 * frame(), duration: 0.6 }, 0)
+      .to('.hero__street', { x: () => -pan(), duration: 1 }, 1);
   });
 
   // Mouse parallax: the pointer sets --mx/--my (-1 to 1) on the stage and each layer drifts by its own depth (CSS).
@@ -274,10 +329,12 @@ const bg = (id: string, own?: string) =>
   .section { display: flex; flex-direction: column; justify-content: center; min-height: 100svh; }
 
   /* Hero: the Figma frame scaled to cover the screen, cropped at the sides on tall screens. */
-  .hero { position: relative; height: 200svh; background: #8bbdce; }
+  .hero { position: relative; height: 300svh; background: #8bbdce; }
   .hero__pin { position: sticky; top: 0; height: 100svh; overflow: hidden; }
-  /* Second snap point: the street scene. */
-  .hero::after { content: ''; position: absolute; bottom: 0; height: 100svh; scroll-snap-align: start; }
+  /* More snap points: the street scene, then the end of the pan. */
+  .hero::before, .hero::after { content: ''; position: absolute; height: 100svh; scroll-snap-align: start; }
+  .hero::before { top: 100svh; }
+  .hero::after { bottom: 0; }
   .hero__stage {
     position: absolute;
     left: 50%;
@@ -287,10 +344,13 @@ const bg = (id: string, own?: string) =>
     translate: -50% -50%;
   }
   .hero__stage > *, .hero__border { position: absolute; margin: 0; }
-  :global(html.hero-intro) :is(.hero__buildings, .hero__jon, .hero__title) { visibility: hidden; }
+  :global(html.hero-intro) :is(.hero__street, .hero__jon, .hero__title) { visibility: hidden; }
   /* The sky video is rendered at the frame's 16:10, so it covers the pinned stage edge to edge. */
   .hero__sky { inset: 0; width: 100%; height: 100%; object-fit: cover; max-width: none; }
-  .hero__buildings { left: -2.15%; top: -30.33%; width: 104.31%; height: 223.67%; max-width: none; }
+  /* Street from Figma Frame 47 (2159×1205 at x -359, y -152). The parade sits on it where Frame 51 puts it. */
+  .hero__street { left: -24.95%; top: -16.94%; width: 149.91%; height: 133.87%; }
+  .hero__street img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
+  .hero__street .hero__parade { left: 50.46%; top: 49.96%; width: 46.18%; height: auto; }
   /* Sizes from the Figma frame (big words 97.95px, small 44.24px at 1440 wide), capped so the title fits a phone. Sits behind Jon's head. */
   .hero__stage { container-type: inline-size; }
   .hero__title {
@@ -306,6 +366,8 @@ const bg = (id: string, own?: string) =>
     text-align: center;
     text-transform: uppercase;
     color: #fff;
+    /* Figma: 4px 5px 0 at 1440 wide. */
+    text-shadow: calc(var(--u) * 0.28) calc(var(--u) * 0.35) 0 rgb(1 86 75 / 0.5);
   }
   .hero__line { display: flex; align-items: baseline; gap: 0.25em; }
   .hero__small { font-family: 'Melodrama', serif; font-weight: 700; font-size: 0.45em; letter-spacing: 0.07em; }
@@ -314,10 +376,10 @@ const bg = (id: string, own?: string) =>
   /* Mouse parallax depths: nearer layers drift further, against the pointer.
      !important because GSAP writes translate: none inline on anything it tweens; its own moves go in transform, so the two stack. */
   .hero__stage { --mx: 0; --my: 0; }
-  .hero__buildings { --depth: 0.6cqw; }
+  .hero__street { --depth: 0.6cqw; }
   .hero__title { --depth: 1.2cqw; }
   .hero__jon { --depth: 2cqw; }
-  .hero__buildings, .hero__title, .hero__jon {
+  .hero__street, .hero__title, .hero__jon {
     translate: calc(var(--mx) * var(--depth) * -1) calc(var(--my) * var(--depth) * -1) !important;
   }
 
@@ -343,9 +405,16 @@ const bg = (id: string, own?: string) =>
     background: linear-gradient(rgb(0 0 0 / 0.55), rgb(0 0 0 / 0.55)), var(--photo, none) center / cover #222;
   }
 
+  /* A chapter's own full-screen scene: the subject sits right of centre, so the copy keeps to the left over a darker side. */
+  .section--stage {
+    background: linear-gradient(90deg, rgb(0 0 0 / 0.8), rgb(0 0 0 / 0.55) 35%, rgb(0 0 0 / 0) 65%), var(--photo) 70% center / cover #222;
+  }
+  .section--stage .wrap { max-width: 34rem; margin-inline: clamp(1rem, 6vw, 6rem) auto; }
+
   .section { padding-block: 3rem; border-bottom: 1px solid var(--line); }
   .section h2 { margin-top: 0; }
   .caption { color: var(--muted); font-size: 0.875rem; }
+  .scene__text { font-size: clamp(1.25rem, 2.2vw, 1.75rem); line-height: 1.45; max-width: 38rem; }
   .spotify { border: 0; border-radius: 12px; max-width: 40rem; }
   .entry { border-top: 1px solid var(--line); margin-top: 1.5rem; padding-top: 1rem; }
   .entry h3, .section h3 { font-size: 1.125rem; margin: 1.5rem 0 0.5rem; }

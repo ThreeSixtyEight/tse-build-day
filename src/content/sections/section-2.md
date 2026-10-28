@@ -12,8 +12,7 @@ media: still
 caption: Snug Harbor, New Orleans, c. 2001
 quotes:
   - alvin-batiste
-# Placeholder until Gabe's stage scene lands: swap the file, keep the path.
-background: /chapter-2/snug-harbor.svg
+background: /chapter-2/snug-harbor.webp
 flat:
   heading: Leaving for New York
   body: He keeps playing with the Jazztronauts through high school. In 2004 he graduates and heads north to Juilliard.

@@ -7,7 +7,7 @@ Astro 7 scaffold for the Build Day fan site: Jon Batiste's story told through a 
 - `src/site.config.ts` — site name, description, official site link. Feeds `<head>`, header and footer.
 - `src/layouts/BaseLayout.astro` — HTML shell with Header and Footer.
 - `src/pages/index.astro` — the whole site on one page: hero (scrolls into the street scene), the second line (`sections` collection, sorted by `order`), Listen (official embeds), End of the line (links to his official site), Transcript and Credits.
-- `src/content/sections/*.md` — one file per section; frontmatter mirrors the section flow (purpose, directives, interaction, media, caption, transcript, quotes).
+- `src/content/sections/*.md` — one file per section; frontmatter mirrors the section flow (purpose, directives, interaction, media, caption, transcript, quotes). A chapter with `scenes` (photo + text each, e.g. intro and resolution) shows one full-screen panel per scene instead of its body.
 - `src/data/quotes.json`, `src/data/credits.json` — `file()` collections, empty until sourced.
 - `src/components/Notes.astro` — temporary build notes shown on the page; remove as final copy lands.
 - `src/content.config.ts` — collection definitions (`import { z } from 'astro/zod'`; Zod v4). Swapping a collection's `loader` is the CMS migration path.

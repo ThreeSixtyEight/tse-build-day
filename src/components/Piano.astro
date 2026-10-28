@@ -1,114 +1,72 @@
 ---
 // Playable piano, after Codrops' Musical Interactions piano (github.com/codrops/MusicalInteractions).
-// Drawn as an upright piano's keyboard: a black lacquer case with fallboard, cheek blocks and key slip,
-// ivory naturals, glossy sharps and a strip of red felt. Three octaves, C3 to C6.
+// The piano is a painting (public/piano/painted-keys.jpg, 2000 × 996) with an invisible key over each painted key.
+// Key positions below are measured from the painting, in its pixels. It runs E3 to E6; the last E is cut off by
+// the painting's edge but still plays. Narrower screens crop the painting to fewer keys instead of squashing it.
 // Sound comes from a Tone.js synth, loaded on first use, and follows the site's sound switch (scripts/sound.ts).
-const KEY_W = 40;
-const KEY_H = 200;
-const NATURALS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-const HAS_SHARP = new Set(['C', 'D', 'F', 'G', 'A']);
+const IMG = { src: '/piano/painted-keys.jpg', w: 2000, h: 996 };
+const WHITE_BOTTOM = 636;
+const BLACK_BOTTOM = 425;
 
-const naturals: { note: string; x: number }[] = [];
-const sharps: { note: string; x: number }[] = [];
-for (let octave = 3; octave <= 6; octave++) {
-  for (const name of NATURALS) {
-    if (octave === 6 && name !== 'C') break;
-    const x = naturals.length * KEY_W;
-    naturals.push({ note: `${name}${octave}`, x });
-    if (HAS_SHARP.has(name) && octave < 6) sharps.push({ note: `${name}#${octave}`, x: x + KEY_W - 10 });
-  }
-}
+// Left edges of the white keys; each key runs to the next edge, the last to the painting's edge.
+const whiteEdges = [12, 105, 198, 291, 385, 478, 571, 664, 757, 850, 945, 1037, 1130, 1224, 1320, 1412, 1507, 1595, 1681, 1774, 1867, 1955];
+const whiteNotes = ['E3', 'F3', 'G3', 'A3', 'B3', 'C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5', 'G5', 'A5', 'B5', 'C6', 'D6', 'E6'];
+const naturals = whiteNotes.map((note, i) => ({ note, x: whiteEdges[i], w: (whiteEdges[i + 1] ?? IMG.w) - whiteEdges[i] }));
+// The partial key at the far left (0–12) belongs to D3, which the painting cuts off; it isn't playable.
+
+// Black keys as painted: [note, left, right].
+const sharps = (
+  [
+    ['D#3', 0, 49], ['F#3', 148, 212], ['G#3', 257, 319], ['A#3', 360, 420],
+    ['C#4', 526, 588], ['D#4', 638, 703], ['F#4', 806, 868], ['G#4', 912, 975], ['A#4', 1022, 1083],
+    ['C#5', 1194, 1255], ['D#5', 1309, 1370], ['F#5', 1465, 1526], ['G#5', 1571, 1636], ['A#5', 1674, 1736],
+    ['C#6', 1829, 1892], ['D#6', 1939, 2000],
+  ] as const
+).map(([note, x0, x1]) => ({ note, x: x0, w: x1 - x0 }));
 ---
 
-<div class="piano" data-piano>
-  <div class="piano__case">
-    <div class="piano__fallboard" aria-hidden="true"></div>
-    <div class="piano__cheek" aria-hidden="true"></div>
-    <div class="piano__bed">
-      <div class="piano__felt" aria-hidden="true"></div>
-      <svg
-        class="piano__inner"
-        viewBox={`0 0 ${naturals.length * KEY_W} ${KEY_H}`}
-        preserveAspectRatio="none"
-        tabindex="0"
-        role="group"
-        aria-label="Piano. Press letter and number keys to play."
-        aria-describedby="piano-hint"
-      >
-        <defs>
-          <linearGradient id="piano-ivory" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#f3efe4" />
-            <stop offset="0.85" stop-color="#fdfbf5" />
-            <stop offset="1" stop-color="#e7e1d2" />
-          </linearGradient>
-          <linearGradient id="piano-ebony" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#050505" />
-            <stop offset="0.8" stop-color="#1c1c1e" />
-            <stop offset="0.92" stop-color="#3a3a3e" />
-            <stop offset="1" stop-color="#111" />
-          </linearGradient>
-        </defs>
-        <g class="piano__keys piano__keys--natural">
-          {naturals.map((k) => <rect class="piano__key piano__key--natural" data-note={k.note} x={k.x} width={KEY_W} height={KEY_H} rx="3" />)}
-        </g>
-        <g class="piano__keys piano__keys--flat">
-          {sharps.map((k) => <rect class="piano__key piano__key--flat" data-note={k.note} x={k.x} width={20} height={126} rx="2" />)}
-        </g>
-      </svg>
-    </div>
-    <div class="piano__cheek" aria-hidden="true"></div>
-    <div class="piano__slip" aria-hidden="true"></div>
-  </div>
+<div class="piano" data-piano data-white-edges={JSON.stringify(whiteEdges)} data-image-width={IMG.w}>
+  <svg
+    class="piano__inner"
+    viewBox={`0 0 ${IMG.w} ${IMG.h}`}
+    tabindex="0"
+    role="group"
+    aria-label="Piano. Press letter and number keys to play."
+    aria-describedby="piano-hint"
+  >
+    <image href={IMG.src} width={IMG.w} height={IMG.h} preserveAspectRatio="none" />
+    <g class="piano__keys piano__keys--natural">
+      {naturals.map((k) => <rect class="piano__key piano__key--natural" data-note={k.note} x={k.x} y="0" width={k.w} height={WHITE_BOTTOM} />)}
+    </g>
+    <g class="piano__keys piano__keys--flat">
+      {sharps.map((k) => <rect class="piano__key piano__key--flat" data-note={k.note} x={k.x} y="0" width={k.w} height={BLACK_BOTTOM} rx="6" />)}
+    </g>
+  </svg>
   <p id="piano-hint" class="piano__hint wrap">Play along: tap the keys, or click and type.</p>
 </div>
 
 <style>
   .piano { position: relative; width: 100%; user-select: none; -webkit-user-select: none; }
 
-  /* Upright piano keyboard: fallboard across the top, cheek blocks either side, key slip below.
-     It runs the full width of the screen, edge to edge. */
-  .piano__case {
-    --lacquer: linear-gradient(180deg, #2b2b2f 0%, #0d0d0f 55%, #050506 100%);
-    display: grid;
-    grid-template-columns: clamp(1.25rem, 3vw, 2.5rem) 1fr clamp(1.25rem, 3vw, 2.5rem);
-    grid-template-rows: clamp(2.5rem, 6vw, 4.5rem) auto clamp(0.9rem, 2vw, 1.4rem);
+  /* The painting runs edge to edge; its top and bottom fade into the section. */
+  .piano__inner {
+    display: block;
     width: 100%;
-    background: var(--lacquer);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.18),
-      inset 0 -2px 0 rgba(0, 0, 0, 0.6),
-      0 30px 60px rgba(0, 0, 0, 0.55);
-    overflow: hidden;
+    height: auto;
+    touch-action: manipulation;
+    mask-image: linear-gradient(to bottom, transparent, #000 5%, #000 90%, transparent);
   }
-  /* The fallboard is folded back; its edge catches the light. */
-  .piano__fallboard {
-    grid-column: 1 / -1;
-    background:
-      linear-gradient(180deg, transparent 70%, rgba(255, 255, 255, 0.1) 86%, rgba(0, 0, 0, 0.6) 100%),
-      var(--lacquer);
-  }
-  .piano__cheek { background: linear-gradient(90deg, #18181b, #2a2a2e 50%, #0f0f11); }
-  .piano__bed { min-width: 0; background: #0a0a0a; }
-  /* Red felt where the keys meet the case. */
-  .piano__felt { height: 6px; background: linear-gradient(180deg, #8a1c22, #5c1015); }
-  .piano__slip {
-    grid-column: 1 / -1;
-    background: linear-gradient(180deg, #1d1d20, #08080a);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  }
-
-  .piano__inner { display: block; width: 100%; height: clamp(9rem, 22vw, 14rem); touch-action: manipulation; }
   .piano__inner:focus { outline: none; }
-  .piano__inner:focus-visible { outline: 2px solid #f4f1ea; outline-offset: -2px; }
-  .piano__key--natural { fill: url(#piano-ivory); stroke: #a69f8f; stroke-width: 1px; vector-effect: non-scaling-stroke; }
-  .piano__key--natural.piano__key--active { fill: #ddd5c2; }
-  .piano__key--flat { fill: url(#piano-ebony); }
-  .piano__key--flat.piano__key--active { fill: #3a3a3e; }
-  .piano__hint { margin: 1.25rem auto 0; font-size: 0.875rem; text-align: center; color: var(--muted); }
+  .piano__inner:focus-visible { outline: 2px solid #f4f1ea; outline-offset: -4px; }
 
-  @media (max-width: 30em) {
-    .piano__inner { height: 8rem; }
-  }
+  /* Invisible keys over the painted ones. A pressed white key takes a purple wash, a black key a warm glow. */
+  .piano__key { fill: transparent; cursor: pointer; transition: fill 120ms ease; }
+  .piano__key--natural { mix-blend-mode: multiply; }
+  .piano__key--flat { mix-blend-mode: screen; }
+  .piano__key--natural.piano__key--active { fill: rgba(120, 70, 170, 0.65); transition: none; }
+  .piano__key--flat.piano__key--active { fill: rgba(255, 170, 100, 0.45); transition: none; }
+
+  .piano__hint { margin: 1rem auto 0; font-size: 0.875rem; text-align: center; color: var(--muted); }
 </style>
 
 <script>
@@ -119,10 +77,11 @@ for (let octave = 3; octave <= 6; octave++) {
   const HINT_OFF = 'Sound is off. Turn it on to hear the keys.';
 
   // Codrops' layouts: fewer keys on smaller screens, each with its own letter mapping.
+  // `from` and `naturals` pick the white keys to show, counted from the painting's first key (E3).
   const LAYOUTS = [
-    { query: '(min-width: 50em)', naturals: 22, whites: 'yuiopasdfghjklzxcvbnm,', blacks: "1234567890'qwert" },
-    { query: '(min-width: 30em)', naturals: 15, whites: 'qwertyuiopasdfg', blacks: '1234567890' },
-    { query: 'all', naturals: 8, whites: 'qwertyui', blacks: '12345' },
+    { query: '(min-width: 50em)', from: 0, naturals: 22, whites: 'yuiopasdfghjklzxcvbnm,', blacks: "1234567890'qwert" },
+    { query: '(min-width: 30em)', from: 5, naturals: 15, whites: 'qwertyuiopasdfg', blacks: '1234567890' },
+    { query: 'all', from: 5, naturals: 8, whites: 'qwertyui', blacks: '12345' },
   ];
 
   function initPiano(root: HTMLElement) {
@@ -131,8 +90,9 @@ for (let octave = 3; octave <= 6; octave++) {
     const flatKeys = [...svg.querySelectorAll<SVGRectElement>('.piano__keys--flat > rect')];
     const allKeys = [...naturalKeys, ...flatKeys];
     const keyByNote = new Map(allKeys.map((k) => [k.dataset.note!, k]));
-    const keyWidth = Number(naturalKeys[0].getAttribute('width'));
-    const keyHeight = Number(naturalKeys[0].getAttribute('height'));
+    const whiteEdges: number[] = JSON.parse(root.dataset.whiteEdges!);
+    const imageWidth = Number(root.dataset.imageWidth);
+    const imageHeight = Number(svg.viewBox.baseVal.height);
 
     let keyboardMapping = new Map<string, string>();
     const held = new Set<string>();
@@ -215,14 +175,20 @@ for (let octave = 3; octave <= 6; octave++) {
     });
     svg.addEventListener('blur', releaseAll);
 
-    // Show the layout's keys and map the letters to them.
+    // Crop the painting to the layout's keys and map the letters to them.
     function applyLayout() {
       const layout = LAYOUTS.find((l) => window.matchMedia(l.query).matches)!;
-      const visibleWidth = layout.naturals * keyWidth;
-      svg.setAttribute('viewBox', `0 0 ${visibleWidth} ${keyHeight}`);
-      const visibleFlats = flatKeys.filter((k) => Number(k.getAttribute('x')) < visibleWidth);
+      const last = layout.from + layout.naturals;
+      const x0 = layout.from === 0 ? 0 : whiteEdges[layout.from];
+      const x1 = whiteEdges[last] ?? imageWidth;
+      svg.setAttribute('viewBox', `${x0} 0 ${x1 - x0} ${imageHeight}`);
+      const visibleWhites = naturalKeys.slice(layout.from, last);
+      const visibleFlats = flatKeys.filter((k) => {
+        const centre = Number(k.getAttribute('x')) + Number(k.getAttribute('width')) / 2;
+        return centre > whiteEdges[layout.from] && centre < x1;
+      });
       keyboardMapping = new Map([
-        ...[...layout.whites].map((c, i) => [c, naturalKeys[i].dataset.note!] as const),
+        ...[...layout.whites].slice(0, visibleWhites.length).map((c, i) => [c, visibleWhites[i].dataset.note!] as const),
         ...[...layout.blacks].slice(0, visibleFlats.length).map((c, i) => [c, visibleFlats[i].dataset.note!] as const),
       ]);
       releaseAll();

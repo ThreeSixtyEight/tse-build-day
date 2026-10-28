@@ -1,7 +1,7 @@
 ---
 // A chapter's second panel: flat neutral background, a cutout figure on the left with text beside it and a
-// prop behind it. As the second line slides sideways the prop drifts slower than the cutout, so the two
-// separate in depth. Reduced motion: no drift.
+// prop behind it. As the page scrolls the prop drifts slower than the cutout, so the two separate in depth.
+// Reduced motion: no drift.
 import Notes from './Notes.astro';
 import Quote from './Quote.astro';
 
@@ -22,8 +22,8 @@ const { id, number, heading, body, cutout, prop, quote, caption, notes } = Astro
 
 <section class="section flat" id={id} data-section={id}>
   <div class="flat__art" aria-hidden={cutout.alt ? undefined : 'true'}>
-    {prop && <img class="flat__prop" src={prop.src} alt={prop.alt} data-drift="0.35" />}
-    <img class="flat__cutout" src={cutout.src} alt={cutout.alt} data-drift="0.1" />
+    {prop && <img class="flat__prop" src={prop.src} alt={prop.alt} data-drift="0.15" />}
+    <img class="flat__cutout" src={cutout.src} alt={cutout.alt} data-drift="0.04" />
   </div>
   <div class="flat__text">
     <p class="flat__num">{String(number).padStart(2, '0')}</p>
@@ -77,15 +77,15 @@ const { id, number, heading, body, cutout, prop, quote, caption, notes } = Astro
 <script>
   import { gsap } from 'gsap';
 
-  // Depth as the line slides: each layer shifts against the panel's own movement by its data-drift share.
+  // Depth as the page scrolls: each layer shifts against the panel's own movement by its data-drift share.
   gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
     const layers = [...document.querySelectorAll<HTMLElement>('.flat [data-drift]')];
     const tick = () => {
       for (const el of layers) {
         const panel = el.closest<HTMLElement>('.flat')!;
-        const offset = panel.getBoundingClientRect().left;
-        if (Math.abs(offset) > innerWidth * 1.5) continue;
-        el.style.transform = `translateX(${-offset * Number(el.dataset.drift)}px)`;
+        const offset = panel.getBoundingClientRect().top;
+        if (Math.abs(offset) > innerHeight * 1.5) continue;
+        el.style.transform = `translateY(${-offset * Number(el.dataset.drift)}px)`;
       }
     };
     gsap.ticker.add(tick);
