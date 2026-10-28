@@ -6,6 +6,8 @@ import Quote from '../components/Quote.astro';
 import { site } from '../site.config';
 
 const sections = (await getCollection('sections')).sort((a, b) => a.data.order - b.data.order);
+const credits = await getCollection('credits');
+const allQuotes = await getCollection('quotes');
 const rendered = await Promise.all(
   sections.map(async (s) => ({
     s,
@@ -88,6 +90,61 @@ const rendered = await Promise.all(
       />
     </div>
   </section>
+
+  <!-- Transcript: everything spoken, sung or heard, section by section. -->
+  <section class="section" id="transcript" data-section="transcript">
+    <div class="wrap">
+      <h2>Transcript</h2>
+      <Notes items={['Captions and transcripts are checked by Strategists before launch.']} />
+      {
+        sections.map((s) => (
+          <article class="entry">
+            <h3><a href={`#${s.id}`}>{s.data.title}</a></h3>
+            <p>{s.data.transcript ?? 'Transcript to come.'}</p>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- Credits: every photo, clip, embed and quote on the site. -->
+  <section class="section" id="credits" data-section="credits">
+    <div class="wrap">
+      <h2>Credits</h2>
+      <Notes
+        items={[
+          'Licensed photos only, credited.',
+          'Club names, regalia, footage and music need permission or a credited source.',
+        ]}
+      />
+      <h3>Media</h3>
+      {
+        credits.length ? (
+          <ul>
+            {credits.map(({ data }) => (
+              <li>
+                {data.item} ({data.type}): {data.url ? <a href={data.url}>{data.credit}</a> : data.credit}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Credits to come.</p>
+        )
+      }
+      <h3>Quotes</h3>
+      {
+        allQuotes.length ? (
+          <ul>
+            {allQuotes.map(({ data }) => (
+              <li>{data.url ? <a href={data.url}>{data.source}</a> : data.source}, {data.date}</li>
+            ))}
+          </ul>
+        ) : (
+          <p>Quote sources to come.</p>
+        )
+      }
+    </div>
+  </section>
 </BaseLayout>
 
 <style>
@@ -99,4 +156,6 @@ const rendered = await Promise.all(
   .section { padding-block: 3rem; border-bottom: 1px solid var(--line); }
   .section h2 { margin-top: 0; }
   .caption { color: var(--muted); font-size: 0.875rem; }
+  .entry { border-top: 1px solid var(--line); margin-top: 1.5rem; padding-top: 1rem; }
+  .entry h3, .section h3 { font-size: 1.125rem; margin: 1.5rem 0 0.5rem; }
 </style>

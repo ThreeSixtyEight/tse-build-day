@@ -4,10 +4,9 @@
 Astro 7 scaffold for the Build Day fan site: Jon Batiste's story told through a New Orleans second line. Structure only, no design yet. Static output, deployed on Netlify (`netlify.toml`: build `npm run build`, publish `dist`). No adapter, no server routes. Intentionally unbranded and minimal.
 
 ## Key files
-- `src/site.config.ts` — site name, description, nav. Feeds `<head>`, header and footer.
+- `src/site.config.ts` — site name, description, official site link. Feeds `<head>`, header and footer.
 - `src/layouts/BaseLayout.astro` — HTML shell with Header and Footer.
-- `src/pages/index.astro` — entry gate (hero), the second line (`sections` collection, sorted by `order`), Listen (official embeds) and End of the line (links to his official site).
-- `src/pages/transcript.astro`, `src/pages/credits.astro` — transcript per section; media and quote credits plus the fan-site disclaimer.
+- `src/pages/index.astro` — the whole site on one page: entry gate (hero), the second line (`sections` collection, sorted by `order`), Listen (official embeds), End of the line (links to his official site), Transcript and Credits.
 - `src/content/sections/*.md` — one file per section; frontmatter mirrors the section flow (purpose, directives, interaction, media, caption, transcript, quotes).
 - `src/data/quotes.json`, `src/data/credits.json` — `file()` collections, empty until sourced.
 - `src/components/Notes.astro` — temporary build notes shown on the page; remove as final copy lands.
@@ -19,4 +18,5 @@ Astro 7 scaffold for the Build Day fan site: Jon Batiste's story told through a 
 - Don't add `og:image` — the platform supplies it.
 - Never invent a quote: Jon's words go in `quotes.json` with source and date only.
 - Sound stays off until the visitor opts in; `data-section`, `data-join` and `data-sound-toggle` are hooks for the sound and analytics modules.
-- Copy: nav 1–2 words, buttons 2–3, headlines 4–8, captions "Place, Year".
+- One page, no nav. Header is the site name and the sound toggle; footer links to `#transcript` and `#credits`.
+- Copy: buttons 2–3, headlines 4–8, captions "Place, Year".

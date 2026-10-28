@@ -4,10 +4,7 @@ import { site } from '../site.config';
 
 <header class="header">
   <div class="wrap header__inner">
-    <a href="/" class="logo">{site.siteName}</a>
-    <nav aria-label="Main">
-      <ul>{site.nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}</ul>
-    </nav>
+    <a href="#entry" class="logo">{site.siteName}</a>
     <!-- Mute toggle. Placeholder until the sound module wires it up; sound stays off until the visitor opts in. -->
     <button type="button" class="sound-toggle" data-sound-toggle aria-pressed="false">Sound off</button>
   </div>
@@ -15,11 +12,7 @@ import { site } from '../site.config';
 
 <style>
   .header { border-bottom: 1px solid var(--line); }
-  .header__inner { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; min-height: 4rem; flex-wrap: wrap; }
+  .header__inner { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; min-height: 4rem; }
   .logo { font-weight: 700; text-decoration: none; }
-  nav { margin-left: auto; }
-  nav ul { display: flex; gap: 1.5rem; list-style: none; margin: 0; padding: 0; }
-  nav a { text-decoration: none; }
-  nav a:hover { text-decoration: underline; }
   .sound-toggle { font: inherit; padding: 0.25rem 0.75rem; }
 </style>
