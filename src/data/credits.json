@@ -1,6 +1,7 @@
 [
   { "id": "bg-entry", "type": "photo", "item": "Entry background (placeholder)", "credit": "Robson Hatsukami Morgan on Unsplash", "url": "https://unsplash.com/photos/sEoR_ea8KoE" },
   { "id": "bg-section-1", "type": "photo", "item": "Section 1 background (placeholder)", "credit": "Kristina Volgenau on Unsplash", "url": "https://unsplash.com/photos/Rv7Oi-XBOcQ" },
+  { "id": "bg-section-1-resolution", "type": "photo", "item": "Section 1 resolution background (placeholder, same photo as Listen)", "credit": "Morgan Petroski on Unsplash", "url": "https://unsplash.com/photos/ZCX1Nyok66c" },
   { "id": "bg-section-2", "type": "photo", "item": "Section 2 background (placeholder)", "credit": "Stella He on Unsplash", "url": "https://unsplash.com/photos/cyZuN_AViJQ" },
   { "id": "bg-section-3", "type": "photo", "item": "Section 3 background (placeholder)", "credit": "Fujiphilm on Unsplash", "url": "https://unsplash.com/photos/0offmlXUsOs" },
   { "id": "bg-section-4", "type": "photo", "item": "Section 4 background (placeholder, same photo as Transcript)", "credit": "Emanuel Odadjiev on Unsplash", "url": "https://unsplash.com/photos/XU2TA82lEJY" },

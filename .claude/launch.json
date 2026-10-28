@@ -4,9 +4,21 @@
     {
       "name": "site",
       "runtimeExecutable": "zsh",
-      "runtimeArgs": ["-lic", "npm run dev"],
+      "runtimeArgs": [
+        "-lic",
+        "npm run dev"
+      ],
       "port": 4321,
       "autoPort": false
+    },
+    {
+      "name": "preview",
+      "runtimeExecutable": "zsh",
+      "runtimeArgs": [
+        "-lic",
+        "npx astro preview --port 4400"
+      ],
+      "port": 4400
     }
   ]
 }

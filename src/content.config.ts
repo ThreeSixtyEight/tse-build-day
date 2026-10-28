@@ -21,6 +21,9 @@ const sections = defineCollection({
     // Words spoken or sung in this section, shown on the transcript page.
     transcript: z.string().optional(),
     quotes: z.array(reference('quotes')).default([]),
+    // A chapter as full-screen scenes in order (intro, resolution), each a background photo and its copy.
+    // photo: an Unsplash photo id, credited in src/data/credits.json. Without scenes the section shows its body copy.
+    scenes: z.array(z.object({ text: z.string(), photo: z.string().optional() })).default([]),
   }),
 });
 
