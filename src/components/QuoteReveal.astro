@@ -29,7 +29,8 @@ const { text, source, date, url } = Astro.props;
     z-index: 1;
     justify-content: flex-end;
     padding-bottom: 0;
-    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+    /* The negative spread keeps the shadow below the section, off whatever sits above it. */
+    box-shadow: 0 40px 60px -20px rgba(0, 0, 0, 0.6);
   }
 
   .quote-reveal {

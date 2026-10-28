@@ -24,6 +24,11 @@ const year = new Date().getFullYear();
       </div>
       <div class="footer__col">
         <button type="button" class="footer__sound" data-footer-sound hidden>[ Sound on ]</button>
+        <!-- Required by the samples' CC BY 3.0 license. -->
+        <p class="footer__credit">
+          Piano sound: <a href="https://archive.org/details/SalamanderGrandPianoV3">Salamander Grand Piano</a>,
+          Alexander Holm, <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>
+        </p>
       </div>
       <div class="footer__col">
         <a href="/instrument">[ Instruments ]</a>
@@ -105,6 +110,8 @@ const year = new Date().getFullYear();
   .footer a:focus-visible, .footer__sound:focus-visible { outline: 2px solid var(--footer-accent); outline-offset: 2px; }
   .footer__sound { font: inherit; padding: 0; border: 0; background: none; cursor: pointer; }
   .footer__sound[hidden] { display: none; }
+  .footer__col .footer__credit { margin-top: 0.75rem; max-width: 22em; font-size: 0.75rem; line-height: 1.5; }
+  .footer__credit a { white-space: normal; }
 
   .footer__mark {
     margin: clamp(2.5rem, 6vw, 4rem) 0 0;

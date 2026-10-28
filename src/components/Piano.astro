@@ -28,8 +28,8 @@ const sharps = (
 ---
 
 <div class="piano" data-piano data-white-edges={JSON.stringify(whiteEdges)} data-image-width={IMG.w}>
-  <!-- The hint sits above the keys, so nothing hangs below them. -->
-  <p id="piano-hint" class="piano__hint wrap">Play along: tap the keys, or click and type.</p>
+  <!-- The hint sits on the keys, so nothing comes between them and the section above or below. -->
+  <p id="piano-hint" class="piano__hint">Play along: tap the keys, or click and type.</p>
   <svg
     class="piano__inner"
     viewBox={`0 0 ${IMG.w} ${IMG.h}`}
@@ -51,13 +51,12 @@ const sharps = (
 <style>
   .piano { position: relative; width: 100%; user-select: none; -webkit-user-select: none; }
 
-  /* The painting runs edge to edge; its top fades into the section and it stops right below the keys. */
+  /* The painting runs edge to edge and stops right below the keys. */
   .piano__inner {
     display: block;
     width: 100%;
     height: auto;
     touch-action: manipulation;
-    mask-image: linear-gradient(to bottom, transparent, #000 6%);
   }
   .piano__inner:focus { outline: none; }
   .piano__inner:focus-visible { outline: 2px solid #f4f1ea; outline-offset: -4px; }
@@ -69,7 +68,25 @@ const sharps = (
   .piano__key--natural.piano__key--active { fill: rgba(120, 70, 170, 0.65); transition: none; }
   .piano__key--flat.piano__key--active { fill: rgba(255, 170, 100, 0.45); transition: none; }
 
-  .piano__hint { margin: 0 auto 1.25rem; font-size: clamp(1.125rem, 2vw, 1.5rem); text-align: center; color: var(--muted); }
+  /* The hint sits on the keys near their bottom edge, so nothing comes between the keys and the section above.
+     Clicks pass through it to the keys. */
+  .piano__hint {
+    position: absolute;
+    z-index: 1;
+    left: 50%;
+    bottom: 1rem;
+    translate: -50% 0;
+    width: max-content;
+    max-width: calc(100% - 2rem);
+    margin: 0;
+    padding: 0.3em 0.9em;
+    border-radius: 999px;
+    font-size: clamp(1.125rem, 2vw, 1.5rem);
+    text-align: center;
+    color: #fff;
+    background: rgb(20 11 23 / 0.7);
+    pointer-events: none;
+  }
 </style>
 
 <script>

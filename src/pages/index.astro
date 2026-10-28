@@ -124,7 +124,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
         {/* The piano follows chapter 1, where Jon moves from drums to piano. Scrolling lifts it off a quote underneath. */}
         {s.data.order === 1 && (
           <div class="lift">
-            <section class="section" id="piano" data-section="piano">
+            <section class="section section--keys" id="piano" data-section="piano">
               <Piano />
             </section>
             <QuoteReveal {...pianoQuote} />
@@ -359,6 +359,8 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
   }
   /* width: auto so the left margin narrows the column instead of pushing it past the right edge. */
   .section--stage .wrap { width: auto; max-width: 34rem; margin-inline: clamp(1rem, 6vw, 6rem) auto; }
+  /* The piano panel is just the painted keys, right below the chapter before it: no screen height, padding or dark backdrop. */
+  .section.section--keys { min-height: 0; padding: 0; border-bottom: 0; background: none; }
 
   .section { padding-block: 3rem; border-bottom: 1px solid var(--line); }
   .section h2 { margin: 0.25rem 0 1rem; font-size: clamp(2.25rem, 5vw, 4rem); }
