@@ -127,12 +127,6 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
         {s.data.order === 1 && (
           <div class="lift">
             <section class="section section--keys" id="piano" data-section="piano">
-              {/* Lead-in above the keys: his mother moves him from the drums to the piano. */}
-              <div class="keys-intro">
-                <div class="wrap">
-                  <p>His mother hears one drum too many. So she moves Jon to the piano–the one from Duke Ellington’s orchestra. Mothers around here are usually right.</p>
-                </div>
-              </div>
               <Piano />
             </section>
             <QuoteReveal {...pianoQuote} />
@@ -398,9 +392,6 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
   .section--stage .wrap { width: auto; max-width: 34rem; margin-inline: clamp(1rem, 6vw, 6rem) auto; }
   /* The piano panel is just the painted keys, right below the chapter before it: no screen height, padding or dark backdrop. */
   .section.section--keys { min-height: 0; padding: 0; border-bottom: 0; background: none; }
-  /* Centred lead-in on a dark band above the keys: body copy only, no heading. */
-  .keys-intro { padding-block: clamp(3rem, 8vw, 6rem); text-align: center; color: #fff; background: #2c2e4c; }
-  .keys-intro p { max-width: 38rem; margin: 0 auto; font-size: 1.125rem; }
 
   .section { padding-block: 3rem; border-bottom: 1px solid var(--line); }
   /* Matches the gold chapter number on the flat panels. */
