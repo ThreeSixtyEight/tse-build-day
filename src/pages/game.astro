@@ -1,0 +1,876 @@
+---
+// Join the line: a first-person game, after the game in Arun NM's The Ride (arunnm.com).
+// You step off the sidewalk into a second line and move down a New Orleans street with the band.
+// Step on the beat to score, switch lanes to catch handkerchiefs and dodge potholes.
+// The world is low-poly shapes built in code (Three.js). With sound on, a synth drum keeps time and
+// each step plays the tuba line: an instrument the visitor plays, not recorded or AI music.
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Game">
+  <section class="game" data-section="game" data-game>
+    <canvas class="game__canvas" aria-hidden="true"></canvas>
+
+    <div class="game__hud" data-game-hud hidden>
+      <p class="game__stats">
+        <span>Score <strong data-game-score>0</strong></span>
+        <span class="game__mult" data-game-mult>×1</span>
+        <span><strong data-game-blocks>0.0</strong> blocks</span>
+      </p>
+      <button type="button" class="game__leave" data-game-leave>Leave the line</button>
+    </div>
+
+    <p class="game__toast" data-game-toast aria-live="polite"></p>
+
+    <div class="game__controls" data-game-controls hidden>
+      <button type="button" class="game__lane" data-game-left aria-label="Move left">←</button>
+      <button type="button" class="game__step" data-game-step>
+        <span class="game__beat" data-game-beat aria-hidden="true"></span>
+        Step
+      </button>
+      <button type="button" class="game__lane" data-game-right aria-label="Move right">→</button>
+    </div>
+
+    <div class="game__panel" data-game-start>
+      <h1 class="game__title">Here comes the second line.</h1>
+      <p>Step off the curb and join it. Step on the beat, catch the handkerchiefs, mind the potholes.</p>
+      <p class="game__keys">Space to step. Arrow keys to move. On a phone, tap to step and swipe to move.</p>
+      <button type="button" class="game__button" data-game-join>Join the line</button>
+    </div>
+
+    <div class="game__panel" data-game-end hidden>
+      <h2 class="game__title">You walked with the line.</h2>
+      <p data-game-summary></p>
+      <div class="game__actions">
+        <button type="button" class="game__button" data-game-again>Go again</button>
+        <a class="game__button game__button--quiet" href="/">Back to the site</a>
+      </div>
+    </div>
+
+    <div class="game__panel" data-game-flat hidden>
+      <h1 class="game__title">The line can't start here.</h1>
+      <p>This game needs a browser with 3D graphics turned on.</p>
+      <a class="game__button" href="/">Back to the site</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .game {
+    position: relative;
+    height: calc(100svh - 4rem);
+    min-height: 30rem;
+    overflow: hidden;
+    background: #a9cbe6;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .game__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
+  .game__hud {
+    position: absolute;
+    inset: var(--gutter) var(--gutter) auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    pointer-events: none;
+  }
+  .game__stats {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin: 0;
+    padding: 0.4rem 0.9rem;
+    background: rgba(20, 20, 20, 0.55);
+    color: #fff;
+    font-size: 0.875rem;
+    border-radius: 999px;
+  }
+  .game__mult { padding: 0 0.4rem; border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 4px; font-size: 0.75rem; }
+  .game__leave {
+    pointer-events: auto;
+    font: inherit;
+    font-size: 0.875rem;
+    padding: 0.45rem 1rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  .game__toast {
+    position: absolute;
+    top: 28%;
+    left: 50%;
+    transform: translate(-50%, 0.5rem);
+    margin: 0;
+    padding: 0.4rem 1rem;
+    background: rgba(20, 20, 20, 0.6);
+    color: #fff;
+    border-radius: 999px;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+  }
+  .game__toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+
+  .game__controls {
+    position: absolute;
+    left: 50%;
+    bottom: calc(var(--gutter) + 0.5rem);
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .game__lane, .game__step {
+    font: inherit;
+    border: 0;
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+  }
+  .game__lane { width: 3rem; height: 3rem; border-radius: 50%; font-size: 1.25rem; }
+  .game__step {
+    position: relative;
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    font-weight: 700;
+  }
+  .game__beat {
+    position: absolute;
+    inset: -6px;
+    border: 3px solid var(--bg);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .game__panel {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(28rem, calc(100% - 2 * var(--gutter)));
+    padding: 2rem 1.5rem;
+    background: rgba(255, 255, 255, 0.94);
+    text-align: center;
+  }
+  .game__title { font-size: clamp(1.5rem, 4vw, 2.25rem); line-height: 1.15; margin: 0 0 0.75rem; }
+  .game__panel p { margin: 0 0 1rem; color: var(--muted); }
+  .game__keys { font-size: 0.875rem; }
+  .game__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; }
+  .game__button {
+    display: inline-block;
+    font: inherit;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--text);
+    background: var(--text);
+    color: var(--bg);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .game__button--quiet { background: var(--bg); color: var(--text); }
+  .game button:focus-visible, .game a:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+  .game [hidden] { display: none; }
+
+  @media (max-width: 40em) {
+    .game__stats { gap: 0.5rem; padding: 0.35rem 0.7rem; font-size: 0.8125rem; }
+    /* Keep the controls clear of the corner sound button. */
+    .game__controls { bottom: calc(var(--gutter) + 4rem); }
+  }
+</style>
+
+<script>
+  import * as THREE from 'three';
+  import * as Tone from 'tone';
+  import { gsap } from 'gsap';
+  import { isSoundOn } from '../scripts/sound';
+
+  // ---------- Tuning ----------
+  const BPM = 96;
+  const BEAT = 60 / BPM;
+  const LANES = [-1.6, 0, 1.6];
+  const EYE = 1.65;
+  const START_SPEED = 3.2; // metres per second, a walking second line
+  const MAX_SPEED = 4.6;
+  const BLOCK = 100; // metres in a city block
+  const PERFECT = 0.06; // seconds either side of the beat
+  const GOOD = 0.13;
+  const CHUNK = 24;
+  const CHUNKS = 7;
+  const BEST_KEY = 'second-line-best';
+
+  const root = document.querySelector<HTMLElement>('[data-game]')!;
+  const canvas = root.querySelector<HTMLCanvasElement>('canvas')!;
+  const $ = <T extends HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
+  const ui = {
+    hud: $('[data-game-hud]'),
+    score: $('[data-game-score]'),
+    mult: $('[data-game-mult]'),
+    blocks: $('[data-game-blocks]'),
+    toast: $('[data-game-toast]'),
+    controls: $('[data-game-controls]'),
+    beat: $('[data-game-beat]'),
+    start: $('[data-game-start]'),
+    end: $('[data-game-end]'),
+    summary: $('[data-game-summary]'),
+    flat: $('[data-game-flat]'),
+  };
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let renderer: THREE.WebGLRenderer | undefined;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  } catch {
+    ui.start.hidden = true;
+    ui.flat.hidden = false;
+  }
+  if (renderer) initGame(renderer);
+
+  function initGame(renderer: THREE.WebGLRenderer) {
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+
+    const scene = new THREE.Scene();
+    const sky = new THREE.Color('#a9cbe6');
+    scene.background = sky;
+    scene.fog = new THREE.Fog('#e9dcc6', 25, 95);
+    scene.add(new THREE.HemisphereLight('#fff2dc', '#6b6150', 1.6));
+    const sun = new THREE.DirectionalLight('#ffe2b8', 1.8);
+    sun.position.set(-20, 30, 10);
+    scene.add(sun);
+
+    const camera = new THREE.PerspectiveCamera(62, 1, 0.1, 140);
+    scene.add(camera);
+
+    // ---------- Materials ----------
+    const mats = new Map<string, THREE.MeshLambertMaterial>();
+    const mat = (color: string) => {
+      if (!mats.has(color)) mats.set(color, new THREE.MeshLambertMaterial({ color, flatShading: true }));
+      return mats.get(color)!;
+    };
+    const gold = new THREE.MeshStandardMaterial({ color: '#e3b24a', metalness: 0.25, roughness: 0.45, flatShading: true });
+    const goldInside = gold.clone();
+    goldInside.side = THREE.DoubleSide;
+    const box = (w: number, h: number, d: number, color: string | THREE.Material) =>
+      new THREE.Mesh(new THREE.BoxGeometry(w, h, d), typeof color === 'string' ? mat(color) : color);
+    const pick = <T,>(list: T[]) => list[Math.floor(Math.random() * list.length)];
+
+    const HOUSE_COLORS = ['#e9a6a6', '#f2d58a', '#a8d5ba', '#b7c7e8', '#d9b8e3', '#f4c095', '#9fd3d1', '#f6e7c8'];
+    const TRIM_COLORS = ['#ffffff', '#f4efe4', '#2f5d50', '#7a2e3a'];
+    const SKIN = ['#8d5524', '#6b4423', '#a0673d', '#c68642', '#5a3825', '#e0ac69', '#7c4a2d'];
+    const BRIGHT = ['#e4572e', '#f3a712', '#29335c', '#669bbc', '#a01a7d', '#2a9d8f', '#e9c46a', '#ffffff'];
+
+    // ---------- Street ----------
+    const roofShape = new THREE.Shape([new THREE.Vector2(-2.9, 0), new THREE.Vector2(2.9, 0), new THREE.Vector2(0, 1.9)]);
+    const roofGeo = new THREE.ExtrudeGeometry(roofShape, { depth: 10.6, bevelEnabled: false });
+    roofGeo.rotateY(Math.PI / 2);
+    roofGeo.translate(-10.4, 0, 0);
+
+    // A shotgun house with a front porch. Its front faces local +x, at x = 0.
+    function house() {
+      const h = new THREE.Group();
+      const color = pick(HOUSE_COLORS);
+      const trim = pick(TRIM_COLORS);
+      const body = box(10, 4.2, 5, color);
+      body.position.set(-5, 2.7, 0);
+      const base = box(10, 0.6, 4.8, '#8b7f72');
+      base.position.set(-5, 0.3, 0);
+      const roof = new THREE.Mesh(roofGeo, mat(pick(['#5b5e66', '#7b4b3a', '#3f4a52'])));
+      roof.position.y = 4.8;
+      const porch = box(1.8, 0.2, 5, '#f4efe4');
+      porch.position.set(0.9, 0.6, 0);
+      const porchRoof = box(2, 0.15, 5.2, '#f4efe4');
+      porchRoof.position.set(1, 3.9, 0);
+      h.add(body, base, roof, porch, porchRoof);
+      for (const z of [-2.3, -0.8, 0.8, 2.3]) {
+        const col = box(0.16, 3.2, 0.16, '#ffffff');
+        col.position.set(1.75, 2.3, z);
+        h.add(col);
+      }
+      const door = box(0.06, 2.2, 1, '#4a3328');
+      door.position.set(0.03, 1.8, -1.3);
+      h.add(door);
+      for (const z of [0.4, 1.6]) {
+        const win = box(0.06, 2, 0.75, '#2c3440');
+        win.position.set(0.03, 2, z);
+        const shutterL = box(0.07, 2.1, 0.32, trim);
+        shutterL.position.set(0.05, 2, z - 0.55);
+        const shutterR = box(0.07, 2.1, 0.32, trim);
+        shutterR.position.set(0.05, 2, z + 0.55);
+        h.add(win, shutterL, shutterR);
+      }
+      const steps = box(0.7, 0.4, 1.2, '#cfc6b8');
+      steps.position.set(2.15, 0.2, -1.3);
+      h.add(steps);
+      h.userData.recolor = () => {
+        body.material = mat(pick(HOUSE_COLORS));
+      };
+      return h;
+    }
+
+    function oak() {
+      const t = new THREE.Group();
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.26, 2.6, 6), mat('#5b4636'));
+      trunk.position.y = 1.3;
+      t.add(trunk);
+      for (let i = 0; i < 3; i++) {
+        const leaf = new THREE.Mesh(new THREE.IcosahedronGeometry(1.4 + Math.random() * 0.6, 0), mat(pick(['#4f6b3a', '#5e7d44', '#46603a'])));
+        leaf.position.set((Math.random() - 0.5) * 2, 3.2 + Math.random() * 0.8, (Math.random() - 0.5) * 2);
+        leaf.scale.y = 0.7;
+        t.add(leaf);
+      }
+      return t;
+    }
+
+    function streetlight() {
+      const s = new THREE.Group();
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 4.6, 6), mat('#2f3b33'));
+      pole.position.y = 2.3;
+      const arm = box(1, 0.06, 0.06, '#2f3b33');
+      arm.position.set(-0.5, 4.5, 0);
+      const lamp = box(0.35, 0.25, 0.35, '#f7f0d6');
+      lamp.position.set(-0.95, 4.35, 0);
+      s.add(pole, arm, lamp);
+      return s;
+    }
+
+    function chunk() {
+      const g = new THREE.Group();
+      const road = new THREE.Mesh(new THREE.PlaneGeometry(9, CHUNK), mat('#4b4b50'));
+      road.rotation.x = -Math.PI / 2;
+      g.add(road);
+      for (const side of [-1, 1]) {
+        const walk = box(2, 0.15, CHUNK, '#c9c2b6');
+        walk.position.set(side * 5.5, 0.075, 0);
+        const verge = box(2.4, 0.1, CHUNK, '#7d8f52');
+        verge.position.set(side * 7.7, 0.05, 0);
+        g.add(walk, verge);
+        for (let k = 0; k < 4; k++) {
+          const h = house();
+          h.position.set(side * 8.9, 0, -CHUNK / 2 + 3 + k * 6);
+          h.rotation.y = side > 0 ? Math.PI : 0;
+          g.add(h);
+        }
+        if (Math.random() < 0.8) {
+          const tree = oak();
+          tree.position.set(side * 5.9, 0.15, (Math.random() - 0.5) * CHUNK);
+          g.add(tree);
+        }
+      }
+      const light = streetlight();
+      light.position.set(pick([-1, 1]) * 4.8, 0.15, (Math.random() - 0.5) * CHUNK);
+      light.rotation.y = light.position.x > 0 ? 0 : Math.PI;
+      g.add(light);
+      // A manhole or patch for texture on the road.
+      const patch = new THREE.Mesh(new THREE.CircleGeometry(0.4, 10), mat('#3a3a3e'));
+      patch.rotation.x = -Math.PI / 2;
+      patch.position.set((Math.random() - 0.5) * 6, 0.01, (Math.random() - 0.5) * CHUNK);
+      g.add(patch);
+      return g;
+    }
+
+    const chunks: THREE.Group[] = [];
+    for (let i = 0; i < CHUNKS; i++) {
+      const c = chunk();
+      c.position.z = -i * CHUNK + CHUNK / 2;
+      scene.add(c);
+      chunks.push(c);
+    }
+
+    // ---------- People ----------
+    type Role = 'tuba' | 'drum' | 'snare' | 'trumpet' | 'trombone' | 'parasol' | 'hanky';
+
+    // A low-poly figure facing -z, the way the line is walking.
+    function person(role: Role, shirt: string) {
+      const p = new THREE.Group();
+      const pants = pick(['#22232b', '#2b2b33', '#3b3f4a', '#e8e2d3']);
+      for (const x of [-0.11, 0.11]) {
+        const leg = box(0.15, 0.82, 0.17, pants);
+        leg.position.set(x, 0.41, 0);
+        p.add(leg);
+      }
+      const torso = box(0.52, 0.66, 0.3, shirt);
+      torso.position.y = 1.15;
+      const skin = pick(SKIN);
+      const head = new THREE.Mesh(new THREE.IcosahedronGeometry(0.17, 1), mat(skin));
+      head.position.y = 1.68;
+      p.add(torso, head);
+      for (const x of [-0.33, 0.33]) {
+        const arm = box(0.12, 0.6, 0.14, shirt);
+        arm.position.set(x, 1.15, -0.05);
+        p.add(arm);
+      }
+      if (Math.random() < 0.6) {
+        const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.03, 10), mat(pick(['#1d1d1d', '#ffffff', '#c9b37e'])));
+        brim.position.y = 1.83;
+        const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.14, 0.13, 10), brim.material);
+        crown.position.y = 1.9;
+        p.add(brim, crown);
+      }
+
+      const swing = new THREE.Group();
+      p.add(swing);
+      if (role === 'tuba') {
+        const coil = new THREE.Mesh(new THREE.TorusGeometry(0.38, 0.07, 6, 14), gold);
+        coil.position.set(0, 1.25, 0);
+        coil.rotation.set(Math.PI / 2 - 0.35, 0, 0.3);
+        const bell = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.12, 0.55, 12, 1, true), goldInside);
+        bell.position.set(0.15, 2.05, -0.15);
+        bell.rotation.x = -0.35;
+        p.add(coil, bell);
+      } else if (role === 'drum') {
+        const shell = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.32, 12), [mat('#b3262c'), mat('#f2ece0'), mat('#f2ece0')]);
+        shell.rotation.z = Math.PI / 2;
+        shell.position.set(0, 1.05, -0.4);
+        const cymbal = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.02, 12), gold);
+        cymbal.position.set(0, 1.5, -0.4);
+        p.add(shell, cymbal);
+      } else if (role === 'snare') {
+        const snare = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.15, 12), [mat('#e8e2d3'), mat('#f7f4ee'), mat('#f7f4ee')]);
+        snare.position.set(0, 0.95, -0.32);
+        p.add(snare);
+      } else if (role === 'trumpet' || role === 'trombone') {
+        const long = role === 'trombone';
+        const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, long ? 1.1 : 0.45, 6), gold);
+        pipe.rotation.x = Math.PI / 2 - 0.25;
+        pipe.position.set(0.05, 1.68, long ? -0.6 : -0.38);
+        const bell = new THREE.Mesh(new THREE.CylinderGeometry(long ? 0.14 : 0.09, 0.03, 0.22, 10, 1, true), gold);
+        bell.rotation.x = -Math.PI / 2 - 0.25;
+        bell.position.set(0.05, long ? 1.82 : 1.74, long ? -1.2 : -0.66);
+        p.add(pipe, bell);
+      } else if (role === 'parasol') {
+        // Twirls on its own pole, held in the right hand.
+        swing.position.x = 0.38;
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 1.3, 5), mat('#6f5432'));
+        pole.position.y = 1.9;
+        const canopy = new THREE.Mesh(
+          new THREE.ConeGeometry(0.6, 0.28, 10, 1, true),
+          new THREE.MeshLambertMaterial({ color: pick(BRIGHT), flatShading: true, side: THREE.DoubleSide }),
+        );
+        canopy.position.y = 2.55;
+        const fringe = new THREE.Mesh(new THREE.TorusGeometry(0.6, 0.025, 5, 20), gold);
+        fringe.rotation.x = Math.PI / 2;
+        fringe.position.y = 2.41;
+        swing.add(pole, canopy, fringe);
+      } else if (role === 'hanky') {
+        // Raised arm, waving from the shoulder.
+        swing.position.set(0.33, 1.45, -0.05);
+        const raised = box(0.12, 0.6, 0.14, shirt);
+        raised.position.y = 0.3;
+        const cloth = new THREE.Mesh(new THREE.PlaneGeometry(0.28, 0.28), new THREE.MeshLambertMaterial({ color: '#ffffff', side: THREE.DoubleSide }));
+        cloth.position.set(0.07, 0.7, 0);
+        swing.add(raised, cloth);
+      }
+      p.userData = { phase: Math.random() * Math.PI * 2, swing, role };
+      return p;
+    }
+
+    // The band walks ahead; second liners dance around it. The whole procession moves with the visitor.
+    const procession = new THREE.Group();
+    scene.add(procession);
+    const people: THREE.Group[] = [];
+    const place = (p: THREE.Group, x: number, z: number) => {
+      p.position.set(x, 0, z);
+      procession.add(p);
+      people.push(p);
+    };
+    place(person('trumpet', '#ffffff'), -1.7, -15.5);
+    place(person('trombone', '#ffffff'), 0, -15.8);
+    place(person('trumpet', '#ffffff'), 1.7, -15.4);
+    place(person('tuba', '#ffffff'), -1.6, -12.4);
+    place(person('drum', '#ffffff'), 0, -12.2);
+    place(person('snare', '#ffffff'), 1.6, -12.5);
+    const crowdSpots: [number, number][] = [
+      [-3.2, -13], [3.3, -14], [-3.4, -9], [3.1, -8.5], [-2.9, -5.5], [3.4, -4.5], [-3.6, -1.5], [3.5, 0.8], [-2.6, 2.5], [2.8, 3.2],
+    ];
+    crowdSpots.forEach(([x, z], i) => place(person(i % 3 === 0 ? 'hanky' : 'parasol', pick(BRIGHT)), x, z));
+
+    // The visitor's own hand, holding a handkerchief.
+    const hand = new THREE.Group();
+    // Forearm rising from the bottom right of the view, fist up, handkerchief above it.
+    const sleeve = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.07, 0.6, 8), mat('#f3a712'));
+    sleeve.position.set(0.06, -0.3, 0.08);
+    sleeve.rotation.set(-0.35, 0, -0.25);
+    const palm = new THREE.Mesh(new THREE.IcosahedronGeometry(0.06, 1), mat(pick(SKIN)));
+    palm.position.set(0, 0.02, -0.02);
+    const hanky = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.24, 0.24),
+      new THREE.MeshLambertMaterial({ color: '#ffffff', emissive: '#777777', side: THREE.DoubleSide }),
+    );
+    hanky.geometry.translate(0, 0.12, 0);
+    hanky.position.set(0, 0.04, -0.03);
+    hand.add(sleeve, palm, hanky);
+    hand.position.set(0.3, -0.36, -1.1);
+    hand.scale.setScalar(0.6);
+    hand.visible = false;
+    camera.add(hand);
+
+    // ---------- Potholes and handkerchiefs ----------
+    type Thing = { mesh: THREE.Object3D; kind: 'pothole' | 'hanky'; lane: number; z: number; done: boolean; born: number };
+    const things: Thing[] = [];
+    const potholeGeo = new THREE.CircleGeometry(0.6, 9);
+    const potholeRim = new THREE.RingGeometry(0.6, 0.72, 9);
+    const hankyGeo = new THREE.PlaneGeometry(0.42, 0.42);
+    const hankyMat = new THREE.MeshLambertMaterial({ color: '#ffffff', side: THREE.DoubleSide, emissive: '#555555' });
+
+    function spawn(z: number, clock: number) {
+      const kind = Math.random() < 0.35 ? 'pothole' : 'hanky';
+      const lane = Math.floor(Math.random() * LANES.length);
+      let mesh: THREE.Object3D;
+      if (kind === 'pothole') {
+        const g = new THREE.Group();
+        const hole = new THREE.Mesh(potholeGeo, mat('#1c1c1f'));
+        const rim = new THREE.Mesh(potholeRim, mat('#5e5d60'));
+        hole.rotation.x = rim.rotation.x = -Math.PI / 2;
+        hole.position.y = 0.012;
+        rim.position.y = 0.011;
+        g.add(hole, rim);
+        mesh = g;
+      } else {
+        mesh = new THREE.Mesh(hankyGeo, hankyMat);
+        mesh.position.y = 1.3;
+      }
+      mesh.position.x = LANES[lane];
+      mesh.position.z = z;
+      mesh.scale.setScalar(0.001);
+      scene.add(mesh);
+      things.push({ mesh, kind, lane, z, done: false, born: clock });
+    }
+
+    function clearThings() {
+      things.splice(0).forEach((t) => scene.remove(t.mesh));
+    }
+
+    // ---------- Sound ----------
+    type Kit = { kick: Tone.MembraneSynth; snare: Tone.NoiseSynth; tuba: Tone.MonoSynth };
+    let kit: Kit | undefined;
+    const TUBA_LINE = ['F1', 'A1', 'C2', 'D2', 'C2', 'A1', 'G1', 'A1'];
+    let tubaNote = 0;
+
+    function makeKit(): Kit {
+      const out = new Tone.Volume(-6).toDestination();
+      return {
+        kick: new Tone.MembraneSynth({ pitchDecay: 0.03, octaves: 5, envelope: { attack: 0.001, decay: 0.35, sustain: 0 } }).connect(out),
+        snare: new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: 0.11, sustain: 0 }, volume: -16 }).connect(out),
+        tuba: new Tone.MonoSynth({
+          oscillator: { type: 'sawtooth' },
+          filter: { type: 'lowpass', Q: 1 },
+          filterEnvelope: { attack: 0.02, decay: 0.25, sustain: 0.4, baseFrequency: 110, octaves: 2.2 },
+          envelope: { attack: 0.02, decay: 0.2, sustain: 0.5, release: 0.25 },
+          volume: -2,
+        }).connect(out),
+      };
+    }
+
+    function soundReady() {
+      if (!isSoundOn()) return false;
+      Tone.start();
+      kit ??= makeKit();
+      return true;
+    }
+
+    document.addEventListener('sound:change', () => {
+      Tone.getDestination().mute = !isSoundOn();
+    });
+
+    // ---------- Game state ----------
+    let state: 'start' | 'joining' | 'playing' | 'ended' = 'start';
+    let clock = 0; // game seconds, paused with the tab
+    let lastFrame = performance.now();
+    let z = 0; // how far down the street, in metres (negative z)
+    let speed = START_SPEED;
+    let lane = 1;
+    let x = 5.4; // the visitor starts on the sidewalk
+    let score = 0;
+    let streak = 0;
+    let mult = 1;
+    let nextBeat = 0;
+    let beatCount = 0;
+    let lastSpawnZ = 0;
+    let shake = 0;
+    let stepPulse = 0;
+    const join = { t: 0 };
+
+    const now = () => clock + Math.min((performance.now() - lastFrame) / 1000, 0.05);
+
+    let toastTimer = 0;
+    function toast(text: string) {
+      ui.toast.textContent = text;
+      ui.toast.classList.remove('is-on');
+      void ui.toast.offsetWidth;
+      ui.toast.classList.add('is-on');
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => ui.toast.classList.remove('is-on'), 700);
+    }
+
+    function renderStats() {
+      ui.score.textContent = String(score);
+      ui.mult.textContent = `×${mult}`;
+      ui.blocks.textContent = (-z / BLOCK).toFixed(1);
+    }
+
+    function start() {
+      soundReady();
+      window.scrollTo({ top: 0 });
+      ui.start.hidden = true;
+      ui.end.hidden = true;
+      state = 'joining';
+      score = streak = 0;
+      mult = 1;
+      tubaNote = 0;
+      renderStats();
+      join.t = 0;
+      const begin = () => {
+        state = 'playing';
+        ui.hud.hidden = false;
+        ui.controls.hidden = false;
+        nextBeat = Math.ceil(clock / BEAT) * BEAT;
+        lastSpawnZ = z - 4;
+        root.querySelector<HTMLButtonElement>('[data-game-step]')!.focus({ preventScroll: true });
+        toast('Step on the beat');
+      };
+      if (reduceMotion) {
+        join.t = 1;
+        begin();
+      } else {
+        gsap.to(join, { t: 1, duration: 1.6, ease: 'power2.inOut', onComplete: begin });
+      }
+    }
+
+    function end() {
+      state = 'ended';
+      ui.hud.hidden = true;
+      ui.controls.hidden = true;
+      const blocks = (-z / BLOCK).toFixed(1);
+      let best = score;
+      try {
+        best = Math.max(score, Number(localStorage.getItem(BEST_KEY)) || 0);
+        localStorage.setItem(BEST_KEY, String(best));
+      } catch {}
+      ui.summary.textContent = `${blocks} blocks and ${score} points. Your best is ${best}.`;
+      ui.end.hidden = false;
+      root.querySelector<HTMLButtonElement>('[data-game-again]')!.focus({ preventScroll: true });
+    }
+
+    function again() {
+      clearThings();
+      // Keep walking from where the visitor left off; the street goes on.
+      lane = 1;
+      speed = START_SPEED;
+      state = 'playing';
+      ui.end.hidden = true;
+      score = streak = 0;
+      mult = 1;
+      renderStats();
+      ui.hud.hidden = false;
+      ui.controls.hidden = false;
+      nextBeat = Math.ceil(clock / BEAT) * BEAT;
+      lastSpawnZ = z - 4;
+      root.querySelector<HTMLButtonElement>('[data-game-step]')!.focus({ preventScroll: true });
+    }
+
+    function step() {
+      if (state !== 'playing') return;
+      const t = now();
+      const nearest = Math.round(t / BEAT) * BEAT;
+      const off = Math.abs(t - nearest);
+      stepPulse = 1;
+      if (soundReady()) {
+        kit!.tuba.triggerAttackRelease(TUBA_LINE[tubaNote++ % TUBA_LINE.length], '8n', Tone.now() + 0.005);
+      }
+      if (off <= GOOD) {
+        streak++;
+        mult = Math.min(4, 1 + Math.floor(streak / 4));
+        const points = (off <= PERFECT ? 20 : 10) * mult;
+        score += points;
+        toast(off <= PERFECT ? `Right on the beat +${points}` : `On the beat +${points}`);
+      } else {
+        streak = 0;
+        mult = 1;
+        toast('Off the beat');
+      }
+      renderStats();
+    }
+
+    function move(dir: -1 | 1) {
+      if (state !== 'playing') return;
+      lane = THREE.MathUtils.clamp(lane + dir, 0, LANES.length - 1);
+    }
+
+    // ---------- Input ----------
+    $('[data-game-join]').addEventListener('click', start);
+    $('[data-game-again]').addEventListener('click', again);
+    $('[data-game-leave]').addEventListener('click', end);
+    $('[data-game-step]').addEventListener('pointerdown', (ev) => {
+      ev.preventDefault();
+      step();
+    });
+    $('[data-game-step]').addEventListener('keydown', (ev) => {
+      // Space and Enter on the focused button are handled by the page's key handler below.
+      if (ev.key === 'Enter') step();
+    });
+    $('[data-game-left]').addEventListener('pointerdown', (ev) => {
+      ev.preventDefault();
+      move(-1);
+    });
+    $('[data-game-right]').addEventListener('pointerdown', (ev) => {
+      ev.preventDefault();
+      move(1);
+    });
+
+    document.addEventListener('keydown', (ev) => {
+      if (state !== 'playing' || ev.metaKey || ev.ctrlKey || ev.altKey) return;
+      const key = ev.key.toLowerCase();
+      if (key === 'arrowleft' || key === 'a') move(-1);
+      else if (key === 'arrowright' || key === 'd') move(1);
+      else if ((key === ' ' || key === 'arrowup' || key === 'w') && !ev.repeat) step();
+      else if (key === 'escape') end();
+      else return;
+      ev.preventDefault();
+    });
+
+    // Touch: tap to step, swipe to move.
+    let touchStart: { x: number; y: number } | null = null;
+    canvas.addEventListener('pointerdown', (ev) => {
+      touchStart = { x: ev.clientX, y: ev.clientY };
+    });
+    canvas.addEventListener('pointerup', (ev) => {
+      if (!touchStart) return;
+      const dx = ev.clientX - touchStart.x;
+      touchStart = null;
+      if (Math.abs(dx) > 30) move(dx < 0 ? -1 : 1);
+      else step();
+    });
+
+    // ---------- Size ----------
+    function resize() {
+      const { clientWidth: w, clientHeight: h } = root;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.fov = w < h ? 75 : 62;
+      camera.updateProjectionMatrix();
+    }
+    new ResizeObserver(resize).observe(root);
+    resize();
+
+    // ---------- Loop ----------
+    const lookAt = new THREE.Vector3();
+    renderer.setAnimationLoop(() => {
+      const t = performance.now();
+      const dt = Math.min((t - lastFrame) / 1000, 0.05);
+      lastFrame = t;
+      clock += dt;
+
+      const moving = state === 'playing' || state === 'joining';
+      const walkSpeed = reduceMotion ? speed * 0.8 : speed;
+      if (state === 'playing') {
+        speed = Math.min(MAX_SPEED, START_SPEED + -z / 400);
+        z -= walkSpeed * dt;
+      } else if (state === 'joining') {
+        z -= walkSpeed * 0.6 * dt * join.t;
+      }
+
+      // The beat: drums on the beat when sound is on, and the ring around Step either way.
+      if (state === 'playing') {
+        while (nextBeat < clock + 0.1) {
+          if (kit && isSoundOn()) {
+            const at = Tone.now() + Math.max(0, nextBeat - clock);
+            kit.kick.triggerAttackRelease('C1', '8n', at);
+            if (beatCount % 2 === 1) kit.snare.triggerAttackRelease('16n', at);
+            // A pushed kick on the "and" of four.
+            if (beatCount % 4 === 3) kit.kick.triggerAttackRelease('C1', '16n', at + BEAT / 2);
+          }
+          // Something lands in the street on most beats.
+          if (beatCount % 2 === 0 && Math.random() < 0.8 && z - lastSpawnZ < -3) {
+            spawn(z - 10.5, clock);
+            lastSpawnZ = z;
+          }
+          beatCount++;
+          nextBeat += BEAT;
+        }
+      }
+      const phase = (clock % BEAT) / BEAT;
+      const pulse = Math.pow(1 - phase, 3);
+      ui.beat.style.transform = `scale(${1 + pulse * 0.35})`;
+      ui.beat.style.opacity = String(0.35 + pulse * 0.65);
+
+      // Visitor position
+      const laneX = LANES[lane];
+      if (state === 'joining') x = THREE.MathUtils.lerp(5.4, laneX, join.t);
+      else if (state === 'playing' || state === 'ended') x = THREE.MathUtils.lerp(x, laneX, Math.min(1, dt * 10));
+      const curb = state === 'start' ? 0.15 : 0.15 * (1 - join.t);
+      const bob = reduceMotion || !moving ? 0 : Math.abs(Math.sin(phase * Math.PI)) * 0.05;
+      shake = Math.max(0, shake - dt * 3);
+      stepPulse = Math.max(0, stepPulse - dt * 5);
+      camera.position.set(x + (Math.random() - 0.5) * shake * 0.2, EYE + curb + bob - stepPulse * 0.04, z);
+      const lookX = state === 'start' ? 2.2 : THREE.MathUtils.lerp(2.2, x * 0.7, state === 'joining' ? join.t : 1);
+      lookAt.set(lookX, 1.5, z - 12);
+      camera.lookAt(lookAt);
+
+      // The hand waves its handkerchief on the beat.
+      hanky.rotation.z = 0.3 + Math.sin(clock * Math.PI * 2 * (BPM / 60) * 0.5) * (reduceMotion ? 0.05 : 0.35);
+      hand.visible = state !== 'start';
+      hand.position.y = -0.36 + stepPulse * 0.05;
+
+      // Procession follows the visitor; everyone bounces on the beat.
+      procession.position.z = z;
+      people.forEach((p) => {
+        const { phase: offset, swing, role } = p.userData;
+        const lift = reduceMotion ? 0 : Math.abs(Math.sin(phase * Math.PI + offset * 0.2)) * 0.07;
+        p.position.y = moving ? lift : 0;
+        p.rotation.z = reduceMotion || !moving ? 0 : Math.sin(clock * 2 + offset) * 0.06;
+        if (role === 'parasol') swing.rotation.y = clock * (reduceMotion ? 0.3 : 1.2) + offset;
+        if (role === 'hanky') swing.rotation.z = Math.sin(clock * 6 + offset) * 0.25;
+      });
+
+      // Recycle street chunks that are behind the visitor.
+      chunks.forEach((c) => {
+        if (c.position.z - CHUNK / 2 > z + 6) {
+          c.position.z -= CHUNKS * CHUNK;
+          c.children.forEach((o) => o.userData.recolor?.());
+        }
+      });
+
+      // Potholes and handkerchiefs
+      for (let i = things.length - 1; i >= 0; i--) {
+        const thing = things[i];
+        const grown = Math.min(1, (clock - thing.born) / 0.35);
+        thing.mesh.scale.setScalar(Math.max(0.001, grown));
+        if (thing.kind === 'hanky') {
+          thing.mesh.rotation.y = clock * 2.5;
+          thing.mesh.position.y = 1.3 + Math.sin(clock * 3 + i) * 0.08;
+        }
+        if (!thing.done && thing.mesh.position.z > z - 0.5 && state === 'playing') {
+          thing.done = true;
+          if (Math.abs(x - LANES[thing.lane]) < 0.8) {
+            if (thing.kind === 'hanky') {
+              const points = 5 * mult;
+              score += points;
+              toast(`Caught a handkerchief +${points}`);
+              thing.mesh.visible = false;
+            } else {
+              streak = 0;
+              mult = 1;
+              shake = 1;
+              toast('Watch the pothole');
+            }
+            renderStats();
+          }
+        }
+        if (thing.mesh.position.z > z + 4) {
+          scene.remove(thing.mesh);
+          things.splice(i, 1);
+        }
+      }
+
+      if (state === 'playing') ui.blocks.textContent = (-z / BLOCK).toFixed(1);
+      renderer.render(scene, camera);
+    });
+  }
+</script>
