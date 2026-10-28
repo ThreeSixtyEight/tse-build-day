@@ -6,7 +6,7 @@ import * as T from 'three';
 import { getProject, types, val } from '@theatre/core';
 import state from '../../theatre/fall-in.state.json';
 import { addClouds, applyLighting } from './realism';
-import { buildWorld, type Instrument } from './world';
+import { buildWorld, loadWorld, type Instrument } from './world';
 
 export interface FallIn {
   /** Move the shot to a point between 0 (aerial) and 1 (over the shoulder). */
@@ -23,11 +23,13 @@ interface Options {
   instrument: Instrument;
   /** Opens the Theatre.js editor (dev only). */
   studio?: boolean;
+  /** A Second Line World Studio export (.glb) to use instead of the street built in code. */
+  worldUrl?: string;
 }
 
 const SKY = '#bdd4dd';
 
-export async function createFallIn({ canvas, still, instrument, studio }: Options): Promise<FallIn> {
+export async function createFallIn({ canvas, still, instrument, studio, worldUrl }: Options): Promise<FallIn> {
   // The DEV check lets the production build drop the editor (AGPL) entirely, not just skip loading it.
   if (import.meta.env.DEV && studio) {
     const mod = await import('@theatre/studio');
@@ -63,7 +65,7 @@ export async function createFallIn({ canvas, still, instrument, studio }: Option
   applyLighting(scene, renderer);
   addClouds(scene);
 
-  const world = buildWorld(scene, { small });
+  const world = worldUrl ? await loadWorld(scene, worldUrl) : buildWorld(scene, { small });
   world.setInstrument(instrument);
   // Nothing moves far enough to need fresh shadows every frame; redraw them only when the line or visitor moves.
   renderer.shadowMap.autoUpdate = false;

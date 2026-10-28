@@ -86,8 +86,11 @@ const beats = [
           let shot: FallIn;
           try {
             const { createFallIn } = await import('../scripts/fall-in/scene');
-            const studio = import.meta.env.DEV && new URLSearchParams(location.search).has('studio');
-            shot = await createFallIn({ canvas, still, instrument, studio });
+            const params = new URLSearchParams(location.search);
+            const studio = import.meta.env.DEV && params.has('studio');
+            // ?world=glb swaps in the Second Line World Studio export, to compare with the street built in code.
+            const worldUrl = params.get('world') === 'glb' ? '/fall-in/second-line-world.glb' : undefined;
+            shot = await createFallIn({ canvas, still, instrument, studio, worldUrl });
           } catch (err) {
             // A failed load or WebGL context falls back to the static version.
             console.error('Fall In could not start', err);

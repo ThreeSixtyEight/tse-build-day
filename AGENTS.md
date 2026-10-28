@@ -12,6 +12,7 @@ Astro 7 scaffold for the Build Day fan site: Jon Batiste's story told through a 
 - `src/components/FallIn.astro` — prototype: scroll drops the camera into the second line and the visitor picks the instrument they play (snare, trumpet, trombone, tuba). Reduced motion gets four held stills; no WebGL gets a static block.
 - `src/scripts/fall-in/scene.ts` — renderer, lighting and the Theatre.js hookup. `world.ts` (street layout, figures, instruments) and `realism.ts` (Creole facades, galleries, ferns, street details) are ported from Nick's Second Line World Studio.
 - `public/fall-in/` — CC0 Poly Haven textures and sky HDR (credited in `src/data/credits.json`). Missing files fall back to flat colours.
+- `public/fall-in/second-line-world.glb` — a Second Line World Studio export (Export 3D). Add `?world=glb` to the URL to run Fall In on it instead of the street built in code; replace the file with a newer export to update it.
 - `src/theatre/fall-in.state.json` — the Theatre.js keyframes. Edit at `/?studio` on `npm run dev`, export the project and replace this file. The editor (`@theatre/studio`, AGPL) is dev-only and never ships.
 - `src/components/Notes.astro` — temporary build notes shown on the page; remove as final copy lands.
 - `src/content.config.ts` — collection definitions (`import { z } from 'astro/zod'`; Zod v4). Swapping a collection's `loader` is the CMS migration path.

@@ -216,19 +216,47 @@ export function buildWorld(scene: T.Scene, { small }: { small: boolean }): World
     dancers.push({ rig: g.userData.rig, seed: i + 71 });
   }
 
+  return { dancers, parade, ...addVisitor(world, dancers) };
+}
+
+// The visitor stands at the back of the line, back to the camera, and redraws with each instrument picked.
+function addVisitor(world: T.Object3D, dancers: World['dancers']) {
   const visitor = place(world, 0, VISITOR_Z);
   visitor.rotation.y = Math.PI;
   const visitorDancer = { rig: new T.Object3D(), seed: 3 };
   dancers.push(visitorDancer);
-
   return {
-    dancers,
-    parade,
     visitor,
-    setInstrument(instrument) {
+    setInstrument(instrument: Instrument) {
       visitor.clear();
       person(visitor, '#f4efe0', 3, instrument);
       visitorDancer.rig = visitor.userData.rig;
     },
   };
+}
+
+/**
+ * The street from a Second Line World Studio export (Export 3D), instead of building it in code.
+ * The export is static, so the parade is regrouped by name to march, and each 'Dance rig' keeps its sway.
+ */
+export async function loadWorld(scene: T.Scene, url: string): Promise<World> {
+  const { GLTFLoader } = await import('three/examples/jsm/loaders/GLTFLoader.js');
+  const gltf = await new GLTFLoader().loadAsync(url);
+  const world = gltf.scene;
+  scene.add(world);
+
+  const parade = new T.Group();
+  world.add(parade);
+  const dancers: World['dancers'] = [];
+  const marchers: T.Object3D[] = [];
+  world.traverse((o) => {
+    if (o instanceof T.Mesh) o.castShadow = o.receiveShadow = true;
+    // GLTFLoader turns spaces into underscores and numbers repeats ('Dance_rig_12').
+    if (/^Dance[ _]rig/.test(o.name)) dancers.push({ rig: o, seed: dancers.length });
+    // Figures and parasols in the roadway march; neighbours on the sidewalks stay put.
+    if (/^(Dancer|Brass[ _]musician|Parasol)/.test(o.name) && Math.abs(o.position.x) < 5.5) marchers.push(o);
+  });
+  marchers.forEach((o) => parade.attach(o));
+
+  return { dancers, parade, ...addVisitor(world, dancers) };
 }
