@@ -1,6 +1,6 @@
 // Site-wide sound switch. Sound stays off until the visitor opts in.
 // Anything that makes sound checks isSoundOn() and listens for the 'sound:change' event on document.
-// Audio and video elements on the page are muted while sound is off.
+// Audio and video elements on the page are muted while sound is off; ones marked muted stay muted.
 // Wires up the corner toggle ([data-sound-toggle]).
 
 const STORAGE_KEY = 'sound';
@@ -28,8 +28,9 @@ function render() {
     button.setAttribute('aria-pressed', String(soundOn));
     button.title = soundOn ? 'Turn sound off' : 'Turn sound on';
   });
+  // Media marked muted in the page (like the hero's sky video) is decorative and stays silent.
   document.querySelectorAll<HTMLMediaElement>('audio, video').forEach((media) => {
-    media.muted = !soundOn;
+    media.muted = !soundOn || media.defaultMuted;
   });
 }
 
