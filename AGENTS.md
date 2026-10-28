@@ -9,8 +9,9 @@ Astro 7 scaffold for the Build Day fan site: Jon Batiste's story told through a 
 - `src/pages/index.astro` — the whole site on one page: entry gate (hero), the second line (`sections` collection, sorted by `order`), Listen (official embeds), End of the line (links to his official site), Transcript and Credits.
 - `src/content/sections/*.md` — one file per section; frontmatter mirrors the section flow (purpose, directives, interaction, media, caption, transcript, quotes).
 - `src/data/quotes.json`, `src/data/credits.json` — `file()` collections, empty until sourced.
-- `src/components/FallIn.astro` — prototype: scroll drops the camera into the back of the second line (Three.js scene, shot timed in Theatre.js). Reduced motion gets four held stills; no WebGL gets a static block.
-- `src/scripts/fall-in/scene.ts`, `cards.ts` — the 3D street and its paper cutouts (placeholder canvas art until Nano Banana cutouts land).
+- `src/components/FallIn.astro` — prototype: scroll drops the camera into the second line and the visitor picks the instrument they play (snare, trumpet, trombone, tuba). Reduced motion gets four held stills; no WebGL gets a static block.
+- `src/scripts/fall-in/scene.ts` — renderer, lighting and the Theatre.js hookup. `world.ts` (street layout, figures, instruments) and `realism.ts` (Creole facades, galleries, ferns, street details) are ported from Nick's Second Line World Studio.
+- `public/fall-in/` — CC0 Poly Haven textures and sky HDR (credited in `src/data/credits.json`). Missing files fall back to flat colours.
 - `src/theatre/fall-in.state.json` — the Theatre.js keyframes. Edit at `/?studio` on `npm run dev`, export the project and replace this file. The editor (`@theatre/studio`, AGPL) is dev-only and never ships.
 - `src/components/Notes.astro` — temporary build notes shown on the page; remove as final copy lands.
 - `src/content.config.ts` — collection definitions (`import { z } from 'astro/zod'`; Zod v4). Swapping a collection's `loader` is the CMS migration path.

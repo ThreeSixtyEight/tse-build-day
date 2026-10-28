@@ -3,17 +3,18 @@
 // The shot lives in src/theatre/fall-in.state.json. To edit it, run `npm run dev`, open /?studio,
 // keyframe in the Theatre.js editor, export the project and replace that file.
 // Reduced motion shows four stills of the same shot; without WebGL the captions read as plain text.
-const items = [
-  { id: 'handkerchief', label: 'Handkerchief' },
-  { id: 'umbrella', label: 'Umbrella' },
-  { id: 'fan', label: 'Fan' },
-  { id: 'tambourine', label: 'Tambourine' },
+// The visitor picks the instrument they play in the line: the same parts the band adds along the route.
+const instruments = [
+  { id: 'snare', label: 'Snare drum' },
+  { id: 'trumpet', label: 'Trumpet' },
+  { id: 'trombone', label: 'Trombone' },
+  { id: 'tuba', label: 'Tuba' },
 ];
 // Draft lines: Strategists replace these with final copy.
 const beats = [
   { from: 0, to: 0.32, text: 'A street in New Orleans' },
   { from: 0.32, to: 0.7, text: 'The line comes up the block' },
-  { from: 0.7, to: 1.01, text: 'Fall in at the back' },
+  { from: 0.7, to: 1.01, text: 'Fall in and play' },
 ];
 ---
 
@@ -21,8 +22,9 @@ const beats = [
   <div class="fallin__stage">
     <canvas class="fallin__canvas" aria-hidden="true"></canvas>
     <p class="visually-hidden">
-      An illustrated New Orleans street seen from above. As you scroll, the view drops into a second line moving up
-      the block, with umbrellas, handkerchiefs and brass, and settles behind your own figure at the back of the line.
+      A French Quarter street of galleried townhouses seen from above. As you scroll, the view drops into a second
+      line coming up the block, with parasols and a brass band, and settles behind your own figure holding the
+      instrument you picked.
     </p>
     <ol class="fallin__beats" role="list">
       {beats.map((b) => <li class="fallin__beat" data-from={b.from} data-to={b.to}>{b.text}</li>)}
@@ -30,7 +32,7 @@ const beats = [
     <fieldset class="fallin__items" data-items>
       <legend>What you carry</legend>
       <div class="fallin__item-row">
-        {items.map((it) => <button type="button" class="fallin__item" data-item={it.id} aria-pressed="false">{it.label}</button>)}
+        {instruments.map((it) => <button type="button" class="fallin__item" data-item={it.id} aria-pressed="false">{it.label}</button>)}
       </div>
     </fieldset>
   </div>
@@ -39,7 +41,7 @@ const beats = [
 <script>
   import { gsap } from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
-  import type { Item } from '../scripts/fall-in/cards';
+  import type { Instrument } from '../scripts/fall-in/world';
   import type { FallIn } from '../scripts/fall-in/scene';
 
   gsap.registerPlugin(ScrollTrigger);
@@ -59,17 +61,18 @@ const beats = [
     }
   })();
 
-  const savedItem = (): Item => {
+  const INSTRUMENTS = buttons.map((b) => b.dataset.item);
+  const savedInstrument = (): Instrument => {
     try {
-      return (sessionStorage.getItem('item') as Item) || 'handkerchief';
-    } catch {
-      return 'handkerchief';
-    }
+      const saved = sessionStorage.getItem('instrument');
+      if (saved && INSTRUMENTS.includes(saved)) return saved as Instrument;
+    } catch {}
+    return 'trumpet';
   };
 
   if (root && canvas && picker) {
-    let item = savedItem();
-    const markItem = () => buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.item === item)));
+    let instrument = savedInstrument();
+    const markItem = () => buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.item === instrument)));
     markItem();
 
     if (!hasWebGL) {
@@ -84,7 +87,7 @@ const beats = [
           try {
             const { createFallIn } = await import('../scripts/fall-in/scene');
             const studio = import.meta.env.DEV && new URLSearchParams(location.search).has('studio');
-            shot = await createFallIn({ canvas, still, item, studio });
+            shot = await createFallIn({ canvas, still, instrument, studio });
           } catch (err) {
             // A failed load or WebGL context falls back to the static version.
             console.error('Fall In could not start', err);
@@ -129,12 +132,12 @@ const beats = [
 
           buttons.forEach((b) =>
             b.addEventListener('click', () => {
-              item = b.dataset.item as Item;
+              instrument = b.dataset.item as Instrument;
               try {
-                sessionStorage.setItem('item', item);
+                sessionStorage.setItem('instrument', instrument);
               } catch {}
               markItem();
-              shot.setItem(item);
+              shot.setInstrument(instrument);
             }),
           );
         },

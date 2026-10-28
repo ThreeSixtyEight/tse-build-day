@@ -1,1 +1,30 @@
-[]
+[
+  {
+    "id": "fall-in-asphalt",
+    "type": "other",
+    "item": "Street asphalt texture",
+    "credit": "Poly Haven, Asphalt 02 (CC0)",
+    "url": "https://polyhaven.com/a/asphalt_02"
+  },
+  {
+    "id": "fall-in-plaster",
+    "type": "other",
+    "item": "Plaster wall texture",
+    "credit": "Poly Haven, Plastered Wall 02 (CC0)",
+    "url": "https://polyhaven.com/a/plastered_wall_02"
+  },
+  {
+    "id": "fall-in-brick",
+    "type": "other",
+    "item": "Brick wall texture",
+    "credit": "Poly Haven, Red Brick 03 (CC0)",
+    "url": "https://polyhaven.com/a/red_brick_03"
+  },
+  {
+    "id": "fall-in-sky",
+    "type": "other",
+    "item": "Sky lighting",
+    "credit": "Poly Haven, Kiara 1 Dawn HDRI (CC0)",
+    "url": "https://polyhaven.com/a/kiara_1_dawn"
+  }
+]
