@@ -1,19 +1,15 @@
 ---
-// Footer as a string instrument, after the footer on dkton.at.
-// The footer is split into columns, one note each (A minor pentatonic). Moving across a column line plucks it,
-// clicking plucks the column you're in, and hovering a link plays a note. A trail follows the pointer.
-// Sound follows the site's sound switch (scripts/sound.ts); Tone.js loads only when the pointer reaches the footer.
-// The melodica (Piano.astro) used to live here and can come back.
+// Falling music notes, after Osmo Supply's "Falling 2D Objects (MatterJS)".
+// Black notes drop into a square canvas pinned to the bottom of the footer and can be thrown around.
+// They start falling the first time the footer scrolls into view.
 import { site } from '../site.config';
 const year = new Date().getFullYear();
 ---
 
-<footer class="footer" data-footer-instrument>
-  <div class="footer__stage" aria-hidden="true">
-    <div class="footer__cells" data-footer-cells></div>
-    <canvas class="footer__canvas" data-footer-canvas></canvas>
-    <div class="footer__ring" data-footer-ring></div>
-    <div class="footer__hint" data-footer-hint>[ Move &amp; play ]</div>
+<footer class="footer">
+  <div class="canvas-matter" aria-hidden="true">
+    <div class="canvas-matter__before"></div>
+    <div id="canvas-target" class="canvas-matter__target"></div>
   </div>
 
   <div class="footer__inner wrap">
@@ -23,7 +19,8 @@ const year = new Date().getFullYear();
         <p>© {year}</p>
       </div>
       <div class="footer__col">
-        <button type="button" class="footer__sound" data-footer-sound hidden>[ Sound on ]</button>
+        <a href="/#transcript">[ Transcript ]</a>
+        <a href="/#credits">[ Credits ]</a>
         <!-- Required by the samples' CC BY 3.0 license. -->
         <p class="footer__credit">
           Piano sound: <a href="https://archive.org/details/SalamanderGrandPianoV3">Salamander Grand Piano</a>,
@@ -40,59 +37,28 @@ const year = new Date().getFullYear();
         <a href={site.officialSite}>[ Official site ]</a>
       </div>
     </div>
-    <p class="footer__mark" data-footer-mark>{site.siteName}<span class="footer__dot">.</span></p>
   </div>
 </footer>
 
 <style>
   .footer {
-    --footer-bg: #0b0b0c;
-    --footer-text: #f4f1ea;
-    --footer-muted: #8f8a80;
-    --footer-accent: #ffb800;
     position: relative;
     overflow: hidden;
-    background: var(--footer-bg);
-    color: var(--footer-text);
+    height: 100svh;
+    min-height: 32rem;
+    background: #fff;
+    color: #000;
   }
 
-  .footer__stage { position: absolute; inset: 0; pointer-events: none; }
-  .footer__cells { position: absolute; inset: 0; display: flex; }
-  .footer__cells :global(i) {
-    flex: 1;
-    border-left: 1px solid rgba(255, 255, 255, 0.06);
-    transition: background 200ms ease;
+  /* Text sits over the canvas but lets drags through, except on the links. */
+  .footer__inner {
+    position: relative;
+    z-index: 1;
+    pointer-events: none;
+    padding-top: clamp(2rem, 4vw, 3rem);
   }
-  .footer__cells :global(i:first-child) { border-left: 0; }
-  .footer__cells :global(i.is-lit) { background: linear-gradient(to top, rgba(255, 184, 0, 0.16), rgba(255, 184, 0, 0) 70%); }
-  .footer__canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .footer__ring {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 32px;
-    height: 32px;
-    margin: -16px 0 0 -16px;
-    border: 1px solid rgba(255, 184, 0, 0.45);
-    border-radius: 50%;
-    opacity: 0;
-    transition: opacity 200ms ease;
-  }
-  .footer__hint {
-    position: absolute;
-    top: 0;
-    left: 0;
-    transform: translate(20px, 14px);
-    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-    font-size: 0.75rem;
-    color: var(--footer-accent);
-    white-space: nowrap;
-    opacity: 0;
-    transition: opacity 300ms ease;
-  }
-  .footer__hint.is-on { opacity: 1; }
+  .footer a { pointer-events: auto; }
 
-  .footer__inner { position: relative; padding-top: clamp(5rem, 12vw, 9rem); padding-bottom: 1.5rem; }
   .footer__meta {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -103,273 +69,161 @@ const year = new Date().getFullYear();
   }
   .footer__col { display: flex; flex-direction: column; align-items: flex-start; }
   .footer__col--right { align-items: flex-end; text-align: right; }
-  .footer__col p { margin: 0; color: var(--footer-muted); }
+  .footer__col p { margin: 0; color: #555; }
   .footer__col p + p { margin-top: 0.5rem; }
-  .footer a, .footer__sound { color: var(--footer-text); text-decoration: none; white-space: nowrap; }
-  .footer a:hover, .footer__sound:hover { color: var(--footer-accent); }
-  .footer a:focus-visible, .footer__sound:focus-visible { outline: 2px solid var(--footer-accent); outline-offset: 2px; }
-  .footer__sound { font: inherit; padding: 0; border: 0; background: none; cursor: pointer; }
-  .footer__sound[hidden] { display: none; }
+  .footer a { color: #000; text-decoration: none; white-space: nowrap; }
+  .footer a:hover { text-decoration: underline; }
+  .footer a:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
   .footer__col .footer__credit { margin-top: 0.75rem; max-width: 22em; font-size: 0.75rem; line-height: 1.5; }
   .footer__credit a { white-space: normal; }
 
-  .footer__mark {
-    margin: clamp(2.5rem, 6vw, 4rem) 0 0;
-    font-size: 10vw;
-    font-weight: 800;
-    font-style: italic;
-    line-height: 0.9;
-    letter-spacing: -0.03em;
-    text-transform: uppercase;
-    white-space: nowrap;
+  .canvas-matter {
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    overflow: hidden;
+    pointer-events: none;
   }
-  .footer__dot { color: var(--footer-accent); }
+  .canvas-matter__before { padding-top: 100%; }
+  .canvas-matter__target {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+  }
+  #canvas-target :global(canvas) {
+    position: relative;
+    top: -1px;
+    left: -1px;
+    pointer-events: all;
+    max-width: calc(100% + 2px);
+    max-height: calc(100% + 2px);
+    min-width: calc(100% + 2px);
+    min-height: calc(100% + 2px);
+  }
 
   @media (max-width: 40em) {
     .footer__meta { grid-template-columns: 1fr 1fr; row-gap: 1.25rem; }
     .footer__col--right { align-items: flex-start; text-align: left; }
-    /* Leave room for the corner sound button. */
-    .footer__inner { padding-bottom: 5rem; }
   }
 </style>
 
 <script>
-  import type { PolySynth } from 'tone';
-  import { isSoundOn, setSound } from '../scripts/sound';
+  import Matter from 'matter-js';
 
-  // A minor pentatonic, two octaves on wide screens and one on narrow ones.
-  const NOTES_WIDE = ['A3', 'C4', 'D4', 'E4', 'G4', 'A4', 'C5', 'D5', 'E5', 'G5'];
-  const NOTES_NARROW = ['A3', 'C4', 'D4', 'E4', 'G4'];
-  const TRAIL_MS = 700;
-  const HINT_KEY = 'footer-instrument-taught';
+  // Phosphor Icons (MIT), fill weight, recoloured black and sized 256 × 256.
+  const NOTE_SVGS = ['music-note', 'music-notes', 'music-note-simple', 'music-notes-simple'].map((name) => `/footer/${name}.svg`);
 
-  const root = document.querySelector<HTMLElement>('[data-footer-instrument]');
-  if (root) initFooter(root);
+  const target = document.querySelector<HTMLElement>('#canvas-target');
+  if (target) {
+    new IntersectionObserver((entries, observer) => {
+      if (!entries[0].isIntersecting) return;
+      observer.disconnect();
+      initFalling2DMatterJS(target);
+    }, { threshold: 0.25 }).observe(target.closest('footer')!);
+  }
 
-  function initFooter(root: HTMLElement) {
-    const cellsEl = root.querySelector<HTMLElement>('[data-footer-cells]')!;
-    const canvas = root.querySelector<HTMLCanvasElement>('[data-footer-canvas]')!;
-    const ring = root.querySelector<HTMLElement>('[data-footer-ring]')!;
-    const hint = root.querySelector<HTMLElement>('[data-footer-hint]')!;
-    const mark = root.querySelector<HTMLElement>('[data-footer-mark]')!;
-    const soundBtn = root.querySelector<HTMLButtonElement>('[data-footer-sound]')!;
-    const ctx = canvas.getContext('2d')!;
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const narrow = window.matchMedia('(max-width: 40em)');
+  function initFalling2DMatterJS(canvas: HTMLElement) {
+    const canvasWidth = canvas.clientWidth + 2;
+    const canvasHeight = canvas.clientHeight + 2;
+    const canvasWallDepth = canvasWidth / 4;
+    const noteAmount = 15; // Amount of objects added to the canvas
+    const noteSize = canvasWidth / 7.5; // Size of objects
+    const noteSizeTexture = 256; // Size of object texture in pixels
+    const noteSizeScale = noteSize / noteSizeTexture;
+    const noteRestitution = 0.75; // Bounciness
+    const worldGravity = 2; // Gravity
 
-    let notes: string[] = [];
-    let cells: HTMLElement[] = [];
-    // One vibrating line per column boundary.
-    let strings: { amp: number; bendY: number }[] = [];
-    let w = 0;
-    let h = 0;
-    let rect = root.getBoundingClientRect();
+    const { Engine, Render, Runner, Bodies, Composite, Mouse, MouseConstraint } = Matter;
 
-    function layout() {
-      notes = narrow.matches ? NOTES_NARROW : NOTES_WIDE;
-      cellsEl.replaceChildren(...notes.map(() => document.createElement('i')));
-      cells = [...cellsEl.children] as HTMLElement[];
-      strings = notes.map(() => ({ amp: 0, bendY: 0 }));
-      resize();
+    const engine = Engine.create();
+    engine.world.gravity.y = worldGravity;
+
+    const render = Render.create({
+      element: canvas,
+      engine: engine,
+      options: {
+        background: 'transparent',
+        wireframes: false,
+        width: canvasWidth,
+        height: canvasHeight,
+        pixelRatio: 2,
+      },
+    });
+
+    const getRandomNumber = (min: number, max: number) => Math.random() * (max - min) + min;
+    const min = noteSize / 2;
+    const max = canvasWidth - noteSize / 2;
+
+    let textureIndex = 0;
+    function getNextTexture() {
+      const texture = NOTE_SVGS[textureIndex];
+      textureIndex = (textureIndex + 1) % NOTE_SVGS.length;
+      return texture;
     }
 
-    function resize() {
-      rect = root.getBoundingClientRect();
-      w = rect.width;
-      h = rect.height;
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(h * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      fitMark();
-      draw(performance.now());
-    }
+    const noteCreate = () => {
+      const note = Bodies.rectangle(getRandomNumber(min, max), noteSize, noteSize, noteSize, {
+        chamfer: { radius: noteSize / 2 },
+        restitution: noteRestitution,
+        angle: getRandomNumber(-0.4, 0.4),
+        render: {
+          sprite: {
+            texture: getNextTexture(),
+            xScale: noteSizeScale,
+            yScale: noteSizeScale,
+          },
+        },
+      });
+      Composite.add(engine.world, note);
+    };
 
-    // Stretch the site name to the full width of the footer.
-    function fitMark() {
-      mark.style.fontSize = '100px';
-      const room = mark.parentElement!.clientWidth - parseFloat(getComputedStyle(mark.parentElement!).paddingLeft) * 2;
-      // A little short of the full width, so the italic's last letter doesn't overhang.
-      mark.style.fontSize = `${Math.floor((97 * room) / mark.scrollWidth)}px`;
-    }
+    // Walls around the canvas. The spec names the floor "boxTop" and the ceiling "boxBottom".
+    const floor = Bodies.rectangle(canvasWidth / 2 + canvasWallDepth * 2, canvasHeight + canvasWallDepth, canvasWidth + canvasWallDepth * 4, canvasWallDepth * 2, { isStatic: true });
+    const left = Bodies.rectangle(canvasWallDepth * -1, canvasHeight / 2, canvasWallDepth * 2, canvasHeight, { isStatic: true });
+    const right = Bodies.rectangle(canvasWidth + canvasWallDepth, canvasHeight / 2, canvasWallDepth * 2, canvasHeight, { isStatic: true });
+    const ceiling = Bodies.rectangle(canvasWidth / 2 + canvasWallDepth * 2, canvasWallDepth * -1, canvasWidth + canvasWallDepth * 4, canvasWallDepth * 2, { isStatic: true });
+    Composite.add(engine.world, [floor, left, right, ceiling]);
 
-    // ---------- Sound ----------
-    let tone: Promise<PolySynth> | undefined;
-    let synth: PolySynth | undefined;
-    const loadSound = () =>
-      (tone ??= import('tone').then((Tone) => {
-        const reverb = new Tone.Reverb({ decay: 2.8, wet: 0.3 }).toDestination();
-        synth = new Tone.PolySynth(Tone.Synth, {
-          oscillator: { type: 'triangle' },
-          envelope: { attack: 0.005, decay: 0.5, sustain: 0, release: 0.4 },
-          volume: -12,
-        }).connect(reverb);
-        return synth;
-      }));
+    Render.run(render);
+    Runner.run(Runner.create(), engine);
 
-    async function pluck(column: number, strength: number) {
-      const note = notes[column];
-      if (!note || !isSoundOn()) return;
-      const Tone = await import('tone');
-      Tone.start();
-      const s = await loadSound();
-      s.triggerAttackRelease(note, '8n', undefined, Math.min(1, 0.35 + strength * 0.65));
-    }
-
-    const showSoundBtn = () => (soundBtn.hidden = isSoundOn());
-    soundBtn.addEventListener('click', () => setSound(true));
-    document.addEventListener('sound:change', showSoundBtn);
-    showSoundBtn();
-
-    // ---------- Pointer ----------
-    const trail: { x: number; y: number; t: number }[] = [];
-    let inside = false;
-    let pointerDown = false;
-    let column = -1;
-    let x = 0;
-    let y = 0;
-    let taught = false;
-    try {
-      taught = sessionStorage.getItem(HINT_KEY) === '1';
-    } catch {}
-
-    const columnAt = (px: number) => Math.max(0, Math.min(notes.length - 1, Math.floor((px / (w || 1)) * notes.length)));
-
-    function light(c: number) {
-      if (c === column) return;
-      if (column >= 0) cells[column]?.classList.remove('is-lit');
-      column = c;
-      if (c >= 0) cells[c]?.classList.add('is-lit');
-    }
-
-    function moveTo(clientX: number, clientY: number, play: boolean) {
-      const nx = clientX - rect.left;
-      const ny = clientY - rect.top;
-      const from = columnAt(x);
-      const to = columnAt(nx);
-      const speed = Math.hypot(nx - x, ny - y);
-      if (play && from !== to) {
-        // Crossing a line plucks it, and every line between, like a strum.
-        const step = to > from ? 1 : -1;
-        for (let c = from + step; c !== to + step; c += step) {
-          const boundary = step > 0 ? c : c + 1;
-          strings[boundary].amp = reduceMotion ? 0 : Math.min(18, 6 + speed * 0.4);
-          strings[boundary].bendY = ny;
-          pluck(c, Math.min(1, speed / 40));
-        }
+    function repeatedFunction(count: number, maxCount: number) {
+      if (count < maxCount) {
+        noteCreate();
+        setTimeout(() => repeatedFunction(count + 1, maxCount), 100);
       }
-      x = nx;
-      y = ny;
-      ring.style.transform = `translate(${x}px, ${y}px)`;
-      hint.style.left = `${x}px`;
-      hint.style.top = `${y}px`;
-      light(to);
-      if (!reduceMotion) trail.push({ x, y, t: performance.now() });
-      wake();
     }
+    repeatedFunction(0, noteAmount);
 
-    root.addEventListener('pointerenter', (ev) => {
-      rect = root.getBoundingClientRect();
-      x = ev.clientX - rect.left;
-      y = ev.clientY - rect.top;
-      inside = true;
-      ring.style.opacity = ev.pointerType === 'mouse' ? '1' : '0';
-      if (isSoundOn()) loadSound();
-      if (!taught) hint.classList.add('is-on');
-      moveTo(ev.clientX, ev.clientY, false);
+    const mouse = Mouse.create(render.canvas);
+    const mouseConstraint = MouseConstraint.create(engine, {
+      mouse: mouse,
+      constraint: { stiffness: 0.2, render: { visible: false } },
     });
-    root.addEventListener('pointerleave', () => {
-      inside = false;
-      pointerDown = false;
-      ring.style.opacity = '0';
-      hint.classList.remove('is-on');
-      light(-1);
+    Composite.add(engine.world, mouseConstraint);
+
+    // Matter's mouse handlers aren't in its types, so reach them loosely.
+    const m = mouseConstraint.mouse as any;
+
+    // Fix: Allow native page scroll
+    m.element.removeEventListener('mousewheel', m.mousewheel);
+    m.element.removeEventListener('DOMMouseScroll', m.mousewheel);
+
+    // Fix: Scroll on touch devices
+    m.element.removeEventListener('touchstart', m.mousedown);
+    m.element.removeEventListener('touchmove', m.mousemove);
+    m.element.removeEventListener('touchend', m.mouseup);
+
+    m.element.addEventListener('touchstart', m.mousedown, { passive: true });
+    m.element.addEventListener('touchmove', (e: TouchEvent) => {
+      if (mouseConstraint.body) m.mousemove(e);
     });
-    root.addEventListener('pointermove', (ev) => {
-      // Mouse plays on hover; touch plays while dragging.
-      moveTo(ev.clientX, ev.clientY, ev.pointerType === 'mouse' || pointerDown);
+    m.element.addEventListener('touchend', (e: TouchEvent) => {
+      if (mouseConstraint.body) m.mouseup(e);
     });
-    root.addEventListener('pointerdown', (ev) => {
-      pointerDown = true;
-      if ((ev.target as Element).closest('a, button')) return;
-      const px = ev.clientX - rect.left;
-      const c = columnAt(px);
-      // Shake the column line nearest the click.
-      const line = Math.max(1, Math.min(strings.length - 1, Math.round((px / (w || 1)) * notes.length)));
-      strings[line].amp = reduceMotion ? 0 : 22;
-      strings[line].bendY = ev.clientY - rect.top;
-      pluck(c, 1);
-      if (!taught) {
-        taught = true;
-        hint.classList.remove('is-on');
-        try {
-          sessionStorage.setItem(HINT_KEY, '1');
-        } catch {}
-      }
-      wake();
-    });
-    window.addEventListener('pointerup', () => (pointerDown = false));
-
-    // Links play a note across the scale as you hover them.
-    const links = [...root.querySelectorAll<HTMLElement>('a, button')];
-    links.forEach((link, i) => {
-      link.addEventListener('mouseenter', () => pluck(Math.round((i / Math.max(1, links.length - 1)) * (notes.length - 1)), 0.5));
-    });
-
-    // ---------- Drawing: only while something is moving ----------
-    let running = false;
-    function wake() {
-      if (running) return;
-      running = true;
-      requestAnimationFrame(frame);
-    }
-
-    function frame(now: number) {
-      const busy = draw(now);
-      if (busy || inside) requestAnimationFrame(frame);
-      else running = false;
-    }
-
-    function draw(now: number) {
-      ctx.clearRect(0, 0, w, h);
-      let busy = false;
-
-      // Strings: each column line bends where it was plucked and settles back.
-      for (let i = 1; i < strings.length; i++) {
-        const s = strings[i];
-        const lx = (i / strings.length) * w;
-        const wobble = s.amp * Math.sin(now / 28 + i);
-        ctx.beginPath();
-        ctx.moveTo(lx, 0);
-        ctx.quadraticCurveTo(lx + wobble * 2, s.bendY || h / 2, lx, h);
-        ctx.strokeStyle = `rgba(255, 184, 0, ${Math.min(0.7, s.amp / 18)})`;
-        ctx.lineWidth = 1;
-        if (s.amp > 0.2) ctx.stroke();
-        s.amp *= 0.93;
-        if (s.amp > 0.2) busy = true;
-      }
-
-      // Trail
-      while (trail.length && now - trail[0].t > TRAIL_MS) trail.shift();
-      for (let i = 1; i < trail.length; i++) {
-        const a = trail[i - 1];
-        const b = trail[i];
-        const life = 1 - (now - b.t) / TRAIL_MS;
-        ctx.beginPath();
-        ctx.moveTo(a.x, a.y);
-        ctx.lineTo(b.x, b.y);
-        ctx.strokeStyle = `rgba(255, 184, 0, ${life * 0.6})`;
-        ctx.lineWidth = 1 + life * 2;
-        ctx.lineCap = 'round';
-        ctx.stroke();
-      }
-      if (trail.length) busy = true;
-      return busy;
-    }
-
-    narrow.addEventListener('change', layout);
-    new ResizeObserver(resize).observe(root);
-    window.addEventListener('scroll', () => (rect = root.getBoundingClientRect()), { passive: true });
-    layout();
   }
 </script>
