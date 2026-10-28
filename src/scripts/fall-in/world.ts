@@ -191,21 +191,25 @@ export function buildWorld(scene: T.Scene, { small }: { small: boolean }): World
   const dancers: World['dancers'] = [];
   const parade = new T.Group();
   world.add(parade);
-  const count = small ? 36 : 52;
+  // A tight line down the middle of the street, about four abreast, each dancer jostled off the grid.
+  const WIDE = 4;
+  const count = small ? 64 : 104;
+  const rows = Math.ceil(count / WIDE);
   for (let i = 0; i < count; i++) {
-    const row = Math.floor(i / 5);
-    const col = i % 5;
-    const x = (col - 2) * 2.4 + (rnd() - 0.5) * 1.3;
-    const z = 12 - row * 3.8 + (rnd() - 0.5) * 2;
-    const inBand = i >= 20 && i < 32;
+    const row = Math.floor(i / WIDE);
+    const col = i % WIDE;
+    const x = (col - (WIDE - 1) / 2) * 1.15 + (rnd() - 0.5) * 0.7;
+    const z = 12 - row * 1.45 + (rnd() - 0.5) * 0.9;
+    // The band marches in the middle third of the line.
+    const inBand = row >= rows / 3 && row < rows / 2;
     const g = place(parade, x, z);
     person(g, inBand ? '#f2eee0' : pick(ACCENTS), i, inBand ? BAND[i % BAND.length] : undefined);
-    g.rotation.y = (rnd() - 0.5) * 0.4;
+    g.rotation.y = (rnd() - 0.5) * 0.6;
     dancers.push({ rig: g.userData.rig, seed: i });
-    if (i % 8 === 1) {
-      const u = place(parade, x + 0.58, z + 0.2);
+    if (!inBand && i % 9 === 1) {
+      const u = place(parade, x + 0.35, z + 0.15);
       u.position.y = 0.12;
-      umbrella(u, i % 2 ? '#e9bb37' : '#c14480');
+      umbrella(u, pick(['#e9bb37', '#c14480', '#f4cf56', '#238c87']));
     }
   }
   // Neighbours on the sidewalks, turned toward the street.
