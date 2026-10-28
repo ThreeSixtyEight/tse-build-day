@@ -1,0 +1,200 @@
+---
+// A music staff under the theater: the theater fades into a dark band with five horizontal lines across it.
+// When a line passes under the pointer, by scrolling or by moving the mouse, it plays its note (treble staff,
+// bottom to top: E G B D F) and a note appears on the line, then fades. Hovering or tapping a note plays it again.
+// On touch screens the middle of the screen stands in for the pointer.
+// Sound follows the site's sound switch (scripts/sound.ts).
+---
+
+<div class="staff" aria-hidden="true">
+  <div class="staff__band">
+    <span class="staff__line" data-note="F5"></span>
+    <span class="staff__line" data-note="D5"></span>
+    <span class="staff__line" data-note="B4"></span>
+    <span class="staff__line" data-note="G4"></span>
+    <span class="staff__line" data-note="E4"></span>
+  </div>
+</div>
+
+<style is:global>
+  /* A band of its own below the theater. Its top and bottom reach over the neighbouring sections and fade
+     them to black. */
+  .staff {
+    --fade: 5rem;
+    position: relative;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    height: clamp(18rem, 48vh, 28rem);
+    margin-block: calc(var(--fade) * -1);
+    background: linear-gradient(to bottom, transparent, #000 var(--fade), #000 calc(100% - var(--fade)), transparent);
+    pointer-events: none;
+  }
+  .staff__band {
+    position: relative;
+    width: 100%;
+    height: clamp(8rem, 18vh, 11rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .staff__line {
+    display: block;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.4);
+    /* Lines fade out toward the left and right edges. The fade is on the lines, not the band, so it doesn't clip
+       the notes that rise above the band. */
+    mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+    transition: background 600ms ease, box-shadow 600ms ease;
+  }
+  .staff__line.is-played {
+    background: #fff;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+    transition: none;
+  }
+  .staff__note {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 0.25rem;
+    color: #fff;
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    line-height: 1;
+    /* Sit the notehead on the line. */
+    transform: translate(-30%, -78%);
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
+    pointer-events: auto;
+    cursor: pointer;
+    animation: staff-note 3.2s ease-out forwards;
+    transition: scale 200ms ease, text-shadow 200ms ease;
+  }
+  .staff__note.is-played { scale: 1.35; text-shadow: 0 0 18px rgba(255, 255, 255, 0.9); }
+  @keyframes staff-note {
+    0% { opacity: 0; translate: 0 8px; }
+    8% { opacity: 1; translate: 0 0; }
+    60% { opacity: 1; }
+    100% { opacity: 0; translate: 0 -40px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .staff__note { animation-name: staff-note-still; }
+    @keyframes staff-note-still {
+      0% { opacity: 0; }
+      8% { opacity: 1; }
+      60% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    .staff__note.is-played { scale: 1; }
+  }
+</style>
+
+<script>
+  import type { PolySynth } from 'tone';
+  import { isSoundOn } from '../scripts/sound';
+
+  const GLYPHS = ['♪', '♩', '♫', '♬'];
+  // A line can't replay within this many ms, so a pointer resting on it doesn't stutter.
+  const RETRIGGER_MS = 120;
+
+  if (document.querySelector('.staff')) {
+    type Line = { el: HTMLElement; note: string; band: HTMLElement; side: number; last: number };
+    const lines: Line[] = [...document.querySelectorAll<HTMLElement>('.staff__line')].map((el) => ({
+      el,
+      note: el.dataset.note!,
+      band: el.parentElement!,
+      side: 0,
+      last: 0,
+    }));
+
+    // ---------- Sound ----------
+    let tone: Promise<PolySynth> | undefined;
+    const loadSound = () =>
+      (tone ??= import('tone').then((Tone) => {
+        const reverb = new Tone.Reverb({ decay: 2.4, wet: 0.3 }).toDestination();
+        return new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'triangle' },
+          envelope: { attack: 0.005, decay: 0.6, sustain: 0, release: 0.5 },
+          volume: -14,
+        }).connect(reverb);
+      }));
+
+    async function sound(note: string) {
+      if (!isSoundOn()) return;
+      const Tone = await import('tone');
+      Tone.start();
+      (await loadSound()).triggerAttackRelease(note, '8n');
+    }
+
+    // ---------- Pointer ----------
+    const touch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+    let px = window.innerWidth / 2;
+    let py = touch ? window.innerHeight / 2 : -1;
+
+    // Flash an element's played state for a moment.
+    function flash(el: HTMLElement, ms: number) {
+      el.classList.remove('is-played');
+      void el.offsetWidth;
+      el.classList.add('is-played');
+      window.setTimeout(() => el.classList.remove('is-played'), ms);
+    }
+
+    function play(line: Line, x: number) {
+      const now = performance.now();
+      if (now - line.last < RETRIGGER_MS) return;
+      line.last = now;
+      flash(line.el, 120);
+
+      const note = document.createElement('span');
+      note.className = 'staff__note';
+      note.textContent = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+      const bandRect = line.band.getBoundingClientRect();
+      note.style.left = `${x - bandRect.left}px`;
+      note.style.top = `${line.el.offsetTop}px`;
+      note.addEventListener('animationend', () => note.remove());
+      // Hovering or tapping a note plays it again while it's on screen.
+      const replay = () => {
+        flash(note, 220);
+        flash(line.el, 120);
+        sound(line.note);
+      };
+      note.addEventListener('mouseenter', replay);
+      note.addEventListener('pointerdown', (ev) => ev.pointerType !== 'mouse' && replay());
+      line.band.append(note);
+
+      sound(line.note);
+    }
+
+    // A line plays when it crosses the pointer, whichever of the two moved.
+    function check() {
+      if (py < 0) return;
+      for (const line of lines) {
+        const y = line.el.getBoundingClientRect().top;
+        const side = py < y - 1 ? -1 : py > y + 1 ? 1 : line.side;
+        if (line.side !== 0 && side !== line.side) play(line, px);
+        line.side = side;
+      }
+    }
+
+    if (!touch) {
+      window.addEventListener('mousemove', (ev) => {
+        px = ev.clientX;
+        py = ev.clientY;
+        check();
+      }, { passive: true });
+      document.addEventListener('mouseleave', () => {
+        py = -1;
+        lines.forEach((l) => (l.side = 0));
+      });
+    } else {
+      // A little variety in where the notes appear on a phone.
+      window.addEventListener('scroll', () => (px = window.innerWidth * (0.3 + Math.random() * 0.4)), { passive: true });
+    }
+    window.addEventListener('scroll', check, { passive: true });
+    window.addEventListener('resize', () => {
+      if (touch) py = window.innerHeight / 2;
+    });
+
+    // Warm up the synth once the visitor has opted in.
+    if (isSoundOn()) loadSound();
+    document.addEventListener('sound:change', () => isSoundOn() && loadSound());
+  }
+</script>
