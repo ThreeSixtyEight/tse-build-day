@@ -20,7 +20,7 @@ flat:
   caption: Juilliard and the subway, New York, 2004–2011
   dark: true
   cutout:
-    src: /chapter-3/subway-melodica.webp
-    alt: Painting of a teenager in a striped T-shirt leaning on a green subway pillar, playing a melodica, his open case on the platform beside him
+    src: /chapter-3/subway-pillar.webp
+    alt: Painting of a young man in a striped T-shirt leaning against a subway pillar, playing a melodica, his open case on the platform beside him
     full: true
 ---

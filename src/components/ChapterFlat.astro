@@ -86,11 +86,12 @@ const { id, number, eyebrow, heading, body, cutout, prop, background, quote, cap
     background: #000;
   }
 
-  /* Full-width cutout: the painting spans the panel and stands on its bottom edge (its top is cropped on wide
-     screens), and the text keeps to the right half, over the painting's empty side. */
+  /* Full-width cutout: the painting fills the panel, standing on its bottom edge and cropped at the sides to fit,
+     and the text keeps to the right, over the painting's empty side. */
+  .flat--full { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
   .flat--full .flat__art { position: absolute; inset: 0; }
   .flat--full .flat__text { grid-column: 2; }
-  .flat__cutout--full { left: 0; bottom: 0; width: 100%; height: auto; }
+  .flat__cutout--full { inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 30% 100%; }
 
   /* Painted panel: the painting fills the art side, framed on the subject, and its right edge fades into the
      panel colour where the text begins. */
@@ -125,10 +126,25 @@ const { id, number, eyebrow, heading, body, cutout, prop, background, quote, cap
     .flat__cutout { left: 50%; translate: -50% 0; height: 95%; }
     .flat__cutout--bleed { left: 0; translate: none; width: 100%; height: auto; bottom: 4%; }
     .flat__prop { left: -10%; width: 120%; bottom: 8%; }
-    /* The text sits above the painting, overlapping only its faded top. */
-    .flat--full { grid-template-rows: auto; padding-bottom: 85vw; }
+  }
+
+  /* Phones and portrait or near-square screens: the text on top, the painting full width along the bottom, its
+     top edge faded into the panel. */
+  @media (max-width: 760px), (max-aspect-ratio: 7/6) {
+    .flat--full { grid-template-columns: 1fr; grid-template-rows: auto; align-content: start; padding-bottom: 56.25vw; }
     .flat--full .flat__text { grid-column: 1; }
-    .flat__cutout--full { left: 0; translate: none; width: 100%; height: auto; }
+    .flat__cutout--full {
+      inset: auto 0 0;
+      height: auto;
+      translate: none;
+      object-fit: fill;
+      mask-image: linear-gradient(to bottom, transparent, #000 9%);
+    }
+  }
+  /* On phones the painting is a full screen-width square, cropped from its empty right side, so the figure stays large. */
+  @media (max-width: 760px) {
+    .flat--full { padding-bottom: 100vw; }
+    .flat__cutout--full { height: 100vw; object-fit: cover; object-position: 30% 100%; }
   }
 </style>
 
