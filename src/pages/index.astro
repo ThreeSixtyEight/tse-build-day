@@ -48,8 +48,8 @@ const bg = (id: string) =>
     </script>
     <div class="hero__pin">
       <div class="hero__stage">
-        <!-- Sky animation loops silently behind the art. The still is the poster and the reduced-motion fallback. -->
-        <video class="hero__sky" src="/hero/sky.mp4" poster="/hero/sky.webp" autoplay muted loop playsinline disablepictureinpicture aria-hidden="true"></video>
+        <!-- Sky animation loops silently behind the art. No poster: sky.webp is the whole street scene, so it doubled the buildings while the video buffered. -->
+        <video class="hero__sky" src="/hero/sky.mp4" autoplay muted loop playsinline disablepictureinpicture aria-hidden="true"></video>
         <img class="hero__buildings" src="/hero/buildings.webp" alt="" />
         <h1 class="hero__title">
           <span class="hero__line"><span class="hero__small">The</span> Story <span class="hero__small">of</span></span>
@@ -197,7 +197,7 @@ const bg = (id: string) =>
   // the title goes with them and Jon drops out before the street settles. The art is pinned by CSS sticky.
   const stage = document.querySelector<HTMLElement>('.hero__stage');
 
-  // Reduced motion: hold the sky on its poster frame.
+  // Reduced motion: hold the sky on its first frame.
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     document.querySelector<HTMLVideoElement>('.hero__sky')?.pause();
   }
