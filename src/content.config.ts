@@ -12,7 +12,7 @@ const sections = defineCollection({
   schema: z.object({
     title: z.string(),
     order: z.number().default(100),
-    // The section's synopsis from the content guide. Not shown on the page; the copy is.
+    // The section's synopsis from the content guide. Only chapter 3's shows, over the theater scene before it.
     story: z.string().optional(),
     // One thing the visitor can do, shown as a card on the chapter's last panel.
     takeaway: z.string().optional(),
@@ -27,7 +27,18 @@ const sections = defineCollection({
     quotes: z.array(reference('quotes')).default([]),
     // A chapter as full-screen scenes in order (intro, resolution), each a background photo and its copy.
     // photo: an Unsplash photo id, credited in src/data/credits.json. Without scenes the section shows its body copy.
-    scenes: z.array(z.object({ text: z.string(), photo: z.string().optional() })).default([]),
+    // painting: a full-width painting shown whole instead of the photo, with the copy centred over it.
+    scenes: z
+      .array(
+        z.object({
+          text: z.string(),
+          photo: z.string().optional(),
+          painting: z.object({ src: z.string(), alt: z.string() }).optional(),
+          // Words in the text that link out: the first time `text` appears in the copy, it links to href.
+          link: z.object({ text: z.string(), href: z.url() }).optional(),
+        }),
+      )
+      .default([]),
     // false: the chapter is only its flat panel, with no full-screen scene before it.
     fullScreen: z.boolean().default(true),
     // Full-screen scene behind the section's first panel. Without one, the placeholder photo in index.astro shows.

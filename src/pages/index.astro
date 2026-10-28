@@ -7,7 +7,7 @@ import Quote from '../components/Quote.astro';
 import Piano from '../components/Piano.astro';
 import TheaterSpotlight from '../components/TheaterSpotlight.astro';
 import QuoteReveal from '../components/QuoteReveal.astro';
-import { site } from '../site.config';
+import LoveRiots from '../components/LoveRiots.astro';
 
 const sections = (await getCollection('sections')).sort((a, b) => a.data.order - b.data.order);
 // The large quote the piano lifts off: any id from src/data/quotes.json.
@@ -20,17 +20,14 @@ const rendered = await Promise.all(
     flatQuote: s.data.flat?.quote ? (await getEntry(s.data.flat.quote))?.data : undefined,
   })),
 );
+// The theater is the New York chapter's only scene, so it shows that chapter's title, story and quote.
+const loveRiots = rendered.find(({ s }) => s.data.order === 3);
 
 // Placeholder backgrounds: free Unsplash photos of New Orleans, by section id, credited in src/data/credits.json.
 // ponytail: one 2000px image for every screen, add a srcset-style image-set when the final photos land.
 const photos: Record<string, string> = {
   entry: '1525994886773-080587e161c2',
-  'section-3': '1771868557440-ab1f8e4d6006',
-  // Reused until final photos land: a French Quarter street for the homecoming, the entry street for the send-off.
-  'section-4': '1775227970630-9c03b7406132',
-  'section-5': '1525994886773-080587e161c2',
   listen: '1560110734-f03640ca8eda',
-  end: '1690267306076-2a6e9899aaeb',
 };
 const quoteFirst = (text: string) => text.startsWith('[Quote]');
 const photoVar = (photo: string) =>
@@ -81,17 +78,28 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
             const last = i === s.data.scenes.length - 1;
             return (
               <section
-                class="section scene"
+                class:list={['section scene', { 'scene--painted': scene.painting }]}
                 id={i ? `${s.id}-${i + 1}` : s.id}
                 data-section={s.id}
                 data-scene={i + 1}
-                style={scene.photo && photoVar(scene.photo)}
+                style={scene.photo && !scene.painting ? photoVar(scene.photo) : undefined}
               >
+                {scene.painting && <img class="scene__painting" src={scene.painting.src} alt={scene.painting.alt} />}
                 <div class="wrap">
                   {i === 0 && <h2>{s.data.title}</h2>}
                   {/* "[Quote] …" in the copy puts the chapter's quote before the text instead of after it. */}
                   {last && quoteFirst(scene.text) && quotes.map((q) => <Quote {...q.data} />)}
-                  <p class="scene__text">{scene.text.replace(/^\[Quote\]\s*/, '')}</p>
+                  <p class="scene__text">
+                    {scene.link ? (
+                      <>
+                        {scene.text.split(scene.link.text)[0]}
+                        <a href={scene.link.href}>{scene.link.text}</a>
+                        {scene.text.split(scene.link.text).slice(1).join(scene.link.text)}
+                      </>
+                    ) : (
+                      scene.text.replace(/^\[Quote\]\s*/, '')
+                    )}
+                  </p>
                   {i === 0 && s.data.caption && <p class="caption">{s.data.caption}</p>}
                   {last && !quoteFirst(scene.text) && quotes.map((q) => <Quote {...q.data} />)}
                   {last && !s.data.flat && s.data.takeaway && <Takeaway text={s.data.takeaway} />}
@@ -131,7 +139,11 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
           </div>
         )}
         {/* The theater follows chapter 2, after he boards the bus: a spotlight follows the pointer across Jon at the piano. */}
-        {s.data.order === 2 && <TheaterSpotlight />}
+        {s.data.order === 2 && (
+          <LoveRiots title={loveRiots?.s.data.title} text={loveRiots?.s.data.story} quote={loveRiots?.quotes[0]?.data}>
+            <TheaterSpotlight />
+          </LoveRiots>
+        )}
         </>
       ))
     }
@@ -154,16 +166,6 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
       ></iframe>
       {/* Ending: We Are through an official embed, the only place Jon's music plays. Swap the artist embed for We Are.
           Official Spotify, Apple Music or YouTube embeds only. No AI voice or AI music. Analytics: embed clicks. */}
-    </div>
-  </section>
-
-  <!-- End of the line. Reaching this section is tracked. -->
-  <section class="section" id="end" data-section="end" style={bg('end')}>
-    <div class="wrap">
-      <h2>End of the line</h2>
-      <p>For music, tour dates and the store, visit <a href={site.officialSite}>Jon Batiste's official site</a>.</p>
-      {/* His site already handles the store, newsletter and tour, so we link out rather than rebuild them.
-          Analytics: visitor reaches the end. */}
     </div>
   </section>
 
@@ -365,5 +367,18 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
   .section h2 { margin: 0.25rem 0 1rem; font-size: clamp(2.25rem, 5vw, 4rem); }
   .caption { color: var(--muted); font-size: 0.875rem; }
   .scene__text { font-size: clamp(1.25rem, 2.2vw, 1.75rem); line-height: 1.45; max-width: 38rem; }
+  /* A scene painted full width like the hero, shown whole at its own proportions, with the copy centred over its sky.
+     The panel colour is the top of the night sky, the same as the quote panel above it, so the two run together. */
+  .section.scene--painted {
+    display: grid;
+    justify-content: stretch;
+    padding: 0;
+    border-bottom: 0;
+    background: #011244;
+  }
+  .scene--painted > * { grid-area: 1 / 1; }
+  .scene__painting { width: 100%; align-self: start; }
+  .scene--painted .wrap { position: relative; align-self: start; padding-block: clamp(3rem, 10vw, 9rem) 3rem; text-align: center; }
+  .scene--painted .scene__text { margin-inline: auto; }
   .spotify { border: 0; border-radius: 12px; max-width: 40rem; }
 </style>

@@ -1,10 +1,6 @@
 [
   { "id": "bg-entry", "type": "photo", "item": "Entry background (placeholder)", "credit": "Robson Hatsukami Morgan on Unsplash", "url": "https://unsplash.com/photos/sEoR_ea8KoE" },
-  { "id": "bg-section-3", "type": "photo", "item": "Section 3 background (placeholder)", "credit": "Fujiphilm on Unsplash", "url": "https://unsplash.com/photos/0offmlXUsOs" },
-  { "id": "bg-section-4", "type": "photo", "item": "Section 4 background (placeholder, same photo as Transcript)", "credit": "Emanuel Odadjiev on Unsplash", "url": "https://unsplash.com/photos/XU2TA82lEJY" },
-  { "id": "bg-section-5", "type": "photo", "item": "Section 5 background (placeholder, same photo as Entry)", "credit": "Robson Hatsukami Morgan on Unsplash", "url": "https://unsplash.com/photos/sEoR_ea8KoE" },
   { "id": "bg-listen", "type": "photo", "item": "Listen background (placeholder)", "credit": "Morgan Petroski on Unsplash", "url": "https://unsplash.com/photos/ZCX1Nyok66c" },
-  { "id": "bg-end", "type": "photo", "item": "End of the line background (placeholder)", "credit": "iSawRed on Unsplash", "url": "https://unsplash.com/photos/pv9DqG_-w0A" },
   { "id": "bg-transcript", "type": "photo", "item": "Transcript background (placeholder)", "credit": "Emanuel Odadjiev on Unsplash", "url": "https://unsplash.com/photos/XU2TA82lEJY" },
   { "id": "bg-credits", "type": "photo", "item": "Credits background (placeholder)", "credit": "Sasha Matveeva on Unsplash", "url": "https://unsplash.com/photos/btW-dqA5UAk" },
   { "id": "piano-samples", "type": "audio", "item": "Piano sound: Salamander Grand Piano samples", "credit": "Alexander Holm, CC BY 3.0", "url": "https://archive.org/details/SalamanderGrandPianoV3" }

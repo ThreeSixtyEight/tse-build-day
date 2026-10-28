@@ -1,5 +1,5 @@
 ---
-title: End
+title: End of the line
 order: 5
 story: "The line turns to the visitor."
 purpose: "Enveloped, carried home. The line turns to the visitor."
@@ -8,7 +8,13 @@ directives:
   - "The street as the line breaks up, at dusk. No fixed place or date"
 interaction: "Collect the whistle, for the visitor's call and response."
 scenes:
-  # Intro. Placeholder photo until the scene art lands.
-  - photo: 1525994886773-080587e161c2
-    text: "A second line belongs to whoever joins it. At every stop somebody made room for Jon Batiste. His mother. Alvin. A train full of strangers. A whole neighborhood."
+  # The hero street at night, shown full width with the copy centred over the sky.
+  - painting:
+      src: /end/night.webp
+      alt: Painting of an empty French Quarter street at night under a swirling blue and violet starry sky
+    # His site already handles the store, newsletter and tour, so we link out rather than rebuild them.
+    text: "For music, tour dates and the store, visit Jon Batiste's official site."
+    link:
+      text: Jon Batiste's official site
+      href: https://www.jonbatiste.com/
 ---

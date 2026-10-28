@@ -1,0 +1,91 @@
+---
+// The New York chapter, told over the theater scene that comes before it in the page (passed in as the slot).
+// It lays its own copy over the top of the scene and a fade over the bottom, so the theater component stays as it
+// is. The fade runs into a solid night-blue panel holding the chapter's quote. Title, story and quote come from
+// the chapter's section file.
+import Quote from './Quote.astro';
+
+interface Props {
+  title?: string;
+  text?: string;
+  quote?: { text: string; source: string; date: string; url?: string };
+}
+const { title, text, quote } = Astro.props;
+---
+
+<div class="love-riots">
+  <slot />
+  {
+    (title || text) && (
+      <div class="love-riots__copy">
+        {title && <h2>{title}</h2>}
+        {text && <p>{text}</p>}
+      </div>
+    )
+  }
+  {quote && <div class="love-riots__fade" aria-hidden="true"></div>}
+</div>
+{
+  quote && (
+    <section class="love-riots__quote" data-section="theater-quote">
+      <div class="wrap">
+        <Quote {...quote} />
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .love-riots { position: relative; }
+  /* Same type as the chapter headings and scene copy. pointer-events: none keeps the spotlight following the pointer
+     under the text; the gradient keeps it readable where the light lands. */
+  .love-riots__copy {
+    position: absolute;
+    z-index: 1;
+    inset: 0 0 auto;
+    padding-block: 3rem 6rem;
+    padding-inline: max(var(--gutter), (100% - var(--max)) / 2 + var(--gutter));
+    color: #fff;
+    background: linear-gradient(rgb(0 0 0 / 0.6), rgb(0 0 0 / 0));
+    pointer-events: none;
+  }
+  /* Smaller than the chapter headings so it sits in proportion to the paragraph under it. Light text on dark renders
+     heavier, so it's antialiased to keep the regular weight. */
+  .love-riots__copy h2 {
+    margin: 0.25rem 0 0.75rem;
+    font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .love-riots__copy p { margin: 0; font-size: clamp(1.25rem, 2.2vw, 1.75rem); line-height: 1.45; max-width: 38rem; }
+  /* The bottom of the scene fades into the quote panel's night blue (the top of the End painting's sky), so the
+     theater, the quote and the End scene run into each other. */
+  .love-riots__fade {
+    position: absolute;
+    z-index: 1;
+    inset: auto 0 0;
+    height: 35%;
+    background: linear-gradient(rgb(1 18 68 / 0), #011244);
+    pointer-events: none;
+  }
+  .love-riots__quote {
+    --text: #fff;
+    --muted: rgb(255 255 255 / 0.7);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 60svh;
+    padding-block: 3rem;
+    color: var(--text);
+    background: #011244;
+  }
+  .love-riots__quote :global(.quote) { max-width: 38rem; }
+  .love-riots__quote :global(.quote blockquote) {
+    font-family: 'gunter', 'Melodrama', serif;
+    font-size: clamp(1.75rem, 3.2vw, 2.5rem);
+    line-height: 1.1;
+    text-transform: uppercase;
+    -webkit-font-smoothing: antialiased;
+  }
+</style>
