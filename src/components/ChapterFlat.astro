@@ -4,6 +4,7 @@
 // A bleed cutout instead rolls in from the left each time its panel arrives, and comes to rest flush with the
 // left edge of the screen; it never moves right of it, so no gap opens. Reduced motion: no drift or roll.
 import Quote from './Quote.astro';
+import Takeaway from './Takeaway.astro';
 
 interface Props {
   id: string;
@@ -14,9 +15,10 @@ interface Props {
   prop?: { src: string; alt: string };
   quote?: { text: string; source: string; date: string; url?: string };
   caption?: string;
+  takeaway?: string;
 }
 
-const { id, number, heading, body, cutout, prop, quote, caption } = Astro.props;
+const { id, number, heading, body, cutout, prop, quote, caption, takeaway } = Astro.props;
 ---
 
 <section class="section flat" id={id} data-section={id}>
@@ -36,6 +38,7 @@ const { id, number, heading, body, cutout, prop, quote, caption } = Astro.props;
     {body.split(/\n\s*\n/).map((para) => <p>{para.trim()}</p>)}
     {quote && <Quote {...quote} />}
     {caption && <p class="caption">{caption}</p>}
+    {takeaway && <Takeaway text={takeaway} />}
   </div>
 </section>
 

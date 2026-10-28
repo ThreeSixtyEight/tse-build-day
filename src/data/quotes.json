@@ -1,6 +1,8 @@
 [
+  { "id": "fresh-air-family", "text": "I picked up on all of these things that are integral to who I am.", "source": "NPR Fresh Air, on absorbing music from his family without formal study", "date": "September 26, 2018" },
   { "id": "alvin-batiste", "text": "the study of being an individual on an instrument", "source": "Forbes, on what Alvin Batiste taught him", "date": "September 9, 2019" },
+  { "id": "fresh-air-lineage", "text": "I ran from the idea of being a part of a lineage.", "source": "NPR Fresh Air", "date": "September 2018, posted December 31, 2018" },
   { "id": "love-riot", "text": "The love riot is the sound of catharsis.", "source": "Relix", "date": "2026" },
-  { "id": "joy-party", "text": "It's a party. It's a joy party.", "source": "Ringleader", "date": "2025" },
+  { "id": "love-riot-festival", "text": "Get ready to dance in the streets and sing to the heavens!", "source": "Love Riot Festival press release, announcing the festival", "date": "February 2025" },
   { "id": "grammys", "text": "I love you even if I don't know you!", "source": "Album of the Year speech, Grammys", "date": "April 3, 2022" }
 ]

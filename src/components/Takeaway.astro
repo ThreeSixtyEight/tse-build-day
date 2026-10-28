@@ -1,0 +1,23 @@
+---
+// A chapter's takeaway: one thing the visitor can do, shown on the chapter's last panel.
+interface Props {
+  text: string;
+}
+
+const { text } = Astro.props;
+---
+
+<p class="takeaway">{text}</p>
+
+<style>
+  .takeaway {
+    max-width: 34rem;
+    margin: 1.5rem 0 0;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--line);
+    border-left: 3px solid #e9b949;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+</style>

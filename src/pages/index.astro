@@ -2,6 +2,7 @@
 import { getCollection, getEntries, getEntry, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ChapterFlat from '../components/ChapterFlat.astro';
+import Takeaway from '../components/Takeaway.astro';
 import Quote from '../components/Quote.astro';
 import Piano from '../components/Piano.astro';
 import TheaterSpotlight from '../components/TheaterSpotlight.astro';
@@ -35,6 +36,7 @@ const photos: Record<string, string> = {
   transcript: '1775227970630-9c03b7406132',
   credits: '1767468200550-e6945e9b7f5f',
 };
+const quoteFirst = (text: string) => text.startsWith('[Quote]');
 const photoVar = (photo: string) =>
   `--photo: url(https://images.unsplash.com/photo-${photo}?w=2000&q=70&auto=format&fit=crop)`;
 const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[id] && photoVar(photos[id]));
@@ -89,9 +91,12 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
               >
                 <div class="wrap">
                   {i === 0 && <h2>{s.data.title}</h2>}
-                  <p class="scene__text">{scene.text}</p>
+                  {/* "[Quote] …" in the copy puts the chapter's quote before the text instead of after it. */}
+                  {last && quoteFirst(scene.text) && quotes.map((q) => <Quote {...q.data} />)}
+                  <p class="scene__text">{scene.text.replace(/^\[Quote\]\s*/, '')}</p>
                   {i === 0 && s.data.caption && <p class="caption">{s.data.caption}</p>}
-                  {last && quotes.map((q) => <Quote {...q.data} />)}
+                  {last && !quoteFirst(scene.text) && quotes.map((q) => <Quote {...q.data} />)}
+                  {last && !s.data.flat && s.data.takeaway && <Takeaway text={s.data.takeaway} />}
                 </div>
               </section>
             );
@@ -105,11 +110,18 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
                 <Quote {...q.data} />
               ))}
               {s.data.caption && <p class="caption">{s.data.caption}</p>}
+              {!s.data.flat && s.data.takeaway && <Takeaway text={s.data.takeaway} />}
             </div>
           </section>
         ))}
         {s.data.flat && (
-          <ChapterFlat id={s.data.fullScreen ? `${s.id}-flat` : s.id} number={s.data.order} {...s.data.flat} quote={flatQuote} />
+          <ChapterFlat
+            id={s.data.fullScreen ? `${s.id}-flat` : s.id}
+            number={s.data.order}
+            {...s.data.flat}
+            quote={flatQuote}
+            takeaway={s.data.takeaway}
+          />
         )}
         </>
       ))

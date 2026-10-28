@@ -12,6 +12,10 @@ const sections = defineCollection({
   schema: z.object({
     title: z.string(),
     order: z.number().default(100),
+    // The section's synopsis from the content guide. Not shown on the page; the copy is.
+    story: z.string().optional(),
+    // One thing the visitor can do, shown as a card on the chapter's last panel.
+    takeaway: z.string().optional(),
     purpose: z.string().default('TBD'),
     directives: z.array(z.string()).default([]),
     interaction: z.string().default('TBD'),
