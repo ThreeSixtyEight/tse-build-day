@@ -2,7 +2,6 @@
 import '../styles/global.css';
 import Footer from '../components/Footer.astro';
 import Cursor from '../components/Cursor.astro';
-import EntryGate from '../components/EntryGate.astro';
 import SoundToggle from '../components/SoundToggle.astro';
 import { site } from '../site.config';
 
@@ -28,7 +27,6 @@ const pageTitle = title ? `${title} | ${site.siteName}` : site.siteName;
     <link rel="stylesheet" href="https://use.typekit.net/fiq4wtl.css" />
   </head>
   <body>
-    <EntryGate />
     <main id="main">
       <slot />
     </main>

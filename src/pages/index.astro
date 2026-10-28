@@ -37,10 +37,14 @@ const bg = (id: string) =>
 ---
 
 <BaseLayout>
-  <!-- Entry gate: the visitor joins the second line here. -->
   <!-- Hero art from Figma (Build Day, frame 60:276), layers in public/hero. Positions are % of the 1440×900 frame. -->
   <!-- Two screens tall: the art stays pinned while scrolling moves Jon down and the buildings up into the street scene (Figma Frame 28). -->
   <section class="hero" id="entry" data-section="entry">
+    <!-- Hide the layers until the load-in plays; shown anyway after 3s in case the script fails. -->
+    <script is:inline>
+      document.documentElement.classList.add('hero-intro');
+      setTimeout(() => document.documentElement.classList.remove('hero-intro'), 3000);
+    </script>
     <div class="hero__pin">
       <div class="hero__stage">
         <!-- Figma: "Sky (REPLACE WITH VIDEO)". -->
@@ -191,6 +195,20 @@ const bg = (id: string) =>
   const stage = document.querySelector<HTMLElement>('.hero__stage');
   const frame = () => stage!.offsetWidth / 1440;
 
+  // Load-in: the buildings rise, then the title drops in from above as Jon rises from below. Slides only, no fades.
+  // Uses yPercent so it stacks with the scroll tween's y.
+  const layers = [...stage!.querySelectorAll('img')];
+  Promise.all([document.fonts.ready, ...layers.map((img) => img.decode().catch(() => {}))]).then(() => {
+    gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
+      gsap
+        .timeline({ defaults: { ease: 'power3.out' } })
+        .from('.hero__buildings', { yPercent: 8, duration: 1.4 })
+        .from('.hero__title', { yPercent: -220, duration: 1.2 }, '-=0.4')
+        .from('.hero__jon', { yPercent: 100, duration: 1.2 }, '<');
+    });
+    document.documentElement.classList.remove('hero-intro');
+  });
+
   gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
     gsap
       .timeline({
@@ -223,6 +241,7 @@ const bg = (id: string) =>
     translate: -50% -50%;
   }
   .hero__stage > *, .hero__border { position: absolute; margin: 0; }
+  :global(html.hero-intro) :is(.hero__buildings, .hero__jon, .hero__title) { visibility: hidden; }
   .hero__sky { left: -5.14%; top: 0; width: 110.35%; height: 236.7%; object-fit: cover; max-width: none; }
   .hero__buildings { left: -2.15%; top: -30.33%; width: 104.31%; height: 223.67%; max-width: none; }
   /* Sizes from the Figma frame (big words 97.95px, small 44.24px at 1440 wide), capped so the title fits a phone. Sits behind Jon's head. */

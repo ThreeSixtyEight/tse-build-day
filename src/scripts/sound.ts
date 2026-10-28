@@ -1,7 +1,7 @@
 // Site-wide sound switch. Sound stays off until the visitor opts in.
 // Anything that makes sound checks isSoundOn() and listens for the 'sound:change' event on document.
 // Audio and video elements on the page are muted while sound is off.
-// Wires up the corner toggle ([data-sound-toggle]) and the entry gate buttons ([data-join]).
+// Wires up the corner toggle ([data-sound-toggle]).
 
 const STORAGE_KEY = 'sound';
 
@@ -14,7 +14,7 @@ export const isSoundOn = () => soundOn;
 export const soundChoiceMade = () => chosen;
 
 // The choice from earlier in this browser tab, if any, so a reload doesn't ask again.
-export function savedChoice(): boolean | null {
+function savedChoice(): boolean | null {
   try {
     const saved = sessionStorage.getItem(STORAGE_KEY);
     return saved === null ? null : saved === 'on';
@@ -49,8 +49,8 @@ document.querySelectorAll<HTMLButtonElement>('[data-sound-toggle]').forEach((but
   button.addEventListener('click', () => setSound(!soundOn));
 });
 
-document.querySelectorAll<HTMLElement>('[data-join]').forEach((button) => {
-  button.addEventListener('click', () => setSound(button.dataset.join === 'sound'));
-});
+// Keep the choice from earlier in this tab across reloads.
+const saved = savedChoice();
+if (saved !== null) setSound(saved);
 
 render();
