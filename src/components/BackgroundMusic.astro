@@ -1,0 +1,63 @@
+---
+// Background music: a recording of a wedding second line, looping under the page.
+// It follows the site's sound switch (scripts/sound.ts): it plays only once the visitor turns sound on, fading in,
+// and stops when they turn it off (the switch mutes it at once). It also pauses while the tab is hidden.
+---
+
+<audio data-bg-music src="/audio/wedding-second-line.mp3" loop preload="none"></audio>
+
+<script>
+  import { isSoundOn } from '../scripts/sound';
+
+  const VOLUME = 0.6;
+  const FADE_MS = 1500;
+
+  const music = document.querySelector<HTMLAudioElement>('[data-bg-music]');
+  if (music) {
+    let fade = 0;
+
+    // Ease the volume up to the target.
+    function fadeTo(target: number) {
+      cancelAnimationFrame(fade);
+      const from = music!.volume;
+      const start = performance.now();
+      const step = (now: number) => {
+        const t = Math.min(1, (now - start) / FADE_MS);
+        music!.volume = from + (target - from) * t;
+        if (t < 1) fade = requestAnimationFrame(step);
+      };
+      fade = requestAnimationFrame(step);
+    }
+
+    // Browsers only start audio from a click or key press. If sound was already on when the page loaded
+    // (a reload), the music waits for the visitor's first one.
+    function waitForGesture() {
+      const go = () => {
+        removeEventListener('pointerdown', go);
+        removeEventListener('keydown', go);
+        if (isSoundOn()) start();
+      };
+      addEventListener('pointerdown', go);
+      addEventListener('keydown', go);
+    }
+
+    function start() {
+      if (document.hidden) return;
+      if (music!.paused) music!.volume = 0;
+      music!.play().then(() => fadeTo(VOLUME), waitForGesture);
+    }
+
+    function stop() {
+      cancelAnimationFrame(fade);
+      music!.pause();
+    }
+
+    document.addEventListener('sound:change', () => (isSoundOn() ? start() : stop()));
+    document.addEventListener('visibilitychange', () => {
+      if (!isSoundOn()) return;
+      if (document.hidden) stop();
+      else start();
+    });
+    if (isSoundOn()) start();
+  }
+</script>

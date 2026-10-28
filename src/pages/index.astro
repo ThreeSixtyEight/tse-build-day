@@ -8,6 +8,7 @@ import Quote from '../components/Quote.astro';
 import Piano from '../components/Piano.astro';
 import Theater from '../components/Theater.astro';
 import MusicStaff from '../components/MusicStaff.astro';
+import BackgroundMusic from '../components/BackgroundMusic.astro';
 import QuoteReveal from '../components/QuoteReveal.astro';
 import { site } from '../site.config';
 
@@ -182,6 +183,8 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
     </div>
   </section>
 
+  <!-- A wedding second line, looping under the page once the visitor turns sound on. -->
+  <BackgroundMusic />
 </BaseLayout>
 
 <script>
