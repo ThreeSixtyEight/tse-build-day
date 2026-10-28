@@ -1,7 +1,8 @@
 ---
 // A chapter's second panel: flat neutral background, a cutout figure on the left with text beside it and a
 // prop behind it. As the page scrolls the prop drifts slower than the cutout, so the two separate in depth.
-// Reduced motion: no drift.
+// A bleed cutout instead rolls in from the left each time its panel arrives, and comes to rest flush with the
+// left edge of the screen; it never moves right of it, so no gap opens. Reduced motion: no drift or roll.
 import Notes from './Notes.astro';
 import Quote from './Quote.astro';
 
@@ -23,7 +24,13 @@ const { id, number, heading, body, cutout, prop, quote, caption, notes } = Astro
 <section class="section flat" id={id} data-section={id}>
   <div class="flat__art" aria-hidden={cutout.alt ? undefined : 'true'}>
     {prop && <img class="flat__prop" src={prop.src} alt={prop.alt} data-drift="0.15" />}
-    <img class:list={['flat__cutout', { 'flat__cutout--bleed': cutout.bleed }]} src={cutout.src} alt={cutout.alt} data-drift="0.04" />
+    {
+      cutout.bleed ? (
+        <img class="flat__cutout flat__cutout--bleed" src={cutout.src} alt={cutout.alt} data-roll />
+      ) : (
+        <img class="flat__cutout" src={cutout.src} alt={cutout.alt} data-drift="0.04" />
+      )
+    }
   </div>
   <div class="flat__text">
     <p class="flat__num">{String(number).padStart(2, '0')}</p>
@@ -99,6 +106,28 @@ const { id, number, heading, body, cutout, prop, quote, caption, notes } = Astro
     return () => {
       gsap.ticker.remove(tick);
       layers.forEach((el) => (el.style.transform = ''));
+    };
+  });
+
+  // Bleed cutouts roll slowly left to right into place: they start shifted left by part of their width and end at
+  // x 0, flush with the screen's left edge. Leaving the panel resets them, so the roll plays again on the way back.
+  gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
+    const rollers = [...document.querySelectorAll<HTMLElement>('.flat [data-roll]')];
+    gsap.set(rollers, { xPercent: -18 });
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          const el = e.target.querySelector<HTMLElement>('[data-roll]')!;
+          if (e.isIntersecting) gsap.to(el, { xPercent: 0, duration: 6, ease: 'power2.out', overwrite: true });
+          else gsap.set(el, { xPercent: -18, overwrite: true });
+        }
+      },
+      { threshold: 0.5 },
+    );
+    rollers.forEach((el) => io.observe(el.closest('.flat')!));
+    return () => {
+      io.disconnect();
+      gsap.set(rollers, { clearProps: 'transform' });
     };
   });
 </script>

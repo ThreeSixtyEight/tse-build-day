@@ -18,11 +18,10 @@ flat:
   body: He keeps playing with the Jazztronauts through high school. In 2004 he graduates and heads north to Juilliard.
   cutout:
     src: /chapter-2/bus-boarding.webp
-    alt: A teenager in a green T-shirt boards a Greyhound bus with a suitcase and a melodica
+    alt: Painting of a teenager in a green T-shirt boarding a bus with a suitcase and a melodica
     bleed: true
   caption: New Orleans, 2004
   notes:
-    - "Art: the Greyhound name and logo are on the bus. Check we can show them, or paint them out."
     - "Quote TBD: needs a sourced line about leaving home."
     - "Fact check: the Greyhound trip and the melodica at departure need a source before the copy mentions them."
     - "Collectible: clarinet or handkerchief, team to decide."
