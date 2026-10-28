@@ -19,6 +19,10 @@ flat:
 
     His mother hears one drum too many. So she moves Jon to the piano–the one from Duke Ellington's orchestra. Mothers around here are usually right.
   quote: fresh-air-family
+  # The full playroom painting behind the panel. While it's set, the cutout below isn't shown.
+  background:
+    src: /chapter-1/playroom.jpg
+    alt: Painting of a small boy in a green sweater playing a toy drum set in a wood-panelled living room, toys on the rug beside him
   cutout:
     src: /chapter-1/jon-drums.webp
     alt: Painting of a small boy in a green sweater playing a toy drum set

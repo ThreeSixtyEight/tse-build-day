@@ -13,19 +13,21 @@ interface Props {
   body: string;
   cutout: { src: string; alt: string; bleed?: boolean };
   prop?: { src: string; alt: string };
+  background?: { src: string; alt: string };
   quote?: { text: string; source: string; date: string; url?: string };
   caption?: string;
   takeaway?: string;
 }
 
-const { id, number, heading, body, cutout, prop, quote, caption, takeaway } = Astro.props;
+const { id, number, heading, body, cutout, prop, background, quote, caption, takeaway } = Astro.props;
 ---
 
-<section class="section flat" id={id} data-section={id}>
+<section class:list={['section flat', background && 'flat--painted']} id={id} data-section={id}>
+  {background && <img class="flat__bg" src={background.src} alt={background.alt} />}
   <div class="flat__art" aria-hidden={cutout.alt ? undefined : 'true'}>
-    {prop && <img class="flat__prop" src={prop.src} alt={prop.alt} data-drift="0.15" />}
+    {!background && prop && <img class="flat__prop" src={prop.src} alt={prop.alt} data-drift="0.15" />}
     {
-      cutout.bleed ? (
+      background ? null : cutout.bleed ? (
         <img class="flat__cutout flat__cutout--bleed" src={cutout.src} alt={cutout.alt} data-roll />
       ) : (
         <img class="flat__cutout" src={cutout.src} alt={cutout.alt} data-drift="0.04" />
@@ -76,7 +78,31 @@ const { id, number, heading, body, cutout, prop, quote, caption, takeaway } = As
   .flat__cutout { left: 18%; bottom: 0; height: 82%; width: auto; }
   .flat__cutout--bleed { left: 0; bottom: 14%; width: 100%; height: auto; }
 
+  /* Painted panel: the painting fills the art side, framed on the subject, and its right edge fades into the
+     panel colour where the text begins. */
+  .flat__bg {
+    position: absolute;
+    z-index: 0;
+    inset: 0 auto 0 0;
+    width: 62%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: 36% center;
+  }
+  .flat--painted .flat__text { z-index: 2; }
+  .flat--painted::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(90deg, rgb(239 231 216 / 0) 38%, rgb(239 231 216 / 0.92) 54%, #efe7d8 62%);
+  }
+
   @media (max-width: 760px) {
+    .flat__bg { width: 100%; height: 60svh; object-position: 42% center; }
+    .flat--painted::before { background: linear-gradient(180deg, rgb(239 231 216 / 0) 0, rgb(239 231 216 / 0) 32svh, #efe7d8 58svh); }
     .flat { grid-template-columns: 1fr; grid-template-rows: 45svh auto; align-content: start; }
     .flat__art { order: 0; }
     .flat__text { order: 1; padding-block: 1rem 3rem; }

@@ -41,6 +41,9 @@ const sections = defineCollection({
         // bleed: a wide cutout cropped at its left end, so it runs off the left edge of the screen.
         cutout: z.object({ src: z.string(), alt: z.string(), bleed: z.boolean().default(false) }),
         prop: z.object({ src: z.string(), alt: z.string() }).optional(),
+        // A painting that fills the whole panel behind the text, fading into the panel colour on the text side.
+        // With one, the cutout and prop aren't shown.
+        background: z.object({ src: z.string(), alt: z.string() }).optional(),
         quote: reference('quotes').optional(),
         caption: z.string().optional(),
         // Working notes for the team; kept in the file, never shown on the page.
