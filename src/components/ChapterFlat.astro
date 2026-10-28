@@ -60,15 +60,6 @@ const { id, number, heading, body, cutout, prop, background, quote, caption, tak
     color: var(--text);
     background: #efe7d8;
   }
-  /* Wavy bottom edge from the storyboard. */
-  .flat::after {
-    content: '';
-    position: absolute;
-    inset: auto 0 0;
-    height: 28px;
-    background: radial-gradient(circle at 20px -6px, transparent 22px, #d9cdb6 23px) 0 0 / 40px 28px repeat-x;
-    pointer-events: none;
-  }
   .flat__text { position: relative; z-index: 1; padding-inline: 1rem clamp(1.5rem, 6vw, 6rem); max-width: 38rem; }
   .flat__num { margin: 0; font-family: 'Melodrama', serif; font-weight: 700; letter-spacing: 0.2em; color: #b5832a; }
   .flat h2 { margin: 0.25rem 0 1rem; font-size: clamp(2.25rem, 5vw, 4rem); }
