@@ -417,7 +417,8 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
   .section--stage {
     background: linear-gradient(90deg, rgb(0 0 0 / 0.8), rgb(0 0 0 / 0.55) 35%, rgb(0 0 0 / 0) 65%), var(--photo) 70% center / cover #222;
   }
-  .section--stage .wrap { max-width: 34rem; margin-inline: clamp(1rem, 6vw, 6rem) auto; }
+  /* width: auto so the left margin narrows the column instead of pushing it past the right edge. */
+  .section--stage .wrap { width: auto; max-width: 34rem; margin-inline: clamp(1rem, 6vw, 6rem) auto; }
 
   .section { padding-block: 3rem; border-bottom: 1px solid var(--line); }
   .section h2 { margin-top: 0; }

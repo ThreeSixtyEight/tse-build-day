@@ -37,8 +37,11 @@ const { text, source, date, url } = Astro.props;
     bottom: 0;
     z-index: 0;
     display: grid;
+    /* One column the width of the section, so the quote wraps inside it instead of widening the page. */
+    grid-template-columns: minmax(0, 1fr);
     place-items: center;
     height: 100svh;
+    overflow-x: clip;
     padding: 4rem var(--gutter);
     background: radial-gradient(ellipse 80% 70% at 50% 45%, #3b1f42, #140b17 75%);
     color: #f6e2cf;
