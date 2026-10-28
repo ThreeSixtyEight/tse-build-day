@@ -226,6 +226,26 @@ const bg = (id: string) =>
       .to(['.hero__buildings', '.hero__title'], { y: () => -806 * frame(), duration: 1 }, 0)
       .to('.hero__jon', { y: () => 720 * frame(), duration: 0.6 }, 0);
   });
+
+  // Mouse parallax: the pointer sets --mx/--my (-1 to 1) on the stage and each layer drifts by its own depth (CSS).
+  // Mouse and trackpad only; the sky stays still as the farthest layer.
+  gsap.matchMedia().add('(prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine)', () => {
+    const pin = document.querySelector<HTMLElement>('.hero__pin')!;
+    const toX = gsap.quickTo(stage, '--mx', { duration: 0.8, ease: 'power3' });
+    const toY = gsap.quickTo(stage, '--my', { duration: 0.8, ease: 'power3' });
+    const move = (e: PointerEvent) => {
+      toX((e.clientX / innerWidth) * 2 - 1);
+      toY((e.clientY / innerHeight) * 2 - 1);
+    };
+    const reset = () => (toX(0), toY(0));
+    pin.addEventListener('pointermove', move);
+    pin.addEventListener('pointerleave', reset);
+    return () => {
+      pin.removeEventListener('pointermove', move);
+      pin.removeEventListener('pointerleave', reset);
+      gsap.set(stage, { '--mx': 0, '--my': 0 });
+    };
+  });
 </script>
 
 <style>
@@ -268,11 +288,20 @@ const bg = (id: string) =>
     text-align: center;
     text-transform: uppercase;
     color: #fff;
-    text-shadow: calc(var(--u) * 0.28) calc(var(--u) * 1.04) 0 #01564b;
   }
   .hero__line { display: flex; align-items: baseline; gap: 0.25em; }
   .hero__small { font-family: 'Melodrama', serif; font-weight: 700; font-size: 0.45em; letter-spacing: 0.07em; }
-  .hero__jon { left: 55.14%; top: 27%; width: 86.94%; max-width: none; translate: -50% 0; }
+  .hero__jon { left: 11.67%; top: 27%; width: 86.94%; max-width: none; }
+
+  /* Mouse parallax depths: nearer layers drift further, against the pointer.
+     !important because GSAP writes translate: none inline on anything it tweens; its own moves go in transform, so the two stack. */
+  .hero__stage { --mx: 0; --my: 0; }
+  .hero__buildings { --depth: 0.6cqw; }
+  .hero__title { --depth: 1.2cqw; }
+  .hero__jon { --depth: 2cqw; }
+  .hero__buildings, .hero__title, .hero__jon {
+    translate: calc(var(--mx) * var(--depth) * -1) calc(var(--my) * var(--depth) * -1) !important;
+  }
 
 
   /* Painted frame: one strip per edge, rotated copies of the Figma border. */
