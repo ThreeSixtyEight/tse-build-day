@@ -7,6 +7,7 @@
   --gutter: clamp(1rem, 4vw, 2rem);
   /* Quotes and eyebrows (Adobe Fonts kit rvf8bga, loaded in BaseLayout). */
   --font-accent: 'arnika-variable', Georgia, serif;
+  --gold: #b5832a;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -29,6 +30,30 @@ img { display: block; max-width: 100%; height: auto; }
 a { color: inherit; }
 
 .wrap { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--gutter); }
+
+/* Shared type for every content block: eyebrow, then heading, then body, then caption. Use these classes instead of
+   styling a block's own h2 or p, so every block on the page reads the same. Colours come from the block's --text and --muted. */
+/* Eyebrow: gold line above a heading, in the accent font (Arnika). --caps for an all-caps, letter-spaced one. */
+.eyebrow { margin: 0 0 0.75rem; font-family: var(--font-accent); font-size: 1rem; color: var(--gold); }
+.eyebrow--caps { letter-spacing: 0.2em; text-transform: uppercase; }
+/* Headings: .heading plus a size. xl is a chapter heading, lg a heading within a chapter (a step down). */
+.heading { margin: 0 0 1rem; }
+.heading--xl { font-size: clamp(2.25rem, 5vw, 4rem); }
+.heading--lg { font-size: clamp(1.75rem, 3.5vw, 2.75rem); }
+/* Body: a paragraph, or a wrapper around several. Default size, --lead a little larger, --xl for a full-screen scene. */
+.body, .body > p { max-width: 38rem; margin: 0 0 1rem; }
+.body > p:last-child { margin-bottom: 0; }
+.body--lead { font-size: 1.125rem; }
+.body--xl { font-size: clamp(1.25rem, 2.2vw, 1.75rem); line-height: 1.45; }
+.caption { margin: 0 0 1rem; color: var(--muted); font-size: 0.875rem; }
+
+/* Alignment: on the element that holds a block's eyebrow, heading and body. */
+.align-left { text-align: left; }
+.align-center { text-align: center; }
+.align-center > *, .align-center .body > p { margin-inline: auto; }
+.align-center .heading { text-wrap: balance; }
+.align-right { text-align: right; }
+.align-right > *, .align-right .body > p { margin-inline: auto 0; }
 
 /* Hero type. Melodrama and Excon are free from Fontshare. Gunter comes from the Adobe Fonts kit linked in BaseLayout. */
 @font-face {

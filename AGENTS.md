@@ -19,3 +19,4 @@ Astro 7 scaffold for the Build Day fan site: Jon Batiste's story told through a 
 - Sound stays off until the visitor opts in; `data-section` and `data-sound-toggle` are hooks for the sound and analytics modules.
 - One page, no nav. Header is the site name and the sound toggle; footer links to the instruments and game pages.
 - Copy: buttons 2–3, headlines 4–8, captions "Place, Year".
+- Text blocks use the shared classes in `global.css`: `.eyebrow` (via `Eyebrow.astro`, `caps` for `.eyebrow--caps`), `.heading` with `.heading--xl` or `.heading--lg`, `.body` (`--lead`, `--xl`), `.caption`, and `.align-left` / `.align-center` / `.align-right` on the block's container. Don't restyle a block's own h2 or p.

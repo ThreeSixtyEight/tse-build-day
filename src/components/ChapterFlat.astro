@@ -4,6 +4,7 @@
 // A bleed cutout instead rolls in from the left as the panel scrolls into view, and comes to rest flush with the
 // left edge of the screen; it never moves right of it, so no gap opens. A full-width cutout rises into place
 // faster than the page while the text drifts slower. Reduced motion: no drift, roll or rise.
+import Eyebrow from './Eyebrow.astro';
 import Quote from './Quote.astro';
 import Takeaway from './Takeaway.astro';
 
@@ -44,16 +45,10 @@ const { id, number, eyebrow, heading, body, cutout, prop, background, quote, cap
       )
     }
   </div>
-  <div class="flat__text" data-drift={!background && cutout.full ? 0.12 : undefined}>
-    {
-      eyebrow && (
-        <p class="flat__eyebrow">
-          <span class="flat__num">{String(number).padStart(2, '0')}</span> – {eyebrow}
-        </p>
-      )
-    }
-    <h2>{heading}</h2>
-    {body.split(/\n\s*\n/).map((para) => <p>{para.trim()}</p>)}
+  <div class="flat__text align-left" data-drift={!background && cutout.full ? 0.12 : undefined}>
+    {eyebrow && <Eyebrow number={number} text={eyebrow} />}
+    <h2 class="heading heading--xl">{heading}</h2>
+    <div class="body">{body.split(/\n\s*\n/).map((para) => <p>{para.trim()}</p>)}</div>
     {quote && <Quote {...quote} />}
     {caption && <p class="caption">{caption}</p>}
     {takeaway && <Takeaway text={takeaway} />}
@@ -77,8 +72,6 @@ const { id, number, eyebrow, heading, body, cutout, prop, background, quote, cap
     background: #efe7d8;
   }
   .flat__text { position: relative; z-index: 1; padding-inline: 1rem clamp(1.5rem, 6vw, 6rem); max-width: 38rem; }
-  .flat__eyebrow { margin: 0 0 0.75rem; font-family: var(--font-accent); color: #b5832a; }
-  .flat h2 { margin: 0 0 1rem; font-size: clamp(2.25rem, 5vw, 4rem); }
   .flat__art { position: relative; align-self: stretch; }
   .flat__prop, .flat__cutout { position: absolute; max-width: none; }
   .flat__prop { left: -30%; bottom: 12%; width: 115%; }
