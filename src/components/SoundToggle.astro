@@ -1,14 +1,24 @@
 ---
-// Sound on/off, fixed to the bottom right corner. Play icon while sound is off, pause icon while it's on.
+// Sound on/off, fixed to the bottom right corner. Styled after the sound button on dkton.at:
+// a dark square with a gold waveform that moves while sound is on and lies flat and dim while it's off.
 // Wired up in scripts/sound.ts.
+
+// Waveform bars: x position, half-height, and how flat each one lies while sound is off.
+const bars = [
+  { x: 0.5, h: 1, off: 0.75 },
+  { x: 4.5, h: 2, off: 0.38 },
+  { x: 8.5, h: 4, off: 0.19 },
+  { x: 12.5, h: 6, off: 0.13 },
+  { x: 16.5, h: 5, off: 0.15 },
+  { x: 20.5, h: 3, off: 0.25 },
+  { x: 24.5, h: 1.5, off: 0.5 },
+  { x: 28.5, h: 1, off: 0.75 },
+];
 ---
 
 <button type="button" class="sound-toggle" data-sound-toggle aria-pressed="false" aria-label="Sound" title="Sound">
-  <svg class="sound-toggle__icon sound-toggle__icon--play" viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M8 5v14l11-7z" />
-  </svg>
-  <svg class="sound-toggle__icon sound-toggle__icon--pause" viewBox="0 0 24 24" aria-hidden="true">
-    <path d="M7 5h4v14H7zM13 5h4v14h-4z" />
+  <svg class="sound-toggle__wave" width="29" height="12" viewBox="0 0 29 12" fill="none" aria-hidden="true">
+    {bars.map((b, i) => <line x1={b.x} y1={6 - b.h} x2={b.x} y2={6 + b.h} style={`--off: ${b.off}; --i: ${i}`} />)}
   </svg>
 </button>
 
@@ -24,17 +34,42 @@
     z-index: 50;
     display: grid;
     place-items: center;
-    width: 3rem;
-    height: 3rem;
+    width: 50px;
+    height: 50px;
     padding: 0;
-    border: 1px solid var(--text);
-    border-radius: 50%;
-    background: var(--bg);
-    color: var(--text);
+    border: 0;
+    border-radius: 4px;
+    background: rgba(28, 22, 10, 0.82);
+    box-shadow: inset 0 0 12.8px rgba(255, 184, 0, 0.04), inset 0 0 3.2px rgba(255, 255, 255, 0.18);
+    color: #6b5410;
     cursor: pointer;
+    transition: color 300ms ease, box-shadow 300ms ease;
   }
-  .sound-toggle:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
-  .sound-toggle__icon { width: 1.25rem; height: 1.25rem; fill: currentColor; }
-  .sound-toggle[aria-pressed='true'] .sound-toggle__icon--play,
-  .sound-toggle[aria-pressed='false'] .sound-toggle__icon--pause { display: none; }
+  .sound-toggle:hover { box-shadow: inset 0 0 12.8px rgba(255, 184, 0, 0.12), inset 0 0 3.2px rgba(255, 255, 255, 0.3); }
+  .sound-toggle:focus-visible { outline: 2px solid #ffb800; outline-offset: 3px; }
+  .sound-toggle[aria-pressed='true'] { color: #ffb800; }
+
+  .sound-toggle__wave line {
+    stroke: currentColor;
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scaleY(var(--off));
+    transition: transform 400ms ease;
+  }
+  .sound-toggle[aria-pressed='true'] .sound-toggle__wave line {
+    transform: scaleY(1);
+    animation: sound-wave 1.1s ease-in-out infinite alternate;
+    animation-delay: calc(var(--i) * -0.17s);
+    animation-duration: calc(0.8s + var(--i) * 0.07s);
+  }
+
+  @keyframes sound-wave {
+    0% { transform: scaleY(0.3); }
+    50% { transform: scaleY(1.05); }
+    100% { transform: scaleY(0.55); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sound-toggle[aria-pressed='true'] .sound-toggle__wave line { animation: none; transform: scaleY(1); }
+  }
 </style>

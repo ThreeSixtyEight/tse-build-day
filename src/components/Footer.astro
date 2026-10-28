@@ -1,24 +1,370 @@
 ---
+// Footer as a string instrument, after the footer on dkton.at.
+// The footer is split into columns, one note each (A minor pentatonic). Moving across a column line plucks it,
+// clicking plucks the column you're in, and hovering a link plays a note. A trail follows the pointer.
+// Sound follows the site's sound switch (scripts/sound.ts); Tone.js loads only when the pointer reaches the footer.
+// The melodica (Piano.astro) used to live here and can come back.
 import { site } from '../site.config';
-import Piano from './Piano.astro';
 const year = new Date().getFullYear();
 ---
 
-<footer class="footer">
-  <Piano />
-  <div class="wrap footer__text">
-    <p>An unofficial fan site. Not affiliated with or endorsed by Jon Batiste. Made by ThreeSixtyEight.</p>
-    <p>
-      <a href="/#transcript">Transcript</a> · <a href="/#credits">Credits</a> · <a href="/instrument">Instruments</a> · <a href="/game">Game</a> ·
-      <a href={site.officialSite}>Official site</a>
-    </p>
-    <p>© {year} {site.siteName}</p>
+<footer class="footer" data-footer-instrument>
+  <div class="footer__stage" aria-hidden="true">
+    <div class="footer__cells" data-footer-cells></div>
+    <canvas class="footer__canvas" data-footer-canvas></canvas>
+    <div class="footer__ring" data-footer-ring></div>
+    <div class="footer__hint" data-footer-hint>[ Move &amp; play ]</div>
+  </div>
+
+  <div class="footer__inner wrap">
+    <div class="footer__meta">
+      <div class="footer__col">
+        <p>An unofficial fan site. Not affiliated with or endorsed by Jon Batiste.</p>
+        <p>© {year}</p>
+      </div>
+      <div class="footer__col">
+        <a href="/#transcript">[ Transcript ]</a>
+        <a href="/#credits">[ Credits ]</a>
+        <button type="button" class="footer__sound" data-footer-sound hidden>[ Sound on ]</button>
+      </div>
+      <div class="footer__col">
+        <a href="/instrument">[ Instruments ]</a>
+        <a href="/game">[ Game ]</a>
+      </div>
+      <div class="footer__col footer__col--right">
+        <p>Made by</p>
+        <a href="https://threesixtyeight.com">ThreeSixtyEight</a>
+        <a href={site.officialSite}>[ Official site ]</a>
+      </div>
+    </div>
+    <p class="footer__mark" data-footer-mark>{site.siteName}<span class="footer__dot">.</span></p>
   </div>
 </footer>
 
 <style>
-  .footer { border-top: 1px solid var(--line); color: var(--muted); padding-bottom: 2rem; margin-top: 4rem; }
-  .footer__text { margin-top: 1.5rem; }
-  .footer p { margin: 0 0 0.5rem; }
-  .footer p:last-child { margin: 0; }
+  .footer {
+    --footer-bg: #0b0b0c;
+    --footer-text: #f4f1ea;
+    --footer-muted: #8f8a80;
+    --footer-accent: #ffb800;
+    position: relative;
+    overflow: hidden;
+    background: var(--footer-bg);
+    color: var(--footer-text);
+  }
+
+  .footer__stage { position: absolute; inset: 0; pointer-events: none; }
+  .footer__cells { position: absolute; inset: 0; display: flex; }
+  .footer__cells :global(i) {
+    flex: 1;
+    border-left: 1px solid rgba(255, 255, 255, 0.06);
+    transition: background 200ms ease;
+  }
+  .footer__cells :global(i:first-child) { border-left: 0; }
+  .footer__cells :global(i.is-lit) { background: linear-gradient(to top, rgba(255, 184, 0, 0.16), rgba(255, 184, 0, 0) 70%); }
+  .footer__canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .footer__ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 32px;
+    height: 32px;
+    margin: -16px 0 0 -16px;
+    border: 1px solid rgba(255, 184, 0, 0.45);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+  .footer__hint {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translate(20px, 14px);
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 0.75rem;
+    color: var(--footer-accent);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 300ms ease;
+  }
+  .footer__hint.is-on { opacity: 1; }
+
+  .footer__inner { position: relative; padding-top: clamp(5rem, 12vw, 9rem); padding-bottom: 1.5rem; }
+  .footer__meta {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+  .footer__col { display: flex; flex-direction: column; align-items: flex-start; }
+  .footer__col--right { align-items: flex-end; text-align: right; }
+  .footer__col p { margin: 0; color: var(--footer-muted); }
+  .footer__col p + p { margin-top: 0.5rem; }
+  .footer a, .footer__sound { color: var(--footer-text); text-decoration: none; white-space: nowrap; }
+  .footer a:hover, .footer__sound:hover { color: var(--footer-accent); }
+  .footer a:focus-visible, .footer__sound:focus-visible { outline: 2px solid var(--footer-accent); outline-offset: 2px; }
+  .footer__sound { font: inherit; padding: 0; border: 0; background: none; cursor: pointer; }
+  .footer__sound[hidden] { display: none; }
+
+  .footer__mark {
+    margin: clamp(2.5rem, 6vw, 4rem) 0 0;
+    font-size: 10vw;
+    font-weight: 800;
+    font-style: italic;
+    line-height: 0.9;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .footer__dot { color: var(--footer-accent); }
+
+  @media (max-width: 40em) {
+    .footer__meta { grid-template-columns: 1fr 1fr; row-gap: 1.25rem; }
+    .footer__col--right { align-items: flex-start; text-align: left; }
+    /* Leave room for the corner sound button. */
+    .footer__inner { padding-bottom: 5rem; }
+  }
 </style>
+
+<script>
+  import type { PolySynth } from 'tone';
+  import { isSoundOn, setSound } from '../scripts/sound';
+
+  // A minor pentatonic, two octaves on wide screens and one on narrow ones.
+  const NOTES_WIDE = ['A3', 'C4', 'D4', 'E4', 'G4', 'A4', 'C5', 'D5', 'E5', 'G5'];
+  const NOTES_NARROW = ['A3', 'C4', 'D4', 'E4', 'G4'];
+  const TRAIL_MS = 700;
+  const HINT_KEY = 'footer-instrument-taught';
+
+  const root = document.querySelector<HTMLElement>('[data-footer-instrument]');
+  if (root) initFooter(root);
+
+  function initFooter(root: HTMLElement) {
+    const cellsEl = root.querySelector<HTMLElement>('[data-footer-cells]')!;
+    const canvas = root.querySelector<HTMLCanvasElement>('[data-footer-canvas]')!;
+    const ring = root.querySelector<HTMLElement>('[data-footer-ring]')!;
+    const hint = root.querySelector<HTMLElement>('[data-footer-hint]')!;
+    const mark = root.querySelector<HTMLElement>('[data-footer-mark]')!;
+    const soundBtn = root.querySelector<HTMLButtonElement>('[data-footer-sound]')!;
+    const ctx = canvas.getContext('2d')!;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const narrow = window.matchMedia('(max-width: 40em)');
+
+    let notes: string[] = [];
+    let cells: HTMLElement[] = [];
+    // One vibrating line per column boundary.
+    let strings: { amp: number; bendY: number }[] = [];
+    let w = 0;
+    let h = 0;
+    let rect = root.getBoundingClientRect();
+
+    function layout() {
+      notes = narrow.matches ? NOTES_NARROW : NOTES_WIDE;
+      cellsEl.replaceChildren(...notes.map(() => document.createElement('i')));
+      cells = [...cellsEl.children] as HTMLElement[];
+      strings = notes.map(() => ({ amp: 0, bendY: 0 }));
+      resize();
+    }
+
+    function resize() {
+      rect = root.getBoundingClientRect();
+      w = rect.width;
+      h = rect.height;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      fitMark();
+      draw(performance.now());
+    }
+
+    // Stretch the site name to the full width of the footer.
+    function fitMark() {
+      mark.style.fontSize = '100px';
+      const room = mark.parentElement!.clientWidth - parseFloat(getComputedStyle(mark.parentElement!).paddingLeft) * 2;
+      // A little short of the full width, so the italic's last letter doesn't overhang.
+      mark.style.fontSize = `${Math.floor((97 * room) / mark.scrollWidth)}px`;
+    }
+
+    // ---------- Sound ----------
+    let tone: Promise<PolySynth> | undefined;
+    let synth: PolySynth | undefined;
+    const loadSound = () =>
+      (tone ??= import('tone').then((Tone) => {
+        const reverb = new Tone.Reverb({ decay: 2.8, wet: 0.3 }).toDestination();
+        synth = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: 'triangle' },
+          envelope: { attack: 0.005, decay: 0.5, sustain: 0, release: 0.4 },
+          volume: -12,
+        }).connect(reverb);
+        return synth;
+      }));
+
+    async function pluck(column: number, strength: number) {
+      const note = notes[column];
+      if (!note || !isSoundOn()) return;
+      const Tone = await import('tone');
+      Tone.start();
+      const s = await loadSound();
+      s.triggerAttackRelease(note, '8n', undefined, Math.min(1, 0.35 + strength * 0.65));
+    }
+
+    const showSoundBtn = () => (soundBtn.hidden = isSoundOn());
+    soundBtn.addEventListener('click', () => setSound(true));
+    document.addEventListener('sound:change', showSoundBtn);
+    showSoundBtn();
+
+    // ---------- Pointer ----------
+    const trail: { x: number; y: number; t: number }[] = [];
+    let inside = false;
+    let pointerDown = false;
+    let column = -1;
+    let x = 0;
+    let y = 0;
+    let taught = false;
+    try {
+      taught = sessionStorage.getItem(HINT_KEY) === '1';
+    } catch {}
+
+    const columnAt = (px: number) => Math.max(0, Math.min(notes.length - 1, Math.floor((px / (w || 1)) * notes.length)));
+
+    function light(c: number) {
+      if (c === column) return;
+      if (column >= 0) cells[column]?.classList.remove('is-lit');
+      column = c;
+      if (c >= 0) cells[c]?.classList.add('is-lit');
+    }
+
+    function moveTo(clientX: number, clientY: number, play: boolean) {
+      const nx = clientX - rect.left;
+      const ny = clientY - rect.top;
+      const from = columnAt(x);
+      const to = columnAt(nx);
+      const speed = Math.hypot(nx - x, ny - y);
+      if (play && from !== to) {
+        // Crossing a line plucks it, and every line between, like a strum.
+        const step = to > from ? 1 : -1;
+        for (let c = from + step; c !== to + step; c += step) {
+          const boundary = step > 0 ? c : c + 1;
+          strings[boundary].amp = reduceMotion ? 0 : Math.min(18, 6 + speed * 0.4);
+          strings[boundary].bendY = ny;
+          pluck(c, Math.min(1, speed / 40));
+        }
+      }
+      x = nx;
+      y = ny;
+      ring.style.transform = `translate(${x}px, ${y}px)`;
+      hint.style.left = `${x}px`;
+      hint.style.top = `${y}px`;
+      light(to);
+      if (!reduceMotion) trail.push({ x, y, t: performance.now() });
+      wake();
+    }
+
+    root.addEventListener('pointerenter', (ev) => {
+      rect = root.getBoundingClientRect();
+      x = ev.clientX - rect.left;
+      y = ev.clientY - rect.top;
+      inside = true;
+      ring.style.opacity = ev.pointerType === 'mouse' ? '1' : '0';
+      if (isSoundOn()) loadSound();
+      if (!taught) hint.classList.add('is-on');
+      moveTo(ev.clientX, ev.clientY, false);
+    });
+    root.addEventListener('pointerleave', () => {
+      inside = false;
+      pointerDown = false;
+      ring.style.opacity = '0';
+      hint.classList.remove('is-on');
+      light(-1);
+    });
+    root.addEventListener('pointermove', (ev) => {
+      // Mouse plays on hover; touch plays while dragging.
+      moveTo(ev.clientX, ev.clientY, ev.pointerType === 'mouse' || pointerDown);
+    });
+    root.addEventListener('pointerdown', (ev) => {
+      pointerDown = true;
+      if ((ev.target as Element).closest('a, button')) return;
+      const px = ev.clientX - rect.left;
+      const c = columnAt(px);
+      // Shake the column line nearest the click.
+      const line = Math.max(1, Math.min(strings.length - 1, Math.round((px / (w || 1)) * notes.length)));
+      strings[line].amp = reduceMotion ? 0 : 22;
+      strings[line].bendY = ev.clientY - rect.top;
+      pluck(c, 1);
+      if (!taught) {
+        taught = true;
+        hint.classList.remove('is-on');
+        try {
+          sessionStorage.setItem(HINT_KEY, '1');
+        } catch {}
+      }
+      wake();
+    });
+    window.addEventListener('pointerup', () => (pointerDown = false));
+
+    // Links play a note across the scale as you hover them.
+    const links = [...root.querySelectorAll<HTMLElement>('a, button')];
+    links.forEach((link, i) => {
+      link.addEventListener('mouseenter', () => pluck(Math.round((i / Math.max(1, links.length - 1)) * (notes.length - 1)), 0.5));
+    });
+
+    // ---------- Drawing: only while something is moving ----------
+    let running = false;
+    function wake() {
+      if (running) return;
+      running = true;
+      requestAnimationFrame(frame);
+    }
+
+    function frame(now: number) {
+      const busy = draw(now);
+      if (busy || inside) requestAnimationFrame(frame);
+      else running = false;
+    }
+
+    function draw(now: number) {
+      ctx.clearRect(0, 0, w, h);
+      let busy = false;
+
+      // Strings: each column line bends where it was plucked and settles back.
+      for (let i = 1; i < strings.length; i++) {
+        const s = strings[i];
+        const lx = (i / strings.length) * w;
+        const wobble = s.amp * Math.sin(now / 28 + i);
+        ctx.beginPath();
+        ctx.moveTo(lx, 0);
+        ctx.quadraticCurveTo(lx + wobble * 2, s.bendY || h / 2, lx, h);
+        ctx.strokeStyle = `rgba(255, 184, 0, ${Math.min(0.7, s.amp / 18)})`;
+        ctx.lineWidth = 1;
+        if (s.amp > 0.2) ctx.stroke();
+        s.amp *= 0.93;
+        if (s.amp > 0.2) busy = true;
+      }
+
+      // Trail
+      while (trail.length && now - trail[0].t > TRAIL_MS) trail.shift();
+      for (let i = 1; i < trail.length; i++) {
+        const a = trail[i - 1];
+        const b = trail[i];
+        const life = 1 - (now - b.t) / TRAIL_MS;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.strokeStyle = `rgba(255, 184, 0, ${life * 0.6})`;
+        ctx.lineWidth = 1 + life * 2;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+      }
+      if (trail.length) busy = true;
+      return busy;
+    }
+
+    narrow.addEventListener('change', layout);
+    new ResizeObserver(resize).observe(root);
+    window.addEventListener('scroll', () => (rect = root.getBoundingClientRect()), { passive: true });
+    layout();
+  }
+</script>
