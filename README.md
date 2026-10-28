@@ -2,6 +2,14 @@
 
 The scaffold for the Build Day fan site: Jon Batiste's story told through a New Orleans second line. Structure only, no design yet. Static output, deployed on Netlify.
 
+## Build Day
+
+Clone the repo, open the folder in Claude Code, and type `/build-day`. Claude checks your connectors, installs everything you need, pulls the brief from #build-day, and ships your changes to Netlify.
+
+```bash
+gh repo clone ThreeSixtyEight/tse-build-day
+```
+
 ## Run locally
 
 ```bash
