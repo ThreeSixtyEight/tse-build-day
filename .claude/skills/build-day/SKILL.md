@@ -38,7 +38,7 @@ Don't stop if something's missing. Carry on with the remaining steps and list wh
    - Missing or too old, and Homebrew installed: `brew install node` (or `brew upgrade node`), then confirm with `node -v`. If an older Node from nvm or the nodejs.org installer still shows up first, run `nvm install --lts` instead when nvm is present.
    - No Homebrew: send them to the LTS installer at https://nodejs.org. It needs their Mac password, so they run it themselves.
 4. `npm install`
-5. Start the dev server with the Browser pane's `preview_start` if you have it (add a `.claude/launch.json` entry: `npm run dev`, port 4321). Otherwise run `npm run dev` in the background. Open http://localhost:4321 and confirm the page loads. Edits show up in the browser on save.
+5. Start the dev server with the Browser pane's `preview_start` and the `site` config if you have it. The repo's `.claude/launch.json` runs it through a login shell so nvm's default Node is used, not whatever Node the app started with. Otherwise run `npm run dev` in the background. Open http://localhost:4321 and confirm the page loads. Edits show up in the browser on save.
 
 ## 3. Get current before working
 
