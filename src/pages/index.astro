@@ -104,7 +104,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
         ) : (
           <section class:list={['section', { 'section--stage': s.data.background }]} id={s.id} data-section={s.id} style={bg(s.id, s.data.background)}>
             <div class="wrap align-left">
-              {s.data.eyebrow && <Eyebrow number={s.data.order} text={s.data.eyebrow} caps />}
+              {s.data.eyebrow && <Eyebrow number={s.data.order} text={s.data.eyebrow} />}
               <h2 class="heading heading--xl">{s.data.title}</h2>
               <div class="body"><Content /></div>
               {quotes.map((q) => (

@@ -33,7 +33,8 @@ a { color: inherit; }
 
 /* Shared type for every content block: eyebrow, then heading, then body, then caption. Use these classes instead of
    styling a block's own h2 or p, so every block on the page reads the same. Colours come from the block's --text and --muted. */
-/* Eyebrow: gold line above a heading, in the accent font (Arnika). --caps for an all-caps, letter-spaced one. */
+/* Eyebrow: gold line above a heading, in the accent font (Arnika), all caps and letter-spaced. Every eyebrow is
+   .eyebrow.eyebrow--caps (Eyebrow.astro adds both). */
 .eyebrow { margin: 0 0 0.75rem; font-family: var(--font-accent); font-size: 1rem; color: var(--gold); }
 .eyebrow--caps { letter-spacing: 0.2em; text-transform: uppercase; }
 /* Headings: .heading plus a size. xl is a chapter heading, lg a heading within a chapter (a step down). */

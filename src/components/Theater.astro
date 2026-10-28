@@ -1,5 +1,7 @@
 ---
 // The theater: the painted stage (public/theater/stage.jpg), filling the screen, cropped at the edges to fit.
+// The Juilliard copy sits at the top, over a dark fade so it reads against the painting.
+import Eyebrow from './Eyebrow.astro';
 ---
 
 <section class="section theater" id="theater" data-section="theater">
@@ -11,14 +13,22 @@
     loading="lazy"
     alt="Painting of a pianist in a green striped suit at a grand piano in a pool of light, facing rows of empty red theater seats"
   />
+  <div class="theater__text wrap align-center">
+    <Eyebrow number={3} text="New York, 2004 – 2011" />
+    <h2 class="heading heading--xl">The Juilliard Years</h2>
+    <p class="body">Juilliard is all travertine and good posture. At his audition Jon Batiste can’t read the sheet music in front of him. So he plays what he hears, and the music in his heart opens the door to Juilliard.</p>
+  </div>
 </section>
 
 <style>
   .theater {
+    --text: #fff;
+    --muted: rgb(255 255 255 / 0.75);
     position: relative;
     min-height: 100svh;
     padding: 0;
     overflow: hidden;
+    color: var(--text);
     background: #000;
   }
   .theater__img {
@@ -29,4 +39,14 @@
     max-width: none;
     object-fit: cover;
   }
+  /* Dark at the top behind the copy, clear by the middle of the painting. */
+  .theater::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(rgb(0 0 0 / 0.85), rgb(0 0 0 / 0.5) 30%, rgb(0 0 0 / 0) 55%);
+  }
+  .theater__text { position: relative; z-index: 2; padding-block: clamp(3rem, 8vw, 6rem) 0; }
 </style>
