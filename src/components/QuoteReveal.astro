@@ -1,7 +1,7 @@
 ---
 // A large quote that sits underneath the section before it. Put both inside a `.lift` wrapper:
 // the quote is held on screen (sticky to the bottom) behind the first section, so scrolling lifts that
-// section up and off it, as if it had been resting on top. The quote sharpens into place as it's uncovered.
+// section up and off it, as if it had been resting on top. Once it's fully uncovered its words fade in.
 // Text, source and date come from src/data/quotes.json: Jon's words only as sourced, dated quotes.
 interface Props {
   text: string;
@@ -70,25 +70,36 @@ const { text, source, date, url } = Astro.props;
 <script>
   import { gsap } from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { SplitText } from 'gsap/SplitText';
 
-  gsap.registerPlugin(ScrollTrigger);
+  gsap.registerPlugin(ScrollTrigger, SplitText);
 
-  // As the section above lifts off, the quote settles: it starts soft and slightly large, and lands sharp.
+  // The quote sits centred on screen while the section above lifts off it. Once that section is out of view,
+  // the quote's words fade in one after another, then the source.
+  // Scrolling back up hides them again, so it plays each time. Reduced motion: the quote is simply there.
   const quote = document.querySelector<HTMLElement>('[data-quote-reveal]');
   const cover = quote?.closest('.lift')?.firstElementChild;
-  if (quote && cover) {
+  const text = quote?.querySelector<HTMLElement>('blockquote p');
+  if (quote && cover && text) {
     gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
-      gsap.fromTo(
-        quote,
-        { scale: 1.08, opacity: 0.2, filter: 'blur(6px)' },
-        {
-          scale: 1,
-          opacity: 1,
-          filter: 'blur(0px)',
-          ease: 'none',
-          scrollTrigger: { trigger: cover, start: 'bottom bottom', end: 'bottom 25%', scrub: true },
-        },
-      );
+      const split = SplitText.create(text, {
+        type: 'words',
+        // Re-split when the fonts load or the screen resizes, since the lines change.
+        autoSplit: true,
+        onSplit: (self) =>
+          gsap
+            .timeline({
+              scrollTrigger: {
+                trigger: cover,
+                // Once the section above has scrolled fully off the screen.
+                start: 'bottom top',
+                toggleActions: 'play none none reverse',
+              },
+            })
+            .from(self.words, { opacity: 0, y: '0.15em', duration: 0.7, ease: 'power2.out', stagger: 0.08 })
+            .from(quote.querySelector('figcaption'), { opacity: 0, duration: 0.6, ease: 'power1.out' }, '-=0.3'),
+      });
+      return () => split.revert();
     });
   }
 </script>

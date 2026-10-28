@@ -11,7 +11,7 @@ import { site } from '../site.config';
 
 const sections = (await getCollection('sections')).sort((a, b) => a.data.order - b.data.order);
 // The large quote the piano lifts off: any id from src/data/quotes.json.
-const pianoQuote = (await getEntry('quotes', 'alvin-batiste'))!.data;
+const pianoQuote = (await getEntry('quotes', 'fresh-air-family'))!.data;
 const rendered = await Promise.all(
   sections.map(async (s) => ({
     s,
