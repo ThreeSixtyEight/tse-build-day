@@ -102,6 +102,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
         ) : (
           <section class:list={['section', { 'section--stage': s.data.background }]} id={s.id} data-section={s.id} style={bg(s.id, s.data.background)}>
             <div class="wrap">
+              {s.data.eyebrow && <p class="eyebrow">{s.data.eyebrow}</p>}
               <h2>{s.data.title}</h2>
               <Content />
               {quotes.map((q) => (
@@ -356,12 +357,28 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
   .section--stage {
     background: linear-gradient(90deg, rgb(0 0 0 / 0.8), rgb(0 0 0 / 0.55) 35%, rgb(0 0 0 / 0) 65%), var(--photo) 70% center / cover #222;
   }
+  /* Landscape screens: the painting is sized and shifted so Jon sits in the middle of the right half (75% across).
+     He's 64% across the painting, so it needs to be at least 118% of the screen width to reach that point without
+     its left edge coming into view. */
+  @media (min-aspect-ratio: 1/1) {
+    .section--stage {
+      --w: max(118vw, 177.78svh);
+      background-size: auto, var(--w) auto;
+      background-position: 0 0, calc(75vw - 0.64 * var(--w)) center;
+    }
+  }
+  /* 32px from the eyebrow to the headline, 16px from the headline to the copy. */
+  .section--stage .eyebrow { margin-bottom: 2rem; }
+  .section.section--stage h2 { margin: 0 0 1rem; }
+  .section--stage h2 + :global(p) { margin-top: 0; }
   /* width: auto so the left margin narrows the column instead of pushing it past the right edge. */
   .section--stage .wrap { width: auto; max-width: 34rem; margin-inline: clamp(1rem, 6vw, 6rem) auto; }
   /* The piano panel is just the painted keys, right below the chapter before it: no screen height, padding or dark backdrop. */
   .section.section--keys { min-height: 0; padding: 0; border-bottom: 0; background: none; }
 
   .section { padding-block: 3rem; border-bottom: 1px solid var(--line); }
+  /* Matches the gold chapter number on the flat panels. */
+  .eyebrow { margin: 0; font-family: 'Melodrama', serif; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #b5832a; }
   .section h2 { margin: 0.25rem 0 1rem; font-size: clamp(2.25rem, 5vw, 4rem); }
   .caption { color: var(--muted); font-size: 0.875rem; }
   .scene__text { font-size: clamp(1.25rem, 2.2vw, 1.75rem); line-height: 1.45; max-width: 38rem; }
