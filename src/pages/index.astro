@@ -28,11 +28,7 @@ const rendered = await Promise.all(
 const photos: Record<string, string> = {
   entry: '1525994886773-080587e161c2',
   'section-3': '1771868557440-ab1f8e4d6006',
-  // Reused until final photos land: a French Quarter street for the homecoming, the entry street for the send-off.
-  'section-4': '1775227970630-9c03b7406132',
-  'section-5': '1525994886773-080587e161c2',
   listen: '1560110734-f03640ca8eda',
-  end: '1690267306076-2a6e9899aaeb',
 };
 const quoteFirst = (text: string) => text.startsWith('[Quote]');
 const photoVar = (photo: string) =>
@@ -173,11 +169,14 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
     </div>
   </section>
 
-  <!-- End of the line. Reaching this section is tracked. -->
-  <section class="section" id="end" data-section="end" style={bg('end')}>
-    <div class="wrap align-left">
+  <!-- End of the line, in the style of the hero: the night street painting filling the screen inside the same painted
+       border, the copy centred in the sky. Reaching this section is tracked. -->
+  <section class="section end" id="end" data-section="end">
+    <img class="end__img" src="/end/street.webp" width="1904" height="2000" loading="lazy" alt="Painting of an empty French Quarter street at dusk under a swirling night sky, iron balconies on either side" />
+    <div class="end__border" aria-hidden="true"></div>
+    <div class="end__text wrap align-center">
       <h2 class="heading heading--xl">End of the line</h2>
-      <p class="body">For music, tour dates and the store, visit <a href={site.officialSite}>Jon Batiste's official site</a>.</p>
+      <p class="body body--lead">For music, tour dates and the store, visit <a href={site.officialSite}>Jon Batiste's official site</a>.</p>
       {/* His site already handles the store, newsletter and tour, so we link out rather than rebuild them.
           Analytics: visitor reaches the end. */}
     </div>
@@ -357,8 +356,8 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
     text-shadow: 1px 0 0 #380f2b;
   }
 
-  /* Painted frame: one strip per edge, rotated copies of the Figma border. */
-  .hero__border {
+  /* Painted frame: one strip per edge, rotated copies of the Figma border. The end of the line reuses it. */
+  .hero__border, .end__border {
     --edge: clamp(20px, 3vw, 44px);
     inset: 0;
     pointer-events: none;
@@ -400,5 +399,20 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
   .keys-intro { padding-block: clamp(3rem, 8vw, 6rem); color: #fff; background: #2c2e4c; }
 
   .section { padding-block: 3rem; border-bottom: 1px solid var(--line); }
+  /* End of the line: the painting covers the screen, anchored on the street so the sky crops first, with the copy
+     high in the sky over a soft dark fade, white like the hero title. */
+  .section.end { position: relative; justify-content: flex-start; padding-block: clamp(5rem, 14svh, 9rem) 0; overflow: hidden; border-bottom: 0; background: #1a1d4a; }
+  .end__img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: center bottom; }
+  .end__border { position: absolute; z-index: 2; }
+  .end::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(rgb(10 12 40 / 0.55), rgb(10 12 40 / 0) 50%);
+  }
+  .end__text { position: relative; z-index: 3; }
+  .end .heading { color: #fff; text-shadow: 0.05em 0.06em 0 rgb(1 86 75 / 0.5); }
   .spotify { border: 0; border-radius: 12px; max-width: 40rem; }
 </style>
