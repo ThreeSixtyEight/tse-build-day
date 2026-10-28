@@ -30,7 +30,7 @@ npm run dev     # or: netlify dev
 | Second line sections (Markdown, one per section) | `src/content/sections/` |
 | Sourced, dated quotes | `src/data/quotes.json` |
 | Media and culture credits | `src/data/credits.json` |
-| Build notes / quote blocks | `src/components/Notes.astro`, `src/components/Quote.astro` |
+| Quote blocks | `src/components/Quote.astro` |
 | Collection schemas | `src/content.config.ts` |
 | Global styles | `src/styles/global.css` |
 

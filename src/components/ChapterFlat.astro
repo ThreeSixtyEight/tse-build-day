@@ -3,7 +3,6 @@
 // prop behind it. As the page scrolls the prop drifts slower than the cutout, so the two separate in depth.
 // A bleed cutout instead rolls in from the left each time its panel arrives, and comes to rest flush with the
 // left edge of the screen; it never moves right of it, so no gap opens. Reduced motion: no drift or roll.
-import Notes from './Notes.astro';
 import Quote from './Quote.astro';
 
 interface Props {
@@ -15,10 +14,9 @@ interface Props {
   prop?: { src: string; alt: string };
   quote?: { text: string; source: string; date: string; url?: string };
   caption?: string;
-  notes: string[];
 }
 
-const { id, number, heading, body, cutout, prop, quote, caption, notes } = Astro.props;
+const { id, number, heading, body, cutout, prop, quote, caption } = Astro.props;
 ---
 
 <section class="section flat" id={id} data-section={id}>
@@ -38,7 +36,6 @@ const { id, number, heading, body, cutout, prop, quote, caption, notes } = Astro
     {body.split(/\n\s*\n/).map((para) => <p>{para.trim()}</p>)}
     {quote && <Quote {...quote} />}
     {caption && <p class="caption">{caption}</p>}
-    {notes.length > 0 && <Notes items={notes} />}
   </div>
 </section>
 

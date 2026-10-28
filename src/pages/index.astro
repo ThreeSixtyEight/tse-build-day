@@ -1,7 +1,6 @@
 ---
 import { getCollection, getEntries, getEntry, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Notes from '../components/Notes.astro';
 import ChapterFlat from '../components/ChapterFlat.astro';
 import Quote from '../components/Quote.astro';
 import Piano from '../components/Piano.astro';
@@ -93,15 +92,6 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
                   <p class="scene__text">{scene.text}</p>
                   {i === 0 && s.data.caption && <p class="caption">{s.data.caption}</p>}
                   {last && quotes.map((q) => <Quote {...q.data} />)}
-                  {last && (
-                    <Notes
-                      items={[
-                        `Purpose: ${s.data.purpose}`,
-                        `Directives: ${s.data.directives.length ? s.data.directives.join(', ') : 'TBD'}`,
-                        `Key interaction: ${s.data.interaction}`,
-                      ]}
-                    />
-                  )}
                 </div>
               </section>
             );
@@ -115,14 +105,6 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
                 <Quote {...q.data} />
               ))}
               {s.data.caption && <p class="caption">{s.data.caption}</p>}
-              <Notes
-                items={[
-                  `Purpose: ${s.data.purpose}`,
-                  `Directives: ${s.data.directives.length ? s.data.directives.join(', ') : 'TBD'}`,
-                  `Key interaction: ${s.data.interaction}`,
-                  `Main content type: ${s.data.media ?? 'TBD'}`,
-                ]}
-              />
             </div>
           </section>
         ))}
@@ -160,13 +142,8 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
         loading="lazy"
         data-embed="spotify"
       ></iframe>
-      <Notes
-        items={[
-          'Ending: We Are through an official embed, the only place Jon\'s music plays. Swap the artist embed for We Are.',
-          'Official Spotify, Apple Music or YouTube embeds only. No AI voice or AI music.',
-          'Analytics: embed clicks.',
-        ]}
-      />
+      {/* Ending: We Are through an official embed, the only place Jon's music plays. Swap the artist embed for We Are.
+          Official Spotify, Apple Music or YouTube embeds only. No AI voice or AI music. Analytics: embed clicks. */}
     </div>
   </section>
 
@@ -175,12 +152,8 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
     <div class="wrap">
       <h2>End of the line</h2>
       <p>For music, tour dates and the store, visit <a href={site.officialSite}>Jon Batiste's official site</a>.</p>
-      <Notes
-        items={[
-          "His site already handles the store, newsletter and tour, so we link out rather than rebuild them.",
-          'Analytics: visitor reaches the end.',
-        ]}
-      />
+      {/* His site already handles the store, newsletter and tour, so we link out rather than rebuild them.
+          Analytics: visitor reaches the end. */}
     </div>
   </section>
 
@@ -188,7 +161,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
   <section class="section" id="transcript" data-section="transcript" style={bg('transcript')}>
     <div class="wrap">
       <h2>Transcript</h2>
-      <Notes items={['Captions and transcripts are checked by Strategists before launch.']} />
+      {/* Captions and transcripts are checked by Strategists before launch. */}
       {
         sections.map((s) => (
           <article class="entry">
@@ -204,12 +177,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
   <section class="section" id="credits" data-section="credits" style={bg('credits')}>
     <div class="wrap">
       <h2>Credits</h2>
-      <Notes
-        items={[
-          'Licensed photos only, credited.',
-          'Club names, regalia, footage and music need permission or a credited source.',
-        ]}
-      />
+      {/* Licensed photos only, credited. Club names, regalia, footage and music need permission or a credited source. */}
       <h3>Media</h3>
       {
         credits.length ? (
@@ -397,7 +365,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
       url(/hero/border-right.png) right / var(--edge) auto repeat-y;
   }
 
-  /* Each section sits on a darkened photo, so its text and notes switch to light colours. */
+  /* Each section sits on a darkened photo, so its text switches to light colours. */
   .section {
     --text: #fff;
     --muted: rgb(255 255 255 / 0.8);

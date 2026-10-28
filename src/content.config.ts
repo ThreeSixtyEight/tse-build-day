@@ -39,6 +39,7 @@ const sections = defineCollection({
         prop: z.object({ src: z.string(), alt: z.string() }).optional(),
         quote: reference('quotes').optional(),
         caption: z.string().optional(),
+        // Working notes for the team; kept in the file, never shown on the page.
         notes: z.array(z.string()).default([]),
       })
       .optional(),
