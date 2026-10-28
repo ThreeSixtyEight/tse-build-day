@@ -1,5 +1,5 @@
 ---
-// The gold line above a heading: the chapter number (when there is one), a dash, then the place and year.
+// The gold line above a heading: the chapter number (when there is one), then the place and year.
 interface Props {
   number?: number;
   text: string;
@@ -9,5 +9,6 @@ const { number, text } = Astro.props;
 ---
 
 <p class="eyebrow eyebrow--caps">
-  {number !== undefined && <><span class="eyebrow__num">{String(number).padStart(2, '0')}</span> – </>}{text}
+  {number !== undefined && <span class="eyebrow__num">{String(number).padStart(2, '0')}</span>}
+  <span>{text}</span>
 </p>

@@ -7,7 +7,9 @@
   --gutter: clamp(1rem, 4vw, 2rem);
   /* Quotes and eyebrows (Adobe Fonts kit rvf8bga, loaded in BaseLayout). */
   --font-accent: 'arnika-variable', Georgia, serif;
-  --gold: #b5832a;
+  --gold: #e1ab44;
+  /* Body copy in content blocks (Google Fonts, loaded in BaseLayout). */
+  --font-body: 'Outfit', system-ui, sans-serif;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -33,18 +35,36 @@ a { color: inherit; }
 
 /* Shared type for every content block: eyebrow, then heading, then body, then caption. Use these classes instead of
    styling a block's own h2 or p, so every block on the page reads the same. Colours come from the block's --text and --muted. */
-/* Eyebrow: gold line above a heading, in the accent font (Arnika), all caps and letter-spaced. Every eyebrow is
-   .eyebrow.eyebrow--caps (Eyebrow.astro adds both). */
-.eyebrow { margin: 0 0 0.75rem; font-family: var(--font-accent); font-size: 1rem; color: var(--gold); }
-.eyebrow--caps { letter-spacing: 0.2em; text-transform: uppercase; }
+/* Sizes from the Build Day Figma (frame 166:792, 1440 wide), scaling down with the screen. 48px between the parts. */
+/* Eyebrow: the chapter number in the heading font (Gunter), 24px gap, then the place in the accent font (Arnika),
+   all caps, both gold. Every eyebrow is .eyebrow.eyebrow--caps (Eyebrow.astro adds both). */
+.eyebrow {
+  display: flex;
+  align-items: flex-end;
+  column-gap: clamp(0.75rem, 1.67vw, 1.5rem);
+  margin: 0 0 clamp(1.5rem, 3.33vw, 3rem);
+  font-family: var(--font-accent);
+  font-size: clamp(1.125rem, 1.6vw, 1.4375rem);
+  line-height: 1.22;
+  color: var(--gold);
+}
+.eyebrow--caps { letter-spacing: 0.01em; text-transform: uppercase; }
+.eyebrow__num { font-family: 'gunter', 'Melodrama', serif; font-size: 1.71em; line-height: 0.94; letter-spacing: 0; }
 /* Headings: .heading plus a size. xl is a chapter heading, lg a heading within a chapter (a step down). */
-.heading { margin: 0 0 1rem; }
-.heading--xl { font-size: clamp(2.25rem, 5vw, 4rem); }
+.heading { margin: 0 0 clamp(1.5rem, 3.33vw, 3rem); line-height: 0.94; }
+.heading--xl { font-size: clamp(3rem, 6.9vw, 4.2rem); }
 .heading--lg { font-size: clamp(1.75rem, 3.5vw, 2.75rem); }
-/* Body: a paragraph, or a wrapper around several. Default size, --lead a little larger, --xl for a full-screen scene. */
-.body, .body > p { max-width: 38rem; margin: 0 0 1rem; }
+/* Body: a paragraph, or a wrapper around several, in Outfit Light. --lead a little larger, --xl for a full-screen scene. */
+.body, .body > p { max-width: 34.25rem; margin: 0 0 1rem; }
+.body {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: clamp(1.0625rem, 1.41vw, 1.27rem);
+  line-height: 1.47;
+  letter-spacing: -0.02em;
+}
 .body > p:last-child { margin-bottom: 0; }
-.body--lead { font-size: 1.125rem; }
+.body--lead { font-size: clamp(1.125rem, 1.6vw, 1.5rem); }
 .body--xl { font-size: clamp(1.25rem, 2.2vw, 1.75rem); line-height: 1.45; }
 .caption { margin: 0 0 1rem; color: var(--muted); font-size: 0.875rem; }
 
@@ -53,8 +73,10 @@ a { color: inherit; }
 .align-center { text-align: center; }
 .align-center > *, .align-center .body > p { margin-inline: auto; }
 .align-center .heading { text-wrap: balance; }
+.align-center .eyebrow { justify-content: center; }
 .align-right { text-align: right; }
 .align-right > *, .align-right .body > p { margin-inline: auto 0; }
+.align-right .eyebrow { justify-content: flex-end; }
 
 /* Hero type. Melodrama and Excon are free from Fontshare. Gunter comes from the Adobe Fonts kit linked in BaseLayout. */
 @font-face {
