@@ -15,11 +15,26 @@ const rendered = await Promise.all(
     quotes: await getEntries(s.data.quotes),
   })),
 );
+
+// Placeholder backgrounds: free Unsplash photos of New Orleans, by section id, credited in src/data/credits.json.
+// ponytail: one 2000px image for every screen, add a srcset-style image-set when the final photos land.
+const photos: Record<string, string> = {
+  entry: '1525994886773-080587e161c2',
+  'section-1': '1635352934507-cd4ad73275c6',
+  'section-2': '1640583430339-f83d93e77413',
+  'section-3': '1771868557440-ab1f8e4d6006',
+  listen: '1560110734-f03640ca8eda',
+  end: '1690267306076-2a6e9899aaeb',
+  transcript: '1775227970630-9c03b7406132',
+  credits: '1767468200550-e6945e9b7f5f',
+};
+const bg = (id: string) =>
+  photos[id] && `--photo: url(https://images.unsplash.com/photo-${photos[id]}?w=2000&q=70&auto=format&fit=crop)`;
 ---
 
 <BaseLayout>
   <!-- Entry gate: the visitor joins the second line here. -->
-  <section class="hero" id="entry" data-section="entry">
+  <section class="hero" id="entry" data-section="entry" style={bg('entry')}>
     <div class="wrap">
       <h1>{site.siteName}</h1>
       <p>{site.siteDescription}</p>
@@ -42,7 +57,7 @@ const rendered = await Promise.all(
   <div id="line">
     {
       rendered.map(({ s, Content, quotes }) => (
-        <section class="section" id={s.id} data-section={s.id}>
+        <section class="section" id={s.id} data-section={s.id} style={bg(s.id)}>
           <div class="wrap">
             <h2>{s.data.title}</h2>
             <Content />
@@ -64,7 +79,7 @@ const rendered = await Promise.all(
     }
   </div>
 
-  <section class="section" id="listen" data-section="listen">
+  <section class="section" id="listen" data-section="listen" style={bg('listen')}>
     <div class="wrap">
       <h2>Listen</h2>
       <!-- Official Spotify artist embed: only Jon Batiste's own catalogue plays here. -->
@@ -89,7 +104,7 @@ const rendered = await Promise.all(
   </section>
 
   <!-- End of the line. Reaching this section is tracked. -->
-  <section class="section" id="end" data-section="end">
+  <section class="section" id="end" data-section="end" style={bg('end')}>
     <div class="wrap">
       <h2>End of the line</h2>
       <p>For music, tour dates and the store, visit <a href={site.officialSite}>Jon Batiste's official site</a>.</p>
@@ -103,7 +118,7 @@ const rendered = await Promise.all(
   </section>
 
   <!-- Transcript: everything spoken, sung or heard, section by section. -->
-  <section class="section" id="transcript" data-section="transcript">
+  <section class="section" id="transcript" data-section="transcript" style={bg('transcript')}>
     <div class="wrap">
       <h2>Transcript</h2>
       <Notes items={['Captions and transcripts are checked by Strategists before launch.']} />
@@ -119,7 +134,7 @@ const rendered = await Promise.all(
   </section>
 
   <!-- Credits: every photo, clip, embed and quote on the site. -->
-  <section class="section" id="credits" data-section="credits">
+  <section class="section" id="credits" data-section="credits" style={bg('credits')}>
     <div class="wrap">
       <h2>Credits</h2>
       <Notes
@@ -159,7 +174,23 @@ const rendered = await Promise.all(
 </BaseLayout>
 
 <style>
-  .hero { padding-block: clamp(4rem, 12vw, 8rem); background: #f5f5f5; }
+  /* Cinematic scroll: every section fills the screen and locks into place. Sections taller than the screen still scroll through. */
+  :global(html) { scroll-snap-type: y mandatory; }
+  :global(.header), .hero, .section { scroll-snap-align: start; }
+  :global(.footer) { scroll-snap-align: end; }
+  .hero, .section { display: flex; flex-direction: column; justify-content: center; min-height: 100svh; }
+  .hero { min-height: calc(100svh - 4rem); }
+
+  /* Each section sits on a darkened photo, so its text and notes switch to light colours. */
+  .hero, .section {
+    --text: #fff;
+    --muted: rgb(255 255 255 / 0.8);
+    --line: rgb(255 255 255 / 0.3);
+    color: var(--text);
+    background: linear-gradient(rgb(0 0 0 / 0.55), rgb(0 0 0 / 0.55)), var(--photo, none) center / cover #222;
+  }
+
+  .hero { padding-block: clamp(4rem, 12vw, 8rem); }
   .hero h1 { font-size: clamp(2.25rem, 6vw, 3.5rem); line-height: 1.1; margin: 0 0 1rem; }
   .hero p { color: var(--muted); font-size: 1.125rem; margin: 0; max-width: 40rem; }
   .actions { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }

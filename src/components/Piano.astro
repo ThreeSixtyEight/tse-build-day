@@ -19,6 +19,10 @@ for (let octave = 3; octave <= 6; octave++) {
 ---
 
 <div class="piano" data-piano>
+  <div class="melodica">
+  <div class="melodica__mouthpiece" aria-hidden="true"></div>
+  <div class="melodica__body">
+  <div class="melodica__grille" aria-hidden="true"></div>
   <svg
     class="piano__inner"
     viewBox={`0 0 ${naturals.length * KEY_W} ${KEY_H}`}
@@ -36,30 +40,49 @@ for (let octave = 3; octave <= 6; octave++) {
       {sharps.map((k) => <rect class="piano__key piano__key--flat" data-note={k.note} x={k.x} width={20} height={130} />)}
     </g>
   </svg>
+  </div>
+  </div>
   <p id="piano-hint" class="piano__hint wrap">Play along: tap the keys, or click and type.</p>
 </div>
 
 <style>
   .piano { position: relative; user-select: none; -webkit-user-select: none; }
-  .piano__inner { display: block; width: 100%; height: 8rem; touch-action: manipulation; }
-  .piano__inner:focus { outline: none; }
-  .piano__inner:focus-visible { outline: 2px solid var(--text); outline-offset: -2px; }
-  .piano::after {
+  /* Melodica case: mouthpiece on the left end, a red body with a speaker grille, keys set into it. */
+  .melodica { display: flex; align-items: center; max-width: var(--max); margin: 2.5rem auto 0; padding-inline: calc(var(--gutter) + 0.5rem) var(--gutter); }
+  .melodica__mouthpiece { position: relative; flex: none; width: 3rem; height: 1.25rem; margin-right: -0.25rem; border-radius: 0.6rem 0 0 0.6rem; background: linear-gradient(180deg, #fafafa, #c9c9d0); }
+  .melodica__mouthpiece::before {
     content: '';
     position: absolute;
-    inset: 0 0 auto;
-    height: 8rem;
-    pointer-events: none;
-    background: linear-gradient(180deg, var(--bg), rgba(255, 255, 255, 0));
+    left: -0.5rem;
+    top: -0.3rem;
+    width: 0.9rem;
+    height: 1.85rem;
+    border-radius: 0.45rem;
+    background: linear-gradient(90deg, #d9d9df, #f4f4f7);
+    border: 1px solid #b8b8c0;
   }
-  .piano__key--natural { fill: #fff; stroke: #e4e4ec; stroke-width: 0.5px; vector-effect: non-scaling-stroke; }
-  .piano__key--natural.piano__key--active { fill: #f0f0f5; }
-  .piano__key--flat { fill: #e4e4ec; }
+  .melodica__body {
+    flex: 1;
+    min-width: 0;
+    padding: 0.6rem 1.25rem 1rem 1rem;
+    border-radius: 1.25rem 2.5rem 2.5rem 1.25rem;
+    background: linear-gradient(180deg, #d9463e, #a3221d);
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.3), inset 0 -3px 0 rgba(0, 0, 0, 0.2), 0 8px 18px rgba(0, 0, 0, 0.18);
+  }
+  .melodica__grille { width: 35%; height: 0.75rem; margin: 0 0.5rem 0.5rem auto; background: radial-gradient(circle, rgba(0, 0, 0, 0.4) 1.5px, transparent 2px) 0 0 / 8px 8px; }
+  .piano__inner { display: block; width: 100%; height: 8rem; touch-action: manipulation; border-radius: 0.3rem; background: #1a1a1a; box-shadow: 0 0 0 3px #1a1a1a; }
+  .piano__inner:focus { outline: none; }
+  .piano__inner:focus-visible { outline: 2px solid var(--text); outline-offset: -2px; }
+  .piano__key--natural { fill: #fff; stroke: #b8b8c0; stroke-width: 1px; vector-effect: non-scaling-stroke; }
+  .piano__key--natural.piano__key--active { fill: #e6e6ec; }
+  .piano__key--flat { fill: #222; }
   .piano__key--flat.piano__key--active { fill: #fbce41; }
   .piano__hint { margin: 0.75rem auto 0; font-size: 0.875rem; }
 
   @media (max-width: 30em) {
-    .piano__inner, .piano::after { height: 6rem; }
+    .piano__inner { height: 6rem; }
+    .melodica__mouthpiece { width: 1.75rem; }
+    .melodica__body { padding: 0.5rem 0.9rem 0.75rem 0.75rem; border-radius: 1rem 1.75rem 1.75rem 1rem; }
   }
 </style>
 
@@ -90,18 +113,18 @@ for (let octave = 3; octave <= 6; octave++) {
     const held = new Set<string>();
     let mouseDown = false;
 
-    // Sound. The audio context is unlocked inside the visitor's first press, then Tone.js loads and uses it.
-    let audioContext: AudioContext | undefined;
+    // Sound. Tone.js preloads when the pointer or focus reaches the piano, and its audio context is started inside the visitor's press.
+    // Tone keeps its own context: handing it a native AudioContext breaks in Firefox (no AudioListener.positionX).
+    let Tone: typeof import('tone') | undefined;
     let tone: Promise<typeof import('tone')> | undefined;
     let synth: PolySynth | undefined;
-    const loadTone = () => (tone ??= import('tone'));
+    const loadTone = () => (tone ??= import('tone').then((m) => (Tone = m)));
     let ready: Promise<PolySynth> | undefined;
 
     function getSynth() {
-      audioContext ??= new AudioContext();
-      audioContext.resume();
+      Tone?.start();
       return (ready ??= loadTone().then((Tone) => {
-        Tone.setContext(audioContext!);
+        Tone.start();
         synth = new Tone.PolySynth(Tone.Synth, {
           oscillator: { type: 'triangle' },
           envelope: { attack: 0.005, decay: 0.4, sustain: 0.15, release: 1.2 },
@@ -188,10 +211,10 @@ for (let octave = 3; octave <= 6; octave++) {
     const updateHint = () => (hint.textContent = isSoundOn() || !soundChoiceMade() ? HINT_ON : HINT_OFF);
     document.addEventListener('sound:change', () => {
       if (isSoundOn()) {
-        audioContext?.resume();
+        Tone?.start();
       } else {
         synth?.releaseAll();
-        audioContext?.suspend();
+        (Tone?.getContext().rawContext as AudioContext | undefined)?.suspend();
       }
       updateHint();
     });
