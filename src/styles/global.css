@@ -19,3 +19,11 @@ img { display: block; max-width: 100%; height: auto; }
 a { color: inherit; }
 
 .wrap { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--gutter); }
+
+/* Hero title. Melodrama is free from Fontshare. Gunter comes from the Adobe Fonts kit linked in BaseLayout. */
+@font-face {
+  font-family: 'Melodrama';
+  src: url('/fonts/melodrama-700.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}

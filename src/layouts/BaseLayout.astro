@@ -1,6 +1,5 @@
 ---
 import '../styles/global.css';
-import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Cursor from '../components/Cursor.astro';
 import EntryGate from '../components/EntryGate.astro';
@@ -25,10 +24,11 @@ const pageTitle = title ? `${title} | ${site.siteName}` : site.siteName;
     <meta name="description" content={description} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <slot name="head" />
+    <!-- Adobe Fonts kit: Gunter for the hero title. -->
+    <link rel="stylesheet" href="https://use.typekit.net/fiq4wtl.css" />
   </head>
   <body>
     <EntryGate />
-    <Header />
     <main id="main">
       <slot />
     </main>

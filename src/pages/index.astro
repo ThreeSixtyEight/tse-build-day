@@ -38,26 +38,21 @@ const bg = (id: string) =>
 
 <BaseLayout>
   <!-- Entry gate: the visitor joins the second line here. -->
-  <section class="hero" id="entry" data-section="entry" style={bg('entry')}>
-    <div class="wrap">
-      <h1>{site.siteName}</h1>
-      <p>{site.siteDescription}</p>
-      <div class="actions">
-        <a href="#line" class="button" data-join="sound">Join with sound</a>
-        <a href="#line" class="button" data-join="no-sound">Join without sound</a>
+  <!-- Hero art from Figma (Build Day, frame 60:276), layers in public/hero. Positions are % of the 1440×900 frame. -->
+  <!-- Two screens tall: the art stays pinned while scrolling moves Jon down and the buildings up into the street scene (Figma Frame 28). -->
+  <section class="hero" id="entry" data-section="entry">
+    <div class="hero__pin">
+      <div class="hero__stage">
+        <!-- Figma: "Sky (REPLACE WITH VIDEO)". -->
+        <img class="hero__sky" src="/hero/sky.webp" alt="" />
+        <img class="hero__buildings" src="/hero/buildings.webp" alt="" />
+        <h1 class="hero__title">
+          <span class="hero__line"><span class="hero__small">The</span> Story <span class="hero__small">of</span></span>
+          Jon Batiste
+        </h1>
+        <img class="hero__jon" src="/hero/jon.webp" alt="Painted portrait of Jon Batiste on a New Orleans street" />
       </div>
-      <Notes
-        items={[
-          'Vignette: a New Orleans street corner just before a second line passes. The visitor stands on the curb near a gate.',
-          'Beat 1: the first line arrives, Grand Marshal Jon Batiste with the band. The band is heard before it is seen; handkerchiefs and umbrellas rise at the edge of the frame.',
-          'Beat 2: the invitation. A band member reaches out from the line, holding a tambourine.',
-          'Beat 3: joining. The visitor taps to take the tambourine and steps off the curb into the second line. Scrolling starts the route.',
-          'Collect: tambourine. Copy: maybe one line, maybe nothing. Mood: anticipation, curious.',
-          'Sound is tied to the band and starts low, only after the visitor opts in. Captions on.',
-          'Open: intro inside the gate, or its own section.',
-          'Analytics: entry, joining the line, sound on and off.',
-        ]}
-      />
+      <div class="hero__border" aria-hidden="true"></div>
     </div>
   </section>
 
@@ -185,16 +180,87 @@ const bg = (id: string) =>
   <SectionStaves />
 </BaseLayout>
 
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Scroll from the hero to the street: the buildings move up 806px of the 1440-wide frame (Figma Frame 27 → Frame 28),
+  // the title goes with them and Jon drops out before the street settles. The art is pinned by CSS sticky.
+  const stage = document.querySelector<HTMLElement>('.hero__stage');
+  const frame = () => stage!.offsetWidth / 1440;
+
+  gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
+    gsap
+      .timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom bottom', scrub: true, invalidateOnRefresh: true },
+      })
+      .to(['.hero__buildings', '.hero__title'], { y: () => -806 * frame(), duration: 1 }, 0)
+      .to('.hero__jon', { y: () => 720 * frame(), duration: 0.6 }, 0);
+  });
+</script>
+
 <style>
   /* Cinematic scroll: every section fills the screen and locks into place. Sections taller than the screen still scroll through. */
   :global(html) { scroll-snap-type: y mandatory; }
-  :global(.header), .hero, .section { scroll-snap-align: start; }
+  .hero, .section { scroll-snap-align: start; }
   :global(.footer) { scroll-snap-align: end; }
-  .hero, .section { display: flex; flex-direction: column; justify-content: center; min-height: 100svh; }
-  .hero { min-height: calc(100svh - 4rem); }
+  .section { display: flex; flex-direction: column; justify-content: center; min-height: 100svh; }
+
+  /* Hero: the Figma frame scaled to cover the screen, cropped at the sides on tall screens. */
+  .hero { position: relative; height: 200svh; background: #8bbdce; }
+  .hero__pin { position: sticky; top: 0; height: 100svh; overflow: hidden; }
+  /* Second snap point: the street scene. */
+  .hero::after { content: ''; position: absolute; bottom: 0; height: 100svh; scroll-snap-align: start; }
+  .hero__stage {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100vw, 160svh);
+    aspect-ratio: 1440 / 900;
+    translate: -50% -50%;
+  }
+  .hero__stage > *, .hero__border { position: absolute; margin: 0; }
+  .hero__sky { left: -5.14%; top: 0; width: 110.35%; height: 236.7%; object-fit: cover; max-width: none; }
+  .hero__buildings { left: -2.15%; top: -30.33%; width: 104.31%; height: 223.67%; max-width: none; }
+  /* Sizes from the Figma frame (big words 97.95px, small 44.24px at 1440 wide), capped so the title fits a phone. Sits behind Jon's head. */
+  .hero__stage { container-type: inline-size; }
+  .hero__title {
+    --u: min(1cqw, 1.667vw);
+    left: 0;
+    right: 0;
+    top: 13.5%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--u) * 2);
+    font: 400 calc(var(--u) * 6.8) / 0.8 'gunter', 'Melodrama', serif;
+    text-align: center;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: calc(var(--u) * 0.28) calc(var(--u) * 1.04) 0 #01564b;
+  }
+  .hero__line { display: flex; align-items: baseline; gap: 0.25em; }
+  .hero__small { font-family: 'Melodrama', serif; font-weight: 700; font-size: 0.45em; letter-spacing: 0.07em; }
+  .hero__jon { left: 55.14%; top: 27%; width: 86.94%; max-width: none; translate: -50% 0; }
+
+
+  /* Painted frame: one strip per edge, rotated copies of the Figma border. */
+  .hero__border {
+    --edge: clamp(20px, 3vw, 44px);
+    inset: 0;
+    pointer-events: none;
+    background:
+      url(/hero/border-top.png) top / auto var(--edge) repeat-x,
+      url(/hero/border-bottom.png) bottom / auto var(--edge) repeat-x,
+      url(/hero/border-left.png) left / var(--edge) auto repeat-y,
+      url(/hero/border-right.png) right / var(--edge) auto repeat-y;
+  }
 
   /* Each section sits on a darkened photo, so its text and notes switch to light colours. */
-  .hero, .section {
+  .section {
     --text: #fff;
     --muted: rgb(255 255 255 / 0.8);
     --line: rgb(255 255 255 / 0.3);
@@ -202,11 +268,6 @@ const bg = (id: string) =>
     background: linear-gradient(rgb(0 0 0 / 0.55), rgb(0 0 0 / 0.55)), var(--photo, none) center / cover #222;
   }
 
-  .hero { padding-block: clamp(4rem, 12vw, 8rem); }
-  .hero h1 { font-size: clamp(2.25rem, 6vw, 3.5rem); line-height: 1.1; margin: 0 0 1rem; }
-  .hero p { color: var(--muted); font-size: 1.125rem; margin: 0; max-width: 40rem; }
-  .actions { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }
-  .button { border: 1px solid currentColor; padding: 0.5rem 1rem; text-decoration: none; }
   .section { padding-block: 3rem; border-bottom: 1px solid var(--line); }
   .section h2 { margin-top: 0; }
   .caption { color: var(--muted); font-size: 0.875rem; }
