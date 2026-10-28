@@ -10,23 +10,30 @@ interface Props {
   id: string;
   heading: string;
   body: string;
-  cutout: { src: string; alt: string; bleed?: boolean };
+  cutout: { src: string; alt: string; bleed?: boolean; full?: boolean };
   prop?: { src: string; alt: string };
   background?: { src: string; alt: string };
   quote?: { text: string; source: string; date: string; url?: string };
   caption?: string;
   takeaway?: string;
+  dark?: boolean;
 }
 
-const { id, heading, body, cutout, prop, background, quote, caption, takeaway } = Astro.props;
+const { id, heading, body, cutout, prop, background, quote, caption, takeaway, dark } = Astro.props;
 ---
 
-<section class:list={['section flat', background && 'flat--painted']} id={id} data-section={id}>
+<section
+  class:list={['section flat', background && 'flat--painted', !background && cutout.full && 'flat--full', dark && 'flat--dark']}
+  id={id}
+  data-section={id}
+>
   {background && <img class="flat__bg" src={background.src} alt={background.alt} />}
   <div class="flat__art" aria-hidden={cutout.alt ? undefined : 'true'}>
     {!background && prop && <img class="flat__prop" src={prop.src} alt={prop.alt} data-drift="0.15" />}
     {
-      background ? null : cutout.bleed ? (
+      background ? null : cutout.full ? (
+        <img class="flat__cutout flat__cutout--full" src={cutout.src} alt={cutout.alt} />
+      ) : cutout.bleed ? (
         <img class="flat__cutout flat__cutout--bleed" src={cutout.src} alt={cutout.alt} data-roll />
       ) : (
         <img class="flat__cutout" src={cutout.src} alt={cutout.alt} data-drift="0.04" />
@@ -66,6 +73,20 @@ const { id, heading, body, cutout, prop, background, quote, caption, takeaway } 
   .flat__cutout { left: 18%; bottom: 0; height: 82%; width: auto; }
   .flat__cutout--bleed { left: 0; bottom: 14%; width: 100%; height: auto; }
 
+  /* Dark panel: white text on black. */
+  .flat--dark {
+    --text: #fff;
+    --muted: rgb(255 255 255 / 0.75);
+    --line: rgb(255 255 255 / 0.25);
+    background: #000;
+  }
+
+  /* Full-width cutout: the painting spans the panel and stands on its bottom edge (its top is cropped on wide
+     screens), and the text keeps to the right half, over the painting's empty side. */
+  .flat--full .flat__art { position: absolute; inset: 0; }
+  .flat--full .flat__text { grid-column: 2; }
+  .flat__cutout--full { left: 0; bottom: 0; width: 100%; height: auto; }
+
   /* Painted panel: the painting fills the art side, framed on the subject, and its right edge fades into the
      panel colour where the text begins. */
   .flat__bg {
@@ -99,6 +120,10 @@ const { id, heading, body, cutout, prop, background, quote, caption, takeaway } 
     .flat__cutout { left: 50%; translate: -50% 0; height: 95%; }
     .flat__cutout--bleed { left: 0; translate: none; width: 100%; height: auto; bottom: 4%; }
     .flat__prop { left: -10%; width: 120%; bottom: 8%; }
+    /* The text sits above the painting, overlapping only its faded top. */
+    .flat--full { grid-template-rows: auto; padding-bottom: 85vw; }
+    .flat--full .flat__text { grid-column: 1; }
+    .flat__cutout--full { left: 0; translate: none; width: 100%; height: auto; }
   }
 </style>
 
