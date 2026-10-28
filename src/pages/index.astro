@@ -59,7 +59,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
           <img class="hero__parade" src="/hero/parade.webp" alt="Jon Batiste leading a second line brass band down the street" />
           <img src="/hero/street-front.webp" alt="" />
           <!-- Figma Frame 48: painted on the ground, so it rides with the street; fades in as the street settles. -->
-          <p class="hero__invite">Somebody's coming down the street with a band. Around here, that's an invitation.</p>
+          <p class="hero__invite">When somebody’s worth celebrating, New Orleans takes it to the street. Today the second line is for Jon Batiste, and you’re invited.</p>
         </div>
         <h1 class="hero__title">
           <span class="hero__line"><span class="hero__small">The</span> Story <span class="hero__small">of</span></span>
@@ -116,7 +116,6 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
         {s.data.flat && (
           <ChapterFlat
             id={s.data.fullScreen ? `${s.id}-flat` : s.id}
-            number={s.data.order}
             {...s.data.flat}
             quote={flatQuote}
             takeaway={s.data.takeaway}
@@ -323,17 +322,18 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
 
 
   /* Line on the ground (Figma Frame 48: Excon Bold 23px at 1440, centred, 735px down; as % of the street image here).
-     Capped to the screen width on a phone. */
+     Width in em so the copy always wraps to three lines; the type shrinks to keep it within the screen on a phone. */
   .hero__street .hero__invite {
     position: absolute;
     left: 50%;
     top: 84.34%;
-    width: min(22.59%, 90vw);
+    width: 29em;
     height: auto;
     margin: 0;
     translate: -50% 0;
-    font: 700 min(1.6cqw, 5vw) / normal 'Excon', system-ui, sans-serif;
+    font: 700 min(1.6cqw, 3.1vw) / normal 'Excon', system-ui, sans-serif;
     text-align: center;
+    text-wrap: balance;
     color: #eaeaea;
     text-shadow: 1px 0 0 #380f2b;
   }
