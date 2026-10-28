@@ -15,6 +15,14 @@ body {
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.6;
 }
+/* Every heading uses the chapter heading type ("The kid who kept the beat"): Gunter, uppercase.
+   Low specificity, so a component can still size or space its own headings. */
+:where(h1, h2, h3, h4) {
+  font-family: 'gunter', 'Melodrama', serif;
+  font-weight: 400;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
 img { display: block; max-width: 100%; height: auto; }
 a { color: inherit; }
 
