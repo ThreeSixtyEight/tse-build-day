@@ -54,6 +54,8 @@ const sections = defineCollection({
         caption: z.string().optional(),
         // A dark panel with white text instead of the light one.
         dark: z.boolean().default(false),
+        // Only as tall as the cutout, instead of a full screen, so it sits right under the section above.
+        compact: z.boolean().default(false),
         // Working notes for the team; kept in the file, never shown on the page.
         notes: z.array(z.string()).default([]),
       })

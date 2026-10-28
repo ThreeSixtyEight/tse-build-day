@@ -21,6 +21,8 @@ background: /chapter-2/snug-harbor.webp
 flat:
   # No heading: the bus panel is one line, picking up where the Snug Harbor copy trails off.
   body: "...But New York calls louder."
+  # As tall as the bus painting, not a full screen, so it follows straight on from Snug Harbor.
+  compact: true
   cutout:
     src: /chapter-2/bus-boarding.webp
     alt: Painting of a teenager in a green T-shirt boarding a bus with a suitcase and a melodica

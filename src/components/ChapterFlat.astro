@@ -19,14 +19,15 @@ interface Props {
   quote?: { text: string; source: string; date: string; url?: string };
   caption?: string;
   takeaway?: string;
+  compact?: boolean;
   dark?: boolean;
 }
 
-const { id, eyebrow, heading, body, cutout, prop, background, quote, caption, takeaway, dark } = Astro.props;
+const { id, eyebrow, heading, body, cutout, prop, background, quote, caption, takeaway, dark, compact } = Astro.props;
 ---
 
 <section
-  class:list={['section flat', background && 'flat--painted', !background && cutout.full && 'flat--full', dark && 'flat--dark']}
+  class:list={['section flat', background && 'flat--painted', !background && cutout.full && 'flat--full', dark && 'flat--dark', compact && 'flat--compact']}
   id={id}
   data-section={id}
 >
@@ -85,6 +86,10 @@ const { id, eyebrow, heading, body, cutout, prop, background, quote, caption, ta
   .flat__cutout { left: 18%; bottom: 0; height: 82%; width: auto; }
   .flat__cutout--bleed { left: 0; bottom: 14%; width: 100%; height: auto; }
 
+  /* Compact panel: no full-screen height. The cutout joins the flow, so the panel is as tall as the painting. */
+  .flat--compact { min-height: 0; }
+  .flat--compact .flat__cutout--bleed { position: relative; bottom: auto; display: block; }
+
   /* Dark panel: white text on black. */
   .flat--dark {
     --text: #fff;
@@ -132,6 +137,7 @@ const { id, eyebrow, heading, body, cutout, prop, background, quote, caption, ta
     .flat__cutout { left: 50%; translate: -50% 0; height: 95%; }
     .flat__cutout--bleed { left: 0; translate: none; width: 100%; height: auto; bottom: 4%; }
     .flat__prop { left: -10%; width: 120%; bottom: 8%; }
+    .flat--compact { grid-template-rows: auto; }
     /* The text sits above the painting, overlapping only its faded top. */
     .flat--full { grid-template-rows: auto; padding-bottom: 85vw; }
     .flat--full .flat__text { grid-column: 1; }
