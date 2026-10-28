@@ -47,8 +47,8 @@ const bg = (id: string) =>
     </script>
     <div class="hero__pin">
       <div class="hero__stage">
-        <!-- Figma: "Sky (REPLACE WITH VIDEO)". -->
-        <img class="hero__sky" src="/hero/sky.webp" alt="" />
+        <!-- Sky animation loops silently behind the art. The still is the poster and the reduced-motion fallback. -->
+        <video class="hero__sky" src="/hero/sky.mp4" poster="/hero/sky.webp" autoplay muted loop playsinline disablepictureinpicture aria-hidden="true"></video>
         <img class="hero__buildings" src="/hero/buildings.webp" alt="" />
         <h1 class="hero__title">
           <span class="hero__line"><span class="hero__small">The</span> Story <span class="hero__small">of</span></span>
@@ -193,6 +193,11 @@ const bg = (id: string) =>
   // Scroll from the hero to the street: the buildings move up 806px of the 1440-wide frame (Figma Frame 27 → Frame 28),
   // the title goes with them and Jon drops out before the street settles. The art is pinned by CSS sticky.
   const stage = document.querySelector<HTMLElement>('.hero__stage');
+
+  // Reduced motion: hold the sky on its poster frame.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelector<HTMLVideoElement>('.hero__sky')?.pause();
+  }
   const frame = () => stage!.offsetWidth / 1440;
 
   // Load-in: the buildings rise, then the title drops in from above as Jon rises from below. Slides only, no fades.
@@ -242,7 +247,8 @@ const bg = (id: string) =>
   }
   .hero__stage > *, .hero__border { position: absolute; margin: 0; }
   :global(html.hero-intro) :is(.hero__buildings, .hero__jon, .hero__title) { visibility: hidden; }
-  .hero__sky { left: -5.14%; top: 0; width: 110.35%; height: 236.7%; object-fit: cover; max-width: none; }
+  /* The sky video is rendered at the frame's 16:10, so it covers the pinned stage edge to edge. */
+  .hero__sky { inset: 0; width: 100%; height: 100%; object-fit: cover; max-width: none; }
   .hero__buildings { left: -2.15%; top: -30.33%; width: 104.31%; height: 223.67%; max-width: none; }
   /* Sizes from the Figma frame (big words 97.95px, small 44.24px at 1440 wide), capped so the title fits a phone. Sits behind Jon's head. */
   .hero__stage { container-type: inline-size; }
