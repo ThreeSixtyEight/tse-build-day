@@ -121,17 +121,18 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
             takeaway={s.data.takeaway}
           />
         )}
+        {/* The piano follows chapter 1, where Jon moves from drums to piano. Scrolling lifts it off a quote underneath. */}
+        {s.data.order === 1 && (
+          <div class="lift">
+            <section class="section" id="piano" data-section="piano">
+              <Piano />
+            </section>
+            <QuoteReveal {...pianoQuote} />
+          </div>
+        )}
         </>
       ))
     }
-  </div>
-
-  <!-- The piano: play along after the second line. Scrolling lifts it off a quote underneath. -->
-  <div class="lift">
-    <section class="section" id="piano" data-section="piano">
-      <Piano />
-    </section>
-    <QuoteReveal {...pianoQuote} />
   </div>
 
   <!-- The theater: a spotlight follows the pointer across Jon at the piano. -->
