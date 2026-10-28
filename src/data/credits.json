@@ -8,5 +8,6 @@
   { "id": "bg-listen", "type": "photo", "item": "Listen background (placeholder)", "credit": "Morgan Petroski on Unsplash", "url": "https://unsplash.com/photos/ZCX1Nyok66c" },
   { "id": "bg-end", "type": "photo", "item": "End of the line background (placeholder)", "credit": "iSawRed on Unsplash", "url": "https://unsplash.com/photos/pv9DqG_-w0A" },
   { "id": "bg-transcript", "type": "photo", "item": "Transcript background (placeholder)", "credit": "Emanuel Odadjiev on Unsplash", "url": "https://unsplash.com/photos/XU2TA82lEJY" },
-  { "id": "bg-credits", "type": "photo", "item": "Credits background (placeholder)", "credit": "Sasha Matveeva on Unsplash", "url": "https://unsplash.com/photos/btW-dqA5UAk" }
+  { "id": "bg-credits", "type": "photo", "item": "Credits background (placeholder)", "credit": "Sasha Matveeva on Unsplash", "url": "https://unsplash.com/photos/btW-dqA5UAk" },
+  { "id": "theater", "type": "photo", "item": "Theater: Jon Batiste at the piano, Count Basie Theatre, Red Bank, 2024 (spotlight effect added)", "credit": "Jonathan Schilling, CC BY-SA 4.0", "url": "https://commons.wikimedia.org/wiki/File:Jon_Batiste_at_the_piano_in_improvised_performance_at_Count_Basie_Theatre.jpg" }
 ]

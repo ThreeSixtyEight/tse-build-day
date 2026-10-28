@@ -6,6 +6,7 @@ import Quote from '../components/Quote.astro';
 import SectionStaves from '../components/SectionStaves.astro';
 import HorizontalLine from '../components/HorizontalLine.astro';
 import Piano from '../components/Piano.astro';
+import TheaterSpotlight from '../components/TheaterSpotlight.astro';
 import { site } from '../site.config';
 
 const sections = (await getCollection('sections')).sort((a, b) => a.data.order - b.data.order);
@@ -92,6 +93,9 @@ const bg = (id: string) =>
   <section class="section" id="piano" data-section="piano">
     <Piano />
   </section>
+
+  <!-- The theater: a spotlight follows the pointer across Jon at the piano. -->
+  <TheaterSpotlight />
 
   <section class="section" id="listen" data-section="listen" style={bg('listen')}>
     <div class="wrap">

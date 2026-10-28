@@ -1,0 +1,111 @@
+---
+// Theater scene with a spotlight that follows the pointer: Osmo's Spotlight Cursor (Unicorn Studio) with its
+// image swapped for Jon at the piano at the Count Basie Theatre. The scene file is public/theater/spotlight.json,
+// Osmo's export with the image layer pointed at public/theater/count-basie.jpg.
+// Unicorn Studio loads when the section is near the screen. It's off on phones (data-us-disablemobile), where the
+// dimmed photo shows instead, and the same photo shows if WebGL or the script isn't available.
+// Photo: Jonathan Schilling, CC BY-SA 4.0, credited in src/data/credits.json.
+---
+
+<section class="section theater" id="theater" data-section="theater">
+  <div class="theater__fallback" aria-hidden="true"></div>
+  <div
+    class="spotlight-cursor__wrap"
+    data-us-project-src="/theater/spotlight.json"
+    data-us-disablemobile="true"
+    data-us-scale="1"
+    data-us-dpi="1"
+    data-us-lazyload="false"
+    role="img"
+    aria-label="Jon Batiste at a grand piano on a dark theater stage, the audience standing below"
+  >
+  </div>
+  <p class="theater__caption">Red Bank, 2024</p>
+  <p class="theater__credit">
+    Photo: <a href="https://commons.wikimedia.org/wiki/File:Jon_Batiste_at_the_piano_in_improvised_performance_at_Count_Basie_Theatre.jpg">Jonathan Schilling</a>,
+    <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>, spotlight added
+  </p>
+</section>
+
+<style>
+  .theater {
+    position: relative;
+    min-height: 100svh;
+    padding: 0;
+    overflow: hidden;
+    background: #000;
+    scroll-snap-align: start;
+  }
+  .theater__fallback {
+    position: absolute;
+    inset: 0;
+    background: url(/theater/count-basie.jpg) center / cover no-repeat;
+    filter: brightness(0.55);
+  }
+  /* Once the scene renders it covers the fallback. */
+  .spotlight-cursor__wrap {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .theater__caption,
+  .theater__credit {
+    position: absolute;
+    z-index: 1;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.75rem;
+    pointer-events: auto;
+  }
+  .theater__caption { left: var(--gutter); bottom: var(--gutter); font-size: 0.875rem; }
+  .theater__credit { right: calc(var(--gutter) + 64px); bottom: var(--gutter); }
+  .theater__credit a { color: inherit; }
+
+  @media (max-width: 40em) {
+    .theater__credit { left: var(--gutter); right: auto; bottom: calc(var(--gutter) + 1.5rem); }
+    .theater__caption { bottom: calc(var(--gutter) + 3rem); }
+  }
+</style>
+
+<script>
+  // Unicorn Studio, pinned to the version Osmo built the resource on.
+  const SRC = 'https://cdn.jsdelivr.net/gh/hiunicornstudio/unicornstudio.js@v2.2.7/dist/unicornStudio.umd.js';
+
+  declare global {
+    interface Window {
+      UnicornStudio?: { init: () => Promise<unknown> };
+    }
+  }
+
+  function initUnicornStudio() {
+    window.UnicornStudio?.init()
+      .then(() => {
+        // Unicorn scene is ready.
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }
+
+  function load() {
+    if (window.UnicornStudio) return initUnicornStudio();
+    const script = document.createElement('script');
+    script.src = SRC;
+    script.onload = initUnicornStudio;
+    document.head.append(script);
+  }
+
+  const section = document.querySelector('#theater');
+  if (section) {
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        io.disconnect();
+        load();
+      },
+      { rootMargin: '100% 0px' },
+    );
+    io.observe(section);
+  }
+</script>
