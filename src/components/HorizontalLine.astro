@@ -1,0 +1,109 @@
+---
+// The second line scrolls sideways. After the hero, the stops in #line sit side by side and scrolling down
+// moves along them, like walking down the street with the parade. GSAP ScrollTrigger pins the line and
+// slides the track; a thin bar along the bottom shows how far along the line you are.
+// Each stop gets a snap point inside the pin, so the page's CSS snapping still lands on one stop at a time,
+// and links to a stop (#section-3) slide to it. Reduced motion: the stops stay stacked and scroll as normal.
+---
+
+<style is:global>
+  .hline { position: relative; overflow: hidden; }
+  .hline__track { display: flex; width: max-content; }
+  .hline .hline__track > .section { flex: 0 0 100vw; width: 100vw; scroll-snap-align: none; }
+  .hline__stop { position: absolute; left: 0; width: 1px; height: 1px; scroll-snap-align: start; pointer-events: none; }
+  .hline__progress {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3px;
+    background: #ffb800;
+    transform-origin: left;
+    transform: scaleX(0);
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const line = document.getElementById('line');
+  const panels = line ? [...line.querySelectorAll<HTMLElement>(':scope > .section')] : [];
+
+  if (line && panels.length > 1) {
+    gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
+      const track = document.createElement('div');
+      track.className = 'hline__track';
+      track.append(...panels);
+      const progress = document.createElement('div');
+      progress.className = 'hline__progress';
+      progress.setAttribute('aria-hidden', 'true');
+      line.append(track, progress);
+      line.classList.add('hline');
+
+      const distance = () => track.scrollWidth - window.innerWidth;
+      const step = () => distance() / (panels.length - 1);
+
+      const tween = gsap.to(track, {
+        x: () => -distance(),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: line,
+          start: 'top top',
+          end: () => `+=${distance()}`,
+          pin: true,
+          scrub: 0.6,
+          invalidateOnRefresh: true,
+          anticipatePin: 1,
+          onUpdate: (self) => gsap.set(progress, { scaleX: self.progress }),
+        },
+      });
+      const trigger = tween.scrollTrigger!;
+
+      // One snap point per stop, inside the pin's spacer, so CSS snapping rests on each stop.
+      const spacer = line.parentElement!;
+      const markers = panels.map(() => {
+        const m = document.createElement('i');
+        m.className = 'hline__stop';
+        m.setAttribute('aria-hidden', 'true');
+        spacer.append(m);
+        return m;
+      });
+      const placeMarkers = () => {
+        spacer.style.position = 'relative';
+        markers.forEach((m, i) => (m.style.top = `${i * step()}px`));
+      };
+      ScrollTrigger.addEventListener('refresh', placeMarkers);
+      placeMarkers();
+
+      // Links to a stop slide to it instead of jumping to the top of the line.
+      const onClick = (ev: MouseEvent) => {
+        const link = (ev.target as Element).closest<HTMLAnchorElement>('a[href^="#"]');
+        const index = link ? panels.findIndex((p) => `#${p.id}` === link.getAttribute('href')) : -1;
+        if (index < 0) return;
+        ev.preventDefault();
+        window.scrollTo({ top: trigger.start + index * step(), behavior: 'smooth' });
+        history.replaceState(null, '', link!.getAttribute('href'));
+      };
+      document.addEventListener('click', onClick);
+
+      // Arriving at a stop's link from another page.
+      const fromHash = panels.findIndex((p) => `#${p.id}` === location.hash);
+      if (fromHash > 0) requestAnimationFrame(() => window.scrollTo({ top: trigger.start + fromHash * step() }));
+
+      // Undo when reduced motion is switched on: the stops go back to stacking.
+      return () => {
+        ScrollTrigger.removeEventListener('refresh', placeMarkers);
+        document.removeEventListener('click', onClick);
+        markers.forEach((m) => m.remove());
+        line.append(...panels);
+        track.remove();
+        progress.remove();
+        line.classList.remove('hline');
+      };
+    });
+  }
+</script>

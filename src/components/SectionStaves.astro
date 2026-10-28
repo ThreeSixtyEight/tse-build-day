@@ -4,8 +4,8 @@
 // scrolling or by moving the mouse, it plays its note (treble staff, bottom to top: E G B D F)
 // and a note appears on the line, then fades. Hovering or tapping a note plays it again.
 // On touch screens the middle of the screen stands in for the pointer.
-// Sound follows the site's sound switch (scripts/sound.ts). The staves are added between
-// every pair of [data-section] elements by the script below, so the page markup stays as it is.
+// Sound follows the site's sound switch (scripts/sound.ts). The staves are added between the page's
+// top-level blocks by the script below, so the page markup stays as it is.
 ---
 
 <template data-staff-template>
@@ -100,11 +100,16 @@
   const RETRIGGER_MS = 120;
 
   const template = document.querySelector<HTMLTemplateElement>('[data-staff-template]');
-  const sections = [...document.querySelectorAll<HTMLElement>('main [data-section]')];
+  // The page's top-level blocks: each section, and groups of sections such as the second line,
+  // which scrolls sideways and counts as one block.
+  const main = document.querySelector('main');
+  const blocks = main
+    ? [...main.children].filter((el): el is HTMLElement => el instanceof HTMLElement && (el.matches('[data-section]') || !!el.querySelector('[data-section]')))
+    : [];
 
-  if (template && sections.length > 1) {
-    // One staff before every section but the first.
-    sections.slice(1).forEach((section) => section.before(template.content.cloneNode(true)));
+  if (template && blocks.length > 1) {
+    // One staff before every block but the first.
+    blocks.slice(1).forEach((block) => block.before(template.content.cloneNode(true)));
 
     type Line = { el: HTMLElement; note: string; band: HTMLElement; side: number; last: number };
     const lines: Line[] = [...document.querySelectorAll<HTMLElement>('.staff__line')].map((el) => ({

@@ -4,6 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Notes from '../components/Notes.astro';
 import Quote from '../components/Quote.astro';
 import SectionStaves from '../components/SectionStaves.astro';
+import HorizontalLine from '../components/HorizontalLine.astro';
 import { site } from '../site.config';
 
 const sections = (await getCollection('sections')).sort((a, b) => a.data.order - b.data.order);
@@ -182,6 +183,8 @@ const bg = (id: string) =>
 
   <!-- Section transitions: a playable music staff at every seam. -->
   <SectionStaves />
+  <!-- The second line scrolls sideways through its stops. -->
+  <HorizontalLine />
 </BaseLayout>
 
 <script>
