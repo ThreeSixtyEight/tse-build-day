@@ -25,8 +25,6 @@ npm run dev     # or: netlify dev
 | Header / footer | `src/components/` |
 | Page layout (`<head>`, header, footer) | `src/layouts/BaseLayout.astro` |
 | Home page (entry gate, the line, listen, end) | `src/pages/index.astro` |
-| Transcript page | `src/pages/transcript.astro` |
-| Credits page | `src/pages/credits.astro` |
 | Second line sections (Markdown, one per section) | `src/content/sections/` |
 | Sourced, dated quotes | `src/data/quotes.json` |
 | Media and culture credits | `src/data/credits.json` |

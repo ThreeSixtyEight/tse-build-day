@@ -15,7 +15,4 @@ scenes:
   # Intro: the second line that stopped. Placeholder photo until the scene art lands.
   - photo: 1775227970630-9c03b7406132
     text: "In November 2024 violence stops the 9th Ward's annual second line. A neighborhood that marches every year stands still. Three months later, Jon Batiste comes home to Desire, New Orleans with a free festival and his father on the bill."
-  # Resolution: the first Love Riot Festival. Same placeholder photo.
-  - photo: 1775227970630-9c03b7406132
-    text: "When the set ends he climbs off the stage and falls in with Nine Times, the parade club born in the Desire projects. The 9th Ward is marching again, and Nine Times is back in the street."
 ---

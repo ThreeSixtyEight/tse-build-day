@@ -17,5 +17,5 @@ Astro 7 scaffold for the Build Day fan site: Jon Batiste's story told through a 
 - Don't add `og:image` — the platform supplies it.
 - Never invent a quote: Jon's words go in `quotes.json` with source and date only.
 - Sound stays off until the visitor opts in; `data-section` and `data-sound-toggle` are hooks for the sound and analytics modules.
-- One page, no nav. Header is the site name and the sound toggle; footer links to `#transcript` and `#credits`.
+- One page, no nav. Header is the site name and the sound toggle; footer links to the instruments and game pages.
 - Copy: buttons 2–3, headlines 4–8, captions "Place, Year".

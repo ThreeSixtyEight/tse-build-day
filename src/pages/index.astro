@@ -10,8 +10,6 @@ import QuoteReveal from '../components/QuoteReveal.astro';
 import { site } from '../site.config';
 
 const sections = (await getCollection('sections')).sort((a, b) => a.data.order - b.data.order);
-const credits = await getCollection('credits');
-const allQuotes = await getCollection('quotes');
 // The large quote the piano lifts off: any id from src/data/quotes.json.
 const pianoQuote = (await getEntry('quotes', 'alvin-batiste'))!.data;
 const rendered = await Promise.all(
@@ -28,13 +26,11 @@ const rendered = await Promise.all(
 const photos: Record<string, string> = {
   entry: '1525994886773-080587e161c2',
   'section-3': '1771868557440-ab1f8e4d6006',
-  // Reused until final photos land: the transcript street for the homecoming, the entry street for the send-off.
+  // Reused until final photos land: a French Quarter street for the homecoming, the entry street for the send-off.
   'section-4': '1775227970630-9c03b7406132',
   'section-5': '1525994886773-080587e161c2',
   listen: '1560110734-f03640ca8eda',
   end: '1690267306076-2a6e9899aaeb',
-  transcript: '1775227970630-9c03b7406132',
-  credits: '1767468200550-e6945e9b7f5f',
 };
 const quoteFirst = (text: string) => text.startsWith('[Quote]');
 const photoVar = (photo: string) =>
@@ -171,55 +167,6 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
     </div>
   </section>
 
-  <!-- Transcript: everything spoken, sung or heard, section by section. -->
-  <section class="section" id="transcript" data-section="transcript" style={bg('transcript')}>
-    <div class="wrap">
-      <h2>Transcript</h2>
-      {/* Captions and transcripts are checked by Strategists before launch. */}
-      {
-        sections.map((s) => (
-          <article class="entry">
-            <h3><a href={`#${s.id}`}>{s.data.title}</a></h3>
-            <p>{s.data.transcript ?? 'Transcript to come.'}</p>
-          </article>
-        ))
-      }
-    </div>
-  </section>
-
-  <!-- Credits: every photo, clip, embed and quote on the site. -->
-  <section class="section" id="credits" data-section="credits" style={bg('credits')}>
-    <div class="wrap">
-      <h2>Credits</h2>
-      {/* Licensed photos only, credited. Club names, regalia, footage and music need permission or a credited source. */}
-      <h3>Media</h3>
-      {
-        credits.length ? (
-          <ul>
-            {credits.map(({ data }) => (
-              <li>
-                {data.item} ({data.type}): {data.url ? <a href={data.url}>{data.credit}</a> : data.credit}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>Credits to come.</p>
-        )
-      }
-      <h3>Quotes</h3>
-      {
-        allQuotes.length ? (
-          <ul>
-            {allQuotes.map(({ data }) => (
-              <li>{data.url ? <a href={data.url}>{data.source}</a> : data.source}, {data.date}</li>
-            ))}
-          </ul>
-        ) : (
-          <p>Quote sources to come.</p>
-        )
-      }
-    </div>
-  </section>
 </BaseLayout>
 
 <script>
@@ -417,6 +364,4 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
   .caption { color: var(--muted); font-size: 0.875rem; }
   .scene__text { font-size: clamp(1.25rem, 2.2vw, 1.75rem); line-height: 1.45; max-width: 38rem; }
   .spotify { border: 0; border-radius: 12px; max-width: 40rem; }
-  .entry { border-top: 1px solid var(--line); margin-top: 1.5rem; padding-top: 1rem; }
-  .entry h3, .section h3 { font-size: 1.125rem; margin: 1.5rem 0 0.5rem; }
 </style>
