@@ -77,7 +77,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
     {
       rendered.map(({ s, Content, quotes, flatQuote }) => (
         <>
-        {s.data.scenes.length ? (
+        {s.data.fullScreen && (s.data.scenes.length ? (
           s.data.scenes.map((scene, i) => {
             const last = i === s.data.scenes.length - 1;
             return (
@@ -125,9 +125,9 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
               />
             </div>
           </section>
-        )}
+        ))}
         {s.data.flat && (
-          <ChapterFlat id={`${s.id}-flat`} number={s.data.order} {...s.data.flat} quote={flatQuote} />
+          <ChapterFlat id={s.data.fullScreen ? `${s.id}-flat` : s.id} number={s.data.order} {...s.data.flat} quote={flatQuote} />
         )}
         </>
       ))

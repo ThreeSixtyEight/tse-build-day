@@ -35,7 +35,7 @@ const { id, number, heading, body, cutout, prop, quote, caption, notes } = Astro
   <div class="flat__text">
     <p class="flat__num">{String(number).padStart(2, '0')}</p>
     <h2>{heading}</h2>
-    <p>{body}</p>
+    {body.split(/\n\s*\n/).map((para) => <p>{para.trim()}</p>)}
     {quote && <Quote {...quote} />}
     {caption && <p class="caption">{caption}</p>}
     {notes.length > 0 && <Notes items={notes} />}

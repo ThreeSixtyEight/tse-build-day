@@ -24,6 +24,8 @@ const sections = defineCollection({
     // A chapter as full-screen scenes in order (intro, resolution), each a background photo and its copy.
     // photo: an Unsplash photo id, credited in src/data/credits.json. Without scenes the section shows its body copy.
     scenes: z.array(z.object({ text: z.string(), photo: z.string().optional() })).default([]),
+    // false: the chapter is only its flat panel, with no full-screen scene before it.
+    fullScreen: z.boolean().default(true),
     // Full-screen scene behind the section's first panel. Without one, the placeholder photo in index.astro shows.
     background: z.string().optional(),
     // Each chapter is two panels: the full-screen scene, then a flat neutral panel with a cutout and text.
