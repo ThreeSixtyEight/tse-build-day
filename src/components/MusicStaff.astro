@@ -37,18 +37,19 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    /* Lines fade out toward the left and right edges. */
-    mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
   }
   .staff__line {
     display: block;
     height: 1px;
     background: rgba(255, 255, 255, 0.4);
+    /* Lines fade out toward the left and right edges. The fade is on the lines, not the band, so it doesn't clip
+       the notes that rise above the band. */
+    mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
     transition: background 600ms ease, box-shadow 600ms ease;
   }
   .staff__line.is-played {
-    background: #ffb800;
-    box-shadow: 0 0 8px rgba(255, 184, 0, 0.6);
+    background: #fff;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
     transition: none;
   }
   .staff__note {
@@ -56,18 +57,18 @@
     top: 0;
     left: 0;
     padding: 0.25rem;
-    color: #ffb800;
+    color: #fff;
     font-size: clamp(2rem, 4vw, 2.75rem);
     line-height: 1;
     /* Sit the notehead on the line. */
     transform: translate(-30%, -78%);
-    text-shadow: 0 0 12px rgba(255, 184, 0, 0.5);
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
     pointer-events: auto;
     cursor: pointer;
     animation: staff-note 3.2s ease-out forwards;
     transition: scale 200ms ease, text-shadow 200ms ease;
   }
-  .staff__note.is-played { scale: 1.35; text-shadow: 0 0 18px rgba(255, 184, 0, 0.9); }
+  .staff__note.is-played { scale: 1.35; text-shadow: 0 0 18px rgba(255, 255, 255, 0.9); }
   @keyframes staff-note {
     0% { opacity: 0; translate: 0 8px; }
     8% { opacity: 1; translate: 0 0; }
