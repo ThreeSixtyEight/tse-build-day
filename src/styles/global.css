@@ -38,7 +38,7 @@ a { color: inherit; }
 .eyebrow { margin: 0 0 0.75rem; font-family: var(--font-accent); font-size: 1rem; color: var(--gold); }
 .eyebrow--caps { letter-spacing: 0.2em; text-transform: uppercase; }
 /* Headings: .heading plus a size. xl is a chapter heading, lg a heading within a chapter (a step down). */
-.heading { margin: 0 0 2rem; }
+.heading { margin: 0 0 1rem; }
 .heading--xl { font-size: clamp(2.25rem, 5vw, 4rem); }
 .heading--lg { font-size: clamp(1.75rem, 3.5vw, 2.75rem); }
 /* Body: a paragraph, or a wrapper around several. Default size, --lead a little larger, --xl for a full-screen scene. */

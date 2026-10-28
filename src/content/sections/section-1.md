@@ -14,10 +14,10 @@ caption: Kenner, Louisiana, mid-1990s
 # Only the flat panel: the two full-screen scenes (the Kenner intro and his mother) were cut.
 fullScreen: false
 flat:
-  eyebrow: Kenner, Louisiana | mid-1990s
+  eyebrow: Kenner, Louisiana, mid-1990s
   heading: The kid who kept the beat
   body: |
-    Kenner, LA sits out by the airport, where the planes come in low enough to rattle the dishes. Jon Batiste's father has 7 brothers, which makes for a lot of Batistes and a lot of drums. At age 8, Jon is the youngest drummer in the family band and is already keeping time at Jazz Fest.
+    Kenner, LA sits out by the airport, where the planes come in low enough to rattle the dishes. Jon Batiste's father has 7 brothers, which makes for a lot of Batistes and a lot of drums. At 8 Jon is the youngest drummer in the family band and is already keeping time at Jazz Fest.
   # Cut for now, coming back soon: the second paragraph, the quote and the caption.
   #   His mother hears one drum too many. So she moves Jon to the piano–the one from Duke Ellington's orchestra. Mothers around here are usually right.
   # quote: fresh-air-family
