@@ -53,6 +53,8 @@ a { color: inherit; }
 /* Headings: .heading plus a size. xl is a chapter heading, lg a heading within a chapter (a step down). */
 .heading { margin: 0 0 clamp(1.5rem, 3.33vw, 3rem); line-height: 0.94; }
 .heading--xl { font-size: clamp(3rem, 6.9vw, 4.2rem); }
+/* display: the larger chapter heading of the night look (99px at 1440 wide, Figma frame 152:212). */
+.heading--display { font-size: clamp(3rem, 6.9vw, 6.2rem); }
 .heading--lg { font-size: clamp(1.75rem, 3.5vw, 2.75rem); }
 /* Body: a paragraph, or a wrapper around several, in Outfit Light. --lead a little larger, --xl for a full-screen scene. */
 .body, .body > p { max-width: 34.25rem; margin: 0 0 1rem; }

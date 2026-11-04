@@ -4,6 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ChapterFlat from '../components/ChapterFlat.astro';
 import Eyebrow from '../components/Eyebrow.astro';
 import Takeaway from '../components/Takeaway.astro';
+import PassItOn from '../components/PassItOn.astro';
 import Piano from '../components/Piano.astro';
 import Theater from '../components/Theater.astro';
 import MusicStaff from '../components/MusicStaff.astro';
@@ -91,14 +92,19 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
             );
           })
         ) : (
-          <section class:list={['section', { 'section--stage': s.data.background }]} id={s.id} data-section={s.id} style={bg(s.id, s.data.background)}>
+          <section
+            class:list={['section', { 'section--stage': s.data.background, 'section--night': s.data.night }]}
+            id={s.id}
+            data-section={s.id}
+            style={bg(s.id, s.data.background)}
+          >
             <div class="wrap align-left">
               {s.data.eyebrow && <Eyebrow number={s.data.order} text={s.data.eyebrow} />}
               {/* A heading only shows under an eyebrow. */}
-              {s.data.eyebrow && <h2 class="heading heading--xl">{s.data.title}</h2>}
+              {s.data.eyebrow && <h2 class:list={['heading', s.data.night ? 'heading--display' : 'heading--xl']}>{s.data.title}</h2>}
               <div class="body"><Content /></div>
               {s.data.caption && <p class="caption">{s.data.caption}</p>}
-              {!s.data.flat && s.data.takeaway && <Takeaway text={s.data.takeaway} />}
+              {!s.data.flat && s.data.takeaway && !s.data.takeawayImage && <Takeaway text={s.data.takeaway} />}
             </div>
           </section>
         ))}
@@ -107,8 +113,13 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
             id={s.data.fullScreen ? `${s.id}-flat` : s.id}
             number={s.data.order}
             {...s.data.flat}
-            takeaway={s.data.takeaway}
+            night={s.data.night}
+            takeaway={s.data.takeawayImage ? undefined : s.data.takeaway}
           />
+        )}
+        {/* A takeaway with an image gets its own panel after the chapter. */}
+        {s.data.takeaway && s.data.takeawayImage && (
+          <PassItOn id={`${s.id}-pass`} text={s.data.takeaway} image={s.data.takeawayImage} night={s.data.night} />
         )}
         {/* The piano follows chapter 1, where Jon moves from drums to piano. Scrolling lifts it off a quote underneath. */}
         {s.data.order === 1 && (
@@ -371,6 +382,31 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
       background-position: 0 0, calc(75vw - 0.64 * var(--w)) center;
     }
   }
+  /* Night look (Figma frame 152:212): the painting sits at the top and fades into navy at its bottom edge, with a
+     light shade on the left behind the copy. The copy starts near the top rather than in the middle. */
+  .section.section--night {
+    --navy: #070a18;
+    justify-content: flex-start;
+    padding-top: clamp(5rem, 9.4vw, 9rem);
+    border-bottom: 0;
+    background:
+      linear-gradient(rgb(7 10 24 / 0) 45%, var(--navy)),
+      linear-gradient(90deg, rgb(0 0 0 / 0.4) 4%, rgb(0 0 0 / 0) 69%),
+      var(--photo) 70% top / cover no-repeat var(--navy);
+  }
+  /* Landscape: the painting 116% of the screen wide (as in the frame), Jon three quarters across, its top slightly
+     cropped. The section is at least as tall as the painting so the fade finishes in navy, with no seam. */
+  @media (min-aspect-ratio: 1/1) {
+    .section.section--night {
+      --w: max(116vw, 160svh);
+      --h: calc(var(--w) * 0.725);
+      min-height: max(100svh, calc(var(--h) * 0.94));
+      background-size: var(--w) var(--h);
+      background-position: min(0px, calc(75vw - 0.65 * var(--w))) calc(var(--h) * -0.06);
+    }
+  }
+  .section--stage.section--night .wrap { margin-inline: clamp(1rem, 7.4vw, 7rem) auto; }
+
   /* width: auto so the left margin narrows the column instead of pushing it past the right edge. */
   .section--stage .wrap { width: auto; box-sizing: content-box; max-width: 34.25rem; margin-inline: clamp(1rem, 6vw, 6rem) auto; }
   /* The piano panel is just the painted keys, right below the chapter before it: no screen height, padding or dark backdrop. */

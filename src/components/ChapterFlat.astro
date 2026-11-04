@@ -21,10 +21,38 @@ interface Props {
   caption?: string;
   takeaway?: string;
   dark?: boolean;
+  // The navy night look: the heading runs across the top, the bus (a bleed cutout) below it, the copy beside it.
+  night?: boolean;
 }
 
-const { id, number, eyebrow, heading, body, subheading, cutout, prop, background, caption, takeaway, dark } = Astro.props;
+const { id, number, eyebrow, heading, body, subheading, cutout, prop, background, caption, takeaway, dark, night } = Astro.props;
+// A line break in the heading starts a new line. The spaces keep the words apart for screen readers.
+const headingLines = heading?.split('\n') ?? [];
+const paragraphs = body?.split(/\n\s*\n/).map((para) => para.trim()) ?? [];
 ---
+
+{
+  night ? (
+    <section class="section flat flat--night" id={id} data-section={id}>
+      {heading && (
+        <h2 class="heading heading--display flat__title">
+          {headingLines.map((line) => (
+            <>
+              <span class="flat__title-line">{line}</span>{' '}
+            </>
+          ))}
+        </h2>
+      )}
+      <img class="flat__ride" src={cutout.src} alt={cutout.alt} width="2048" height="1152" data-roll={cutout.bleed ? '' : undefined} />
+      <div class="flat__text align-left">
+        <img class="flat__rule" src="/ui/rule-gold.svg" width="48.3301" height="1" alt="" />
+        {body && <div class="body">{paragraphs.map((para) => <p>{para}</p>)}</div>}
+        {subheading && <h3 class="heading heading--lg">{subheading}</h3>}
+        {caption && <p class="caption">{caption}</p>}
+        {takeaway && <Takeaway text={takeaway} />}
+      </div>
+    </section>
+  ) : (
 
 <section
   class:list={['section flat', background && 'flat--painted', !background && cutout.full && 'flat--full', dark && 'flat--dark']}
@@ -48,12 +76,14 @@ const { id, number, eyebrow, heading, body, subheading, cutout, prop, background
     {/* A heading only shows under an eyebrow. */}
     {eyebrow && <Eyebrow number={number} text={eyebrow} />}
     {eyebrow && heading && <h2 class="heading heading--xl">{heading}</h2>}
-    {body && <div class="body">{body.split(/\n\s*\n/).map((para) => <p>{para.trim()}</p>)}</div>}
+    {body && <div class="body">{paragraphs.map((para) => <p>{para}</p>)}</div>}
     {subheading && <h3 class="heading heading--lg">{subheading}</h3>}
     {caption && <p class="caption">{caption}</p>}
     {takeaway && <Takeaway text={takeaway} />}
   </div>
 </section>
+  )
+}
 
 <style>
   .flat {
@@ -146,6 +176,42 @@ const { id, number, eyebrow, heading, body, subheading, cutout, prop, background
   @media (max-width: 760px) {
     .flat--full { padding-bottom: 100vw; }
     .flat__cutout--full { height: 100vw; object-fit: cover; object-position: 30% 100%; }
+  }
+
+  /* Night panel (Figma frame 152:212, 1440 wide): navy, the heading across the top with its last line indented,
+     the bus below running off the left edge of the screen, the copy to its right under a short gold rule. */
+  .flat--night {
+    --text: #fff;
+    --muted: rgb(255 255 255 / 0.75);
+    --line: rgb(255 255 255 / 0.25);
+    --pad: clamp(1rem, 7.4vw, 7rem);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 26.4rem);
+    grid-template-rows: auto auto;
+    column-gap: 2rem;
+    align-items: start;
+    min-height: 0;
+    padding: clamp(1rem, 2vw, 2rem) clamp(1rem, 5.6vw, 5rem) clamp(3rem, 7vw, 6.5rem) var(--pad);
+    background: #070a18;
+  }
+  .flat__title { grid-column: 1 / -1; margin: 0; }
+  .flat__title-line { display: block; }
+  .flat__title-line:last-child:not(:first-child) { padding-left: 2.77em; }
+  /* 87% of the screen wide, starting 6.6% past the left edge, its top tucked just under the heading. */
+  .flat__ride {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 87.4vw;
+    max-width: none;
+    margin: -1.95vw 0 0 calc(-6.6vw - var(--pad));
+  }
+  .flat--night .flat__text { grid-column: 2; grid-row: 2; margin-top: 6.9vw; padding: 0; max-width: none; }
+  .flat__rule { margin-bottom: 1.8rem; }
+
+  @media (max-width: 760px) {
+    .flat--night { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; padding-right: 1rem; }
+    .flat__title-line:last-child:not(:first-child) { padding-left: 1.5em; }
+    .flat__ride { grid-column: 1; width: 125vw; margin: 0.5rem 0 0 calc(-25vw - var(--pad)); }
+    .flat--night .flat__text { grid-column: 1; grid-row: 3; margin-top: 1.5rem; }
   }
 </style>
 

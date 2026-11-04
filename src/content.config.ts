@@ -16,6 +16,11 @@ const sections = defineCollection({
     story: z.string().optional(),
     // One thing the visitor can do, shown as a card on the chapter's last panel.
     takeaway: z.string().optional(),
+    // With an image, the takeaway gets its own "Pass it on" panel after the chapter instead of the card.
+    takeawayImage: z.object({ src: z.string(), alt: z.string() }).optional(),
+    // The navy night look (Build Day Figma, frame 152:212): the scene fades into navy, the flat panel is navy with
+    // white text, and both headings use the larger display size.
+    night: z.boolean().default(false),
     purpose: z.string().default('TBD'),
     directives: z.array(z.string()).default([]),
     interaction: z.string().default('TBD'),
@@ -39,7 +44,8 @@ const sections = defineCollection({
       .object({
         // Gold line above the heading, after the chapter number: the place and year, e.g. "Kenner, Louisiana, mid-1990s".
         eyebrow: z.string().optional(),
-        // Headings only show under an eyebrow.
+        // Headings only show under an eyebrow, except on a night panel. A line break starts a new line;
+        // on a night panel the last line is indented.
         heading: z.string().optional(),
         body: z.string().optional(),
         // A smaller heading (h3) below the body, e.g. "But New York calls louder."
