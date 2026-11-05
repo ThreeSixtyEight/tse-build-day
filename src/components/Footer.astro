@@ -68,7 +68,15 @@ const year = new Date().getFullYear();
     letter-spacing: -0.02em;
   }
   .footer__right { text-align: right; }
-  .footer a { color: inherit; text-decoration: underline; }
+  .footer a {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.15em;
+    transition: color 200ms ease, text-underline-offset 200ms ease;
+  }
+  /* Hover: the link turns the site's gold and its underline drops a little. */
+  .footer a:hover { color: #ffb800; text-underline-offset: 0.3em; }
   .footer a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
   /* Phones: smaller type, and the top row's two notes stacked. */
