@@ -1,0 +1,202 @@
+---
+// End of the line, from the Build Day Figma (frames 10405:726 and 10405:735): the heading and closing copy among four
+// instruments, then Jon's official Spotify player beside "Listen to some tunes" and a View Playlist button.
+// Positions are the Figma's, in its 1280px-wide content box, and scale with the screen. Phones stack it.
+// Reaching this section is tracked.
+import Eyebrow from './Eyebrow.astro';
+
+const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
+---
+
+<section class="eol" id="end" data-section="end">
+  <div class="eol__band eol__band--top">
+    <div class="eol__stage eol__stage--top">
+      <div class="eol__intro align-center">
+        <h2 class="heading heading--h1">End of the Line</h2>
+        <p class="body">
+          A second line belongs to whoever joins it. At every stop somebody made room for Jon Batiste. His mother.
+          Alvin. A train full of strangers. A whole neighborhood. And Jon is making room for you. Go make some noise.
+        </p>
+      </div>
+      <div class="eol__inst eol__inst--melodica" aria-hidden="true">
+        <img src="/end/melodica.png" width="700" height="201" alt="" loading="lazy" />
+      </div>
+      <div class="eol__inst eol__inst--sousaphone" aria-hidden="true">
+        <img src="/end/sousaphone.png" width="800" height="446" alt="" loading="lazy" />
+      </div>
+      <div class="eol__inst eol__inst--tambourine" aria-hidden="true">
+        <img src="/end/tambourine.png" width="420" height="237" alt="" loading="lazy" />
+      </div>
+      <div class="eol__inst eol__inst--trumpet" aria-hidden="true">
+        <img src="/end/trumpet.png" width="620" height="223" alt="" loading="lazy" />
+      </div>
+    </div>
+  </div>
+
+  <div class="eol__band eol__band--listen">
+    <div class="eol__stage eol__stage--listen">
+      <!-- Official Spotify artist embed: only Jon Batiste's own catalogue plays here. No AI voice or AI music.
+           Analytics: embed clicks. -->
+      <!-- Spotify only shows its full layout (header and track list) at 352px or taller, so the player keeps that
+           height and its frame crops it to the Figma's 282px, as in the design. -->
+      <div class="eol__player">
+        <iframe
+          title="Jon Batiste on Spotify"
+          src="https://open.spotify.com/embed/artist/0eRbECAGCLLiTyVXPBRexU?utm_source=generator"
+          frameborder="0"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+          data-embed="spotify"
+        ></iframe>
+      </div>
+      <div class="eol__listen align-left">
+        <div class="eol__listen-copy">
+          <Eyebrow text="Listen to some tunes" />
+          <p class="body">
+            Lorem ipsum dolor sit amet consectetur. Tortor tempus nec velit risus in iaculis orci arcu. Euismod eget non
+            ipsum malesuada. Sagittis aenean neque at.
+          </p>
+        </div>
+        <a class="ticket" href={SPOTIFY} target="_blank" rel="noopener">
+          <svg class="ticket__end" viewBox="0 0 13.5 45" aria-hidden="true">
+            <path d="M13.5 0.5H0.5V9C0.5 15.3636 2.58 23.0001 13.5 23.0001C2.58 23.0001 0.5 30.6364 0.5 37V44.5H13.5" />
+          </svg>
+          <span class="ticket__label">View Playlist</span>
+          <svg class="ticket__end ticket__end--right" viewBox="0 0 13.5 45" aria-hidden="true">
+            <path d="M13.5 0.5H0.5V9C0.5 15.3636 2.58 23.0001 13.5 23.0001C2.58 23.0001 0.5 30.6364 0.5 37V44.5H13.5" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .eol {
+    --text: #141c41;
+    --muted: rgb(20 28 65 / 0.7);
+    --gold: #2c409d;
+    color: var(--text);
+    background: #efe7d8;
+  }
+
+  /* 80px at the sides at 1440 wide; 112px above the heading, 80px between the two bands, 160px at the bottom. */
+  .eol__band { padding-inline: clamp(1rem, 5.56vw, 5rem); container-type: inline-size; }
+  .eol__band--top { padding-block: clamp(3rem, 7.78vw, 7rem) clamp(2.5rem, 5.56vw, 5rem); }
+  .eol__band--listen { padding-block: clamp(2.5rem, 5.56vw, 5rem) clamp(4rem, 11.1vw, 10rem); }
+
+  /* The Figma's 1280px content box. --u is one Figma pixel at the current width. */
+  .eol__stage {
+    --u: calc(min(100cqw, 1280px) / 1280);
+    position: relative;
+    max-width: 80rem;
+    margin-inline: auto;
+  }
+  .eol__stage--top { aspect-ratio: 1280 / 676; overflow: clip; }
+  .eol__stage--listen { aspect-ratio: 1280 / 282.216; }
+
+  .eol__intro {
+    position: absolute;
+    z-index: 1;
+    left: calc(328 * var(--u));
+    top: calc(179.44 * var(--u));
+    width: calc(548 * var(--u));
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+  .eol__intro .heading { margin: 0; text-wrap: balance; text-transform: uppercase; }
+  .eol .body { max-width: none; margin: 0; font-size: 1.125rem; line-height: 1.5; }
+
+  /* Each instrument: its Figma box, with the picture centred in it and turned (some flipped) as in the design. */
+  .eol__inst {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .eol__inst img { flex: none; max-width: none; }
+  .eol__inst--melodica { left: calc(878.7 * var(--u)); top: calc(1.32 * var(--u)); width: calc(364.03 * var(--u)); height: calc(187.86 * var(--u)); }
+  .eol__inst--melodica img { width: calc(349.88 * var(--u)); height: calc(100.74 * var(--u)); rotate: -15deg; }
+  .eol__inst--sousaphone { left: calc(891.44 * var(--u)); top: calc(279.85 * var(--u)); width: calc(432.69 * var(--u)); height: calc(444.1 * var(--u)); }
+  .eol__inst--sousaphone img { width: calc(398.32 * var(--u)); height: calc(222.32 * var(--u)); transform: rotate(47.63deg) scaleY(-1); }
+  .eol__inst--tambourine { left: calc(50.57 * var(--u)); top: calc(139.17 * var(--u)); width: calc(229.39 * var(--u)); height: calc(189.22 * var(--u)); }
+  .eol__inst--tambourine img { width: calc(200.18 * var(--u)); height: calc(112.85 * var(--u)); rotate: 26.02deg; }
+  .eol__inst--trumpet { left: calc(-5.82 * var(--u)); top: calc(502.65 * var(--u)); width: calc(323.43 * var(--u)); height: calc(217.54 * var(--u)); }
+  .eol__inst--trumpet img { width: calc(304.68 * var(--u)); height: calc(109.57 * var(--u)); transform: rotate(157.57deg) scaleY(-1); }
+
+  .eol__player {
+    position: absolute;
+    left: calc(108.59 * var(--u));
+    top: 0;
+    width: calc(513.45 * var(--u));
+    height: 100%;
+    overflow: hidden;
+    border-radius: 13px;
+  }
+  .eol__player iframe { display: block; width: 100%; height: 352px; border: 0; }
+  .eol__listen {
+    position: absolute;
+    left: calc(765 * var(--u));
+    top: 50%;
+    translate: 0 -50%;
+    width: calc(515 * var(--u));
+    padding-right: calc(109 * var(--u));
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 48px;
+  }
+  .eol__listen-copy { display: flex; flex-direction: column; gap: 24px; }
+  /* The eyebrow is Eyebrow.astro's markup, so it's reached with :global. 20px, sitting 24px over the copy. */
+  .eol__listen :global(.eyebrow) { margin: 0; font-size: 1.25rem; line-height: 1.5; }
+
+  /* View Playlist: a ticket shape, bracket ends either side of a label ruled above and below. */
+  .ticket {
+    display: inline-flex;
+    align-items: stretch;
+    height: 44px;
+    color: #141c41;
+    text-decoration: none;
+    --ticket-line: #2c409d;
+    --ticket-fill: transparent;
+  }
+  .ticket__end { flex: none; width: 13px; height: 44px; overflow: visible; }
+  .ticket__end path { fill: var(--ticket-fill); stroke: var(--ticket-line); stroke-width: 1; vector-effect: non-scaling-stroke; transition: fill 200ms ease; }
+  .ticket__end--right { scale: -1 1; }
+  .ticket__label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 113px;
+    margin-inline: -0.5px;
+    border-block: 1px solid var(--ticket-line);
+    background: var(--ticket-fill);
+    font-family: var(--font-body);
+    font-weight: 300;
+    font-size: 1rem;
+    line-height: 1;
+    white-space: nowrap;
+    transition: background 200ms ease, color 200ms ease;
+  }
+  /* Hover: the ticket fills with the accent blue and the label turns white. */
+  .ticket:hover { --ticket-fill: #2c409d; color: #fff; }
+  .ticket:focus-visible { outline: 2px solid #2c409d; outline-offset: 4px; }
+
+  /* Phones: the heading and copy in the middle with the instruments around them, then the player, then the text. */
+  @media (max-width: 760px) {
+    .eol__stage { --u: calc(100cqw / 700); }
+    .eol__stage--top { aspect-ratio: auto; padding-block: calc(210 * var(--u)) calc(400 * var(--u)); }
+    .eol__intro { position: relative; left: auto; top: auto; width: auto; gap: 1.5rem; }
+    .eol .body { font-size: 1rem; }
+    .eol__inst--melodica { left: auto; right: calc(-20 * var(--u)); top: 0; }
+    .eol__inst--tambourine { left: calc(-10 * var(--u)); top: calc(10 * var(--u)); }
+    .eol__inst--trumpet { left: calc(-30 * var(--u)); top: auto; bottom: calc(40 * var(--u)); }
+    .eol__inst--sousaphone { left: auto; right: calc(-40 * var(--u)); top: auto; bottom: calc(-40 * var(--u)); }
+
+    .eol__stage--listen { aspect-ratio: auto; }
+    .eol__player { position: static; width: 100%; height: 352px; }
+    .eol__listen { position: static; translate: none; width: auto; padding: 0; margin-top: 2.5rem; gap: 2rem; }
+  }
+</style>

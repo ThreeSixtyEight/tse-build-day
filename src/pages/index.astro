@@ -9,9 +9,9 @@ import Piano from '../components/Piano.astro';
 import Theater from '../components/Theater.astro';
 import MusicStaff from '../components/MusicStaff.astro';
 import BackgroundMusic from '../components/BackgroundMusic.astro';
+import EndOfTheLine from '../components/EndOfTheLine.astro';
 import ChapterAside from '../components/ChapterAside.astro';
 import Quote from '../components/Quote.astro';
-import { site } from '../site.config';
 
 const sections = (await getCollection('sections')).sort((a, b) => a.data.order - b.data.order);
 const rendered = await Promise.all(
@@ -143,32 +143,8 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
   </div>
 
 
-  <!-- End of the line, in the style of the hero: the night street painting filling the screen inside the same painted
-       border, the copy and the Spotify embed centred over it. Reaching this section is tracked. -->
-  <section class="section end" id="end" data-section="end">
-    <img class="end__img" src="/end/street.webp" width="1904" height="2000" loading="lazy" alt="Painting of an empty French Quarter street at dusk under a swirling night sky, iron balconies on either side" />
-    <div class="end__border" aria-hidden="true"></div>
-    <div class="end__text wrap align-center">
-      <h2 class="heading heading--xl">End of the line</h2>
-      <p class="body body--lead">For music, tour dates and the store, visit <a href={site.officialSite}>Jon Batiste's official site</a>.</p>
-      {/* His site already handles the store, newsletter and tour, so we link out rather than rebuild them.
-          Analytics: visitor reaches the end. */}
-      <!-- Official Spotify artist embed: only Jon Batiste's own catalogue plays here. -->
-      <iframe
-        class="spotify"
-        title="Jon Batiste on Spotify"
-        src="https://open.spotify.com/embed/artist/0eRbECAGCLLiTyVXPBRexU?utm_source=generator"
-        width="100%"
-        height="352"
-        frameborder="0"
-        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        loading="lazy"
-        data-embed="spotify"
-      ></iframe>
-      {/* Ending: We Are through an official embed, the only place Jon's music plays. Swap the artist embed for We Are.
-          Official Spotify, Apple Music or YouTube embeds only. No AI voice or AI music. Analytics: embed clicks. */}
-    </div>
-  </section>
+  <!-- End of the line, from the Build Day Figma: the closing copy among four instruments, then the Spotify player. -->
+  <EndOfTheLine />
 
   <!-- A wedding second line, looping under the page once the visitor turns sound on. -->
   <BackgroundMusic />
@@ -351,8 +327,8 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
     text-shadow: 1px 0 0 #380f2b;
   }
 
-  /* Painted frame: one strip per edge, rotated copies of the Figma border. The end of the line reuses it. */
-  .hero__border, .end__border {
+  /* Painted frame: one strip per edge, rotated copies of the Figma border. */
+  .hero__border {
     --edge: clamp(20px, 3vw, 44px);
     inset: 0;
     pointer-events: none;
@@ -417,20 +393,4 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
   .section.section--keys { min-height: 0; padding: 0; border-bottom: 0; background: none; }
 
   .section { padding-block: 3rem; border-bottom: 1px solid var(--line); }
-  /* End of the line: the painting covers the screen, anchored on the street so the sky crops first, with the copy
-     and the Spotify embed centred over a soft dark fade, the heading white like the hero title. */
-  .section.end { position: relative; justify-content: center; padding-block: clamp(4rem, 10svh, 6rem); overflow: hidden; border-bottom: 0; background: #1a1d4a; }
-  .end__img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: center bottom; }
-  .end__border { position: absolute; z-index: 2; }
-  .end::before {
-    content: '';
-    position: absolute;
-    z-index: 1;
-    inset: 0;
-    pointer-events: none;
-    background: linear-gradient(rgb(10 12 40 / 0.55), rgb(10 12 40 / 0) 50%);
-  }
-  .end__text { position: relative; z-index: 3; }
-  .end .heading { color: #fff; text-shadow: 0.05em 0.06em 0 rgb(1 86 75 / 0.5); }
-  .spotify { border: 0; border-radius: 12px; max-width: 40rem; }
 </style>
