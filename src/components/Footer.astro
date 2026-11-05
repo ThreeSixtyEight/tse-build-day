@@ -1,69 +1,80 @@
 ---
-import { site } from '../site.config';
+// Footer from the Build Day Figma (frame 10405:747): the night street painting at its full height, darkened at the
+// top, with the site's notes in the top corners and the piano credit at the bottom left.
 const year = new Date().getFullYear();
 ---
 
 <footer class="footer">
-  <div class="footer__inner wrap">
-    <div class="footer__meta">
-      <div class="footer__col">
-        <p>An unofficial fan site. Not affiliated with or endorsed by Jon Batiste.</p>
-        <p>© {year}</p>
-      </div>
-      <div class="footer__col">
-        <a href="/#transcript">[ Transcript ]</a>
-        <a href="/#credits">[ Credits ]</a>
-        <!-- Required by the samples' CC BY 3.0 license. -->
-        <p class="footer__credit">
-          Piano sound: <a href="https://archive.org/details/SalamanderGrandPianoV3">Salamander Grand Piano</a>,
-          Alexander Holm, <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>
-        </p>
-      </div>
-      <div class="footer__col">
-        <a href="/instrument">[ Instruments ]</a>
-        <a href="/game">[ Game ]</a>
-      </div>
-      <div class="footer__col footer__col--right">
-        <p>Made by</p>
-        <a href="https://threesixtyeight.com">ThreeSixtyEight</a>
-        <a href={site.officialSite}>[ Official site ]</a>
-      </div>
+  <img class="footer__img" src="/footer/street-night.jpg" width="1980" height="2000" loading="lazy" alt="" />
+  <div class="footer__inner">
+    <div class="footer__row">
+      <p>© {year}. An unofficial fan site. Not affiliated with or endorsed by Jon Batiste.</p>
+      <p class="footer__right">Made by <a href="https://threesixtyeight.com">ThreeSixtyEight</a></p>
+    </div>
+    <div class="footer__row">
+      <!-- Required by the samples' CC BY 3.0 license. -->
+      <p>
+        Piano sound: <a href="https://archive.org/details/SalamanderGrandPianoV3">Salamander Grand Piano</a>,
+        Alexander Holm, <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>
+      </p>
     </div>
   </div>
 </footer>
 
 <style>
+  /* 1440 × 1530 in the Figma, so the painting keeps that shape at every width. */
   .footer {
-    background: #fff;
-    color: #000;
+    position: relative;
+    aspect-ratio: 1440 / 1530;
+    overflow: hidden;
+    color: #fff;
+    background: #1a1d4a;
   }
-
+  .footer__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+  }
+  /* Darkens the top of the sky behind the first row. */
+  .footer::before {
+    content: '';
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    background: linear-gradient(178.25deg, rgb(0 0 0 / 0.5) 1.4%, rgb(0 0 0 / 0) 27.3%);
+    pointer-events: none;
+  }
+  /* 112px above and below, 80px at the sides at 1440 wide. */
   .footer__inner {
-    padding-block: clamp(2rem, 4vw, 3rem);
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    padding: clamp(2rem, 7.78vw, 7rem) clamp(1rem, 5.56vw, 5rem);
   }
-
-  .footer__meta {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1.5rem;
-    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-    font-size: 0.875rem;
-    line-height: 1.7;
+  .footer__row { display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem; }
+  .footer p {
+    max-width: 25.25rem;
+    margin: 0;
+    font-family: var(--font-body);
+    font-weight: 300;
+    font-size: 1.125rem;
+    line-height: 1.5;
+    letter-spacing: -0.02em;
   }
-  .footer__col { display: flex; flex-direction: column; align-items: flex-start; }
-  .footer__col--right { align-items: flex-end; text-align: right; }
-  .footer__col p { margin: 0; color: #555; }
-  .footer__col p + p { margin-top: 0.5rem; }
-  .footer a { color: #000; text-decoration: none; white-space: nowrap; }
-  .footer a:hover { text-decoration: underline; }
-  .footer a:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
-  .footer__col .footer__credit { margin-top: 0.75rem; max-width: 22em; font-size: 0.75rem; line-height: 1.5; }
-  .footer__credit a { white-space: normal; }
+  .footer__right { text-align: right; }
+  .footer a { color: inherit; text-decoration: underline; }
+  .footer a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
-
-  @media (max-width: 40em) {
-    .footer__meta { grid-template-columns: 1fr 1fr; row-gap: 1.25rem; }
-    .footer__col--right { align-items: flex-start; text-align: left; }
+  /* Phones: smaller type, and the top row's two notes stacked. */
+  @media (max-width: 760px) {
+    .footer p { font-size: 0.875rem; }
+    .footer__row:first-child { flex-direction: column; gap: 0.5rem; }
+    .footer__right { text-align: left; }
   }
 </style>
-
