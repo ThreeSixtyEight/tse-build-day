@@ -52,7 +52,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
           <img src="/hero/street.webp" alt="" />
           <img class="hero__parade" src="/hero/parade.webp" alt="Jon Batiste leading a second line brass band down the street" />
           <img src="/hero/street-front.webp" alt="" />
-          <!-- Figma Frame 48: painted on the ground, so it rides with the street; fades in as the street settles. -->
+          <!-- Figma Frame 60 (10405:629): up in the sky above the rooftops, riding with the street; fades in as the street settles. -->
           <p class="hero__invite">When somebody’s worth celebrating, New Orleans takes it to the street. Today the second line is for Jon Batiste, and you’re invited.</p>
         </div>
         <h1 class="hero__title">
@@ -187,6 +187,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
   const stage = document.querySelector<HTMLElement>('.hero__stage');
   const street = document.querySelector<HTMLElement>('.hero__street')!;
   const parade = street.querySelector<HTMLElement>('.hero__parade')!;
+  const invite = street.querySelector<HTMLElement>('.hero__invite')!;
   const pan = () => {
     // The stage is centred, so it may be cropped at the sides.
     const stageLeft = (innerWidth - stage!.offsetWidth) / 2;
@@ -209,7 +210,11 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
     const top = stageTop + street.offsetTop;
     const toParade = innerHeight - (top + parade.offsetTop + parade.offsetHeight) - innerHeight * 0.02;
     const toEdge = innerHeight + 12 - (top + street.offsetHeight);
-    return Math.min(0, Math.max(toParade, toEdge));
+    const l = Math.min(0, Math.max(toParade, toEdge));
+    // The street settles higher on wider screens, so the invite line is placed from here: once settled it sits 12.5% down
+    // the screen (Figma: 113px of 900), whatever the screen's shape.
+    invite.style.top = `${innerHeight * 0.125 - top - l}px`;
+    return l;
   };
 
   // Reduced motion: hold the sky on its first frame.
@@ -330,12 +335,12 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
   }
 
 
-  /* Line on the ground (Figma Frame 48: Excon Bold 23px at 1440, centred, 735px down; as % of the street image here).
-     Width in em so the copy always wraps to three lines; the type shrinks to keep it within the screen on a phone. */
+  /* Invite line in the sky (Figma Frame 60: Excon Bold 23px at 1440, centred, 113px down). The script sets its top to
+     land there once the street settles; the % is the fallback when reduced motion skips the scroll. Width in em so the copy always wraps to three lines; the type shrinks to keep it within the screen on a phone. */
   .hero__street .hero__invite {
     position: absolute;
     left: 50%;
-    top: 84.34%;
+    top: 32.3%;
     width: 29em;
     height: auto;
     margin: 0;
