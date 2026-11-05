@@ -1,7 +1,8 @@
 ---
 // End of the line, from the Build Day Figma (frames 10405:726 and 10405:735): the heading and closing copy among four
 // instruments, then Jon's official Spotify player beside "Listen to some tunes" and a View Playlist button.
-// Positions are the Figma's, in its 1280px-wide content box, and scale with the screen. Phones stack it.
+// Positions are the Figma's, in its 1280px-wide content box, and scale with the screen. Below 1200px wide it stacks.
+// Hovering or tapping an instrument wiggles it and plays its phrase (scripts/instrument-sounds.ts) when sound is on.
 // Reaching this section is tracked.
 import Eyebrow from './Eyebrow.astro';
 
@@ -18,18 +19,18 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
           Alvin. A train full of strangers. A whole neighborhood. And Jon is making room for you. Go make some noise.
         </p>
       </div>
-      <div class="eol__inst eol__inst--melodica" aria-hidden="true">
-        <img src="/end/melodica.png" width="700" height="201" alt="" loading="lazy" />
-      </div>
-      <div class="eol__inst eol__inst--sousaphone" aria-hidden="true">
-        <img src="/end/sousaphone.png" width="800" height="446" alt="" loading="lazy" />
-      </div>
-      <div class="eol__inst eol__inst--tambourine" aria-hidden="true">
-        <img src="/end/tambourine.png" width="420" height="237" alt="" loading="lazy" />
-      </div>
-      <div class="eol__inst eol__inst--trumpet" aria-hidden="true">
-        <img src="/end/trumpet.png" width="620" height="223" alt="" loading="lazy" />
-      </div>
+      <button type="button" class="eol__inst eol__inst--melodica" data-instrument="melodica" aria-label="Play the melodica">
+        <img src="/end/melodica.png" width="700" height="201" alt="" loading="lazy" draggable="false" />
+      </button>
+      <button type="button" class="eol__inst eol__inst--sousaphone" data-instrument="sousaphone" aria-label="Play the sousaphone">
+        <img src="/end/sousaphone.png" width="800" height="446" alt="" loading="lazy" draggable="false" />
+      </button>
+      <button type="button" class="eol__inst eol__inst--tambourine" data-instrument="tambourine" aria-label="Play the tambourine">
+        <img src="/end/tambourine.png" width="420" height="237" alt="" loading="lazy" draggable="false" />
+      </button>
+      <button type="button" class="eol__inst eol__inst--trumpet" data-instrument="trumpet" aria-label="Play the trumpet">
+        <img src="/end/trumpet.png" width="620" height="223" alt="" loading="lazy" draggable="false" />
+      </button>
     </div>
   </div>
 
@@ -61,7 +62,10 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
           <svg class="ticket__end" viewBox="0 0 13.5 45" aria-hidden="true">
             <path d="M13.5 0.5H0.5V9C0.5 15.3636 2.58 23.0001 13.5 23.0001C2.58 23.0001 0.5 30.6364 0.5 37V44.5H13.5" />
           </svg>
-          <span class="ticket__label">View Playlist</span>
+          <span class="ticket__label">
+            <span class="ticket__text">View Playlist</span>
+            <span class="ticket__text ticket__text--next" aria-hidden="true">View Playlist</span>
+          </span>
           <svg class="ticket__end ticket__end--right" viewBox="0 0 13.5 45" aria-hidden="true">
             <path d="M13.5 0.5H0.5V9C0.5 15.3636 2.58 23.0001 13.5 23.0001C2.58 23.0001 0.5 30.6364 0.5 37V44.5H13.5" />
           </svg>
@@ -108,15 +112,31 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
   .eol__intro .heading { margin: 0; text-wrap: balance; text-transform: uppercase; }
   .eol .body { max-width: none; margin: 0; font-size: 1.125rem; line-height: 1.5; }
 
-  /* Each instrument: its Figma box, with the picture centred in it and turned (some flipped) as in the design. */
+  /* Each instrument: its Figma box, with the picture centred in it and turned (some flipped) as in the design.
+     Hover or tap: it grows a little and wiggles, as on the /instrument page. */
   .eol__inst {
     position: absolute;
     display: flex;
     align-items: center;
     justify-content: center;
-    pointer-events: none;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    transition: scale 300ms ease;
   }
-  .eol__inst img { flex: none; max-width: none; }
+  .eol__inst img { flex: none; max-width: none; pointer-events: none; }
+  .eol__inst:hover,
+  .eol__inst.is-playing { scale: 1.1; }
+  .eol__inst.is-playing { animation: eol-wiggle 600ms ease-in-out; }
+  .eol__inst:focus-visible { outline: 2px solid #2c409d; outline-offset: 4px; }
+  @keyframes eol-wiggle {
+    0%, 100% { rotate: 0deg; }
+    20% { rotate: -7deg; }
+    40% { rotate: 6deg; }
+    60% { rotate: -4deg; }
+    80% { rotate: 2deg; }
+  }
   .eol__inst--melodica { left: calc(878.7 * var(--u)); top: calc(1.32 * var(--u)); width: calc(364.03 * var(--u)); height: calc(187.86 * var(--u)); }
   .eol__inst--melodica img { width: calc(349.88 * var(--u)); height: calc(100.74 * var(--u)); rotate: -15deg; }
   .eol__inst--sousaphone { left: calc(891.44 * var(--u)); top: calc(279.85 * var(--u)); width: calc(432.69 * var(--u)); height: calc(444.1 * var(--u)); }
@@ -152,18 +172,21 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
   /* The eyebrow is Eyebrow.astro's markup, so it's reached with :global. 20px, sitting 24px over the copy. */
   .eol__listen :global(.eyebrow) { margin: 0; font-size: 1.25rem; line-height: 1.5; }
 
-  /* View Playlist: a ticket shape, bracket ends either side of a label ruled above and below. */
+  /* View Playlist: a ticket shape, bracket ends either side of a label ruled above and below. Its hover is the
+     site button's (Build Day Figma, frame 87:334, as in RollButton.astro): the label rolls up and fades out while a
+     copy rises in from below, 0.78s on the design's easing. */
   .ticket {
+    --ticket-line: #2c409d;
+    --roll-ease: cubic-bezier(0.475, -0.032, 0, 1.043);
+    --roll-time: 0.78s;
     display: inline-flex;
     align-items: stretch;
     height: 44px;
     color: #141c41;
     text-decoration: none;
-    --ticket-line: #2c409d;
-    --ticket-fill: transparent;
   }
   .ticket__end { flex: none; width: 13px; height: 44px; overflow: visible; }
-  .ticket__end path { fill: var(--ticket-fill); stroke: var(--ticket-line); stroke-width: 1; vector-effect: non-scaling-stroke; transition: fill 200ms ease; }
+  .ticket__end path { fill: none; stroke: var(--ticket-line); stroke-width: 1; vector-effect: non-scaling-stroke; }
   .ticket__end--right { scale: -1 1; }
   .ticket__label {
     display: flex;
@@ -171,32 +194,83 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
     justify-content: center;
     width: 113px;
     margin-inline: -0.5px;
+    overflow: hidden;
     border-block: 1px solid var(--ticket-line);
-    background: var(--ticket-fill);
     font-family: var(--font-body);
     font-weight: 300;
     font-size: 1rem;
     line-height: 1;
     white-space: nowrap;
-    transition: background 200ms ease, color 200ms ease;
   }
-  /* Hover: the ticket fills with the accent blue and the label turns white. */
-  .ticket:hover { --ticket-fill: #2c409d; color: #fff; }
+  .ticket__text {
+    grid-area: 1 / 1;
+    transition: translate var(--roll-time) var(--roll-ease), opacity var(--roll-time) var(--roll-ease);
+  }
+  .ticket__label { display: grid; place-items: center; }
+  .ticket__text--next { translate: 0 27px; opacity: 0; }
+  .ticket:is(:hover, :focus-visible) .ticket__text { translate: 0 -27px; opacity: 0; }
+  .ticket:is(:hover, :focus-visible) .ticket__text--next { translate: 0 0; opacity: 1; }
   .ticket:focus-visible { outline: 2px solid #2c409d; outline-offset: 4px; }
 
-  /* Phones: the heading and copy in the middle with the instruments around them, then the player, then the text. */
-  @media (max-width: 760px) {
-    .eol__stage { --u: calc(100cqw / 700); }
+  /* Below 1200px the Figma's composition gets too small for its copy and the player, so it stacks: the heading and
+     copy in the middle with the instruments around them, then the player at full size, then the text and button. */
+  @media (max-width: 1199px) {
+    .eol__stage { --u: calc(min(100cqw, 700px) / 700); }
     .eol__stage--top { aspect-ratio: auto; padding-block: calc(210 * var(--u)) calc(400 * var(--u)); }
-    .eol__intro { position: relative; left: auto; top: auto; width: auto; gap: 1.5rem; }
-    .eol .body { font-size: 1rem; }
+    .eol__intro { position: relative; left: auto; top: auto; width: auto; max-width: 34.25rem; margin-inline: auto; gap: 1.5rem; }
     .eol__inst--melodica { left: auto; right: calc(-20 * var(--u)); top: 0; }
     .eol__inst--tambourine { left: calc(-10 * var(--u)); top: calc(10 * var(--u)); }
     .eol__inst--trumpet { left: calc(-30 * var(--u)); top: auto; bottom: calc(40 * var(--u)); }
     .eol__inst--sousaphone { left: auto; right: calc(-40 * var(--u)); top: auto; bottom: calc(-40 * var(--u)); }
 
-    .eol__stage--listen { aspect-ratio: auto; }
+    .eol__stage--listen { aspect-ratio: auto; max-width: 37.5rem; }
     .eol__player { position: static; width: 100%; height: 352px; }
     .eol__listen { position: static; translate: none; width: auto; padding: 0; margin-top: 2.5rem; gap: 2rem; }
   }
+  @media (max-width: 760px) {
+    .eol .body { font-size: 1rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .eol__inst { transition: none; }
+    .eol__inst.is-playing { animation: none; }
+    .ticket__text { transition: none; }
+  }
 </style>
+
+<script>
+  import { isSoundOn, setSound, soundChoiceMade } from '../scripts/sound';
+  import { loadInstrumentSounds, playInstrument } from '../scripts/instrument-sounds';
+
+  // An instrument can't replay within this many ms, so a pointer resting on it doesn't stutter.
+  const RETRIGGER_MS = 700;
+  const last = new Map<string, number>();
+
+  function play(button: HTMLElement) {
+    const id = button.dataset.instrument!;
+    const now = performance.now();
+    if (now - (last.get(id) ?? 0) < RETRIGGER_MS) return;
+    last.set(id, now);
+
+    button.classList.remove('is-playing');
+    void button.offsetWidth;
+    button.classList.add('is-playing');
+    window.setTimeout(() => button.classList.remove('is-playing'), 600);
+    playInstrument(id);
+  }
+
+  document.querySelectorAll<HTMLElement>('.eol [data-instrument]').forEach((button) => {
+    button.addEventListener('mouseenter', () => play(button));
+    button.addEventListener('click', () => {
+      // A tap or click is a deliberate choice, so it turns sound on if the visitor hasn't chosen yet (like the piano),
+      // and then plays even though the hover a moment before (on a phone, the tap's own) just wiggled it silently.
+      if (!soundChoiceMade()) {
+        setSound(true);
+        last.delete(button.dataset.instrument!);
+      }
+      play(button);
+    });
+  });
+
+  if (isSoundOn()) loadInstrumentSounds();
+  document.addEventListener('sound:change', () => isSoundOn() && loadInstrumentSounds());
+</script>

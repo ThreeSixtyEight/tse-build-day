@@ -165,8 +165,8 @@ const fit = ({ box, inner }: Instrument) =>
 </style>
 
 <script>
-  import type * as ToneNS from 'tone';
   import { isSoundOn } from '../scripts/sound';
+  import { loadInstrumentSounds, playInstrument } from '../scripts/instrument-sounds';
 
   const stage = document.querySelector<HTMLElement>('[data-stage]')!;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -184,53 +184,9 @@ const fit = ({ box, inner }: Instrument) =>
     });
   }
 
-  // ---------- Sound: one short synth phrase per instrument ----------
-  type Players = Record<string, (t: number) => void>;
-  let players: Promise<{ Tone: typeof ToneNS; play: Players }> | undefined;
-
-  const load = () =>
-    (players ??= import('tone').then((Tone) => {
-      const out = new Tone.Volume(-8).toDestination();
-      const room = new Tone.Reverb({ decay: 2, wet: 0.2 }).connect(out);
-      const trumpet = new Tone.MonoSynth({
-        oscillator: { type: 'sawtooth' },
-        filter: { type: 'lowpass', Q: 2 },
-        filterEnvelope: { attack: 0.03, decay: 0.2, sustain: 0.6, baseFrequency: 600, octaves: 2.5 },
-        envelope: { attack: 0.03, decay: 0.1, sustain: 0.7, release: 0.2 },
-        volume: -6,
-      }).connect(room);
-      const jingle = new Tone.MetalSynth({ envelope: { attack: 0.001, decay: 0.18, release: 0.05 }, harmonicity: 8, resonance: 5000, volume: -22 }).connect(room);
-      const skin = new Tone.MembraneSynth({ pitchDecay: 0.02, octaves: 2, volume: -10 }).connect(room);
-      const melodica = new Tone.PolySynth(Tone.Synth, {
-        oscillator: { type: 'square' },
-        envelope: { attack: 0.04, decay: 0.2, sustain: 0.6, release: 0.3 },
-        volume: -20,
-      }).connect(new Tone.Filter(1800, 'lowpass').connect(room));
-      const tuba = new Tone.MonoSynth({
-        oscillator: { type: 'sawtooth' },
-        filter: { type: 'lowpass', Q: 1 },
-        filterEnvelope: { attack: 0.02, decay: 0.3, sustain: 0.4, baseFrequency: 110, octaves: 2.2 },
-        envelope: { attack: 0.03, decay: 0.2, sustain: 0.6, release: 0.3 },
-      }).connect(room);
-
-      const play: Players = {
-        trumpet: (t) => ['G4', 'C5', 'E5', 'G5'].forEach((n, i) => trumpet.triggerAttackRelease(n, i === 3 ? '8n' : '16n', t + i * 0.12)),
-        tambourine: (t) => {
-          skin.triggerAttackRelease('A2', '16n', t);
-          [0, 0.1, 0.2, 0.35].forEach((d) => jingle.triggerAttackRelease('C6', '32n', t + d));
-        },
-        melodica: (t) => melodica.triggerAttackRelease(['C4', 'E4', 'G4', 'B4'], '4n', t),
-        sousaphone: (t) => {
-          tuba.triggerAttackRelease('F1', '8n', t);
-          tuba.triggerAttackRelease('A1', '8n', t + 0.22);
-          tuba.triggerAttackRelease('C2', '4n', t + 0.44);
-        },
-      };
-      return { Tone, play };
-    }));
-
+  // ---------- Sound: one short synth phrase per instrument (scripts/instrument-sounds.ts) ----------
   const last = new Map<string, number>();
-  async function play(button: HTMLElement) {
+  function play(button: HTMLElement) {
     const id = button.dataset.instrument!;
     // Don't restart an instrument that's still sounding.
     const now = performance.now();
@@ -239,10 +195,7 @@ const fit = ({ box, inner }: Instrument) =>
 
     button.classList.add('is-playing');
     window.setTimeout(() => button.classList.remove('is-playing'), 500);
-    if (!isSoundOn()) return;
-    const { Tone, play } = await load();
-    Tone.start();
-    play[id]?.(Tone.now() + 0.02);
+    playInstrument(id);
   }
 
   stage.querySelectorAll<HTMLButtonElement>('[data-instrument]').forEach((button) => {
@@ -250,6 +203,6 @@ const fit = ({ box, inner }: Instrument) =>
     button.addEventListener('click', () => play(button));
   });
 
-  if (isSoundOn()) load();
-  document.addEventListener('sound:change', () => isSoundOn() && load());
+  if (isSoundOn()) loadInstrumentSounds();
+  document.addEventListener('sound:change', () => isSoundOn() && loadInstrumentSounds());
 </script>
