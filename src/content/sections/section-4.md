@@ -23,8 +23,9 @@ opener:
     crop: { size: 112.48, left: 9.24, top: 0.68 }
     darker: true
 asides:
-  # Figma's eyebrow is a placeholder ("Lorem ipsum"), so none shows until it's written.
-  - body: "When the set ends he climbs off the stage and falls in with Nine Times, the parade club born in the Desire projects. The 9th Ward is marching again, and Nine Times is back in the street."
+  # Placeholder eyebrow from Figma: replace before launch.
+  - eyebrow: Lorem ipsum
+    body: "When the set ends he climbs off the stage and falls in with Nine Times, the parade club born in the Desire projects. The 9th Ward is marching again, and Nine Times is back in the street."
     image:
       src: /chapter-4/festival-stage.webp
       alt: Photo of Jon Batiste in a gold suit dancing across an outdoor festival stage with dancers and a brass band
