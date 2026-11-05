@@ -96,3 +96,18 @@ a { color: inherit; }
   font-weight: 700;
   font-display: swap;
 }
+
+/* Scroll reveal (BaseLayout.astro): headings, eyebrows, paragraphs and pictures that aren't full width fade in and
+   rise as they scroll into view. The script adds .reveal, so without it everything simply shows.
+   It moves with the translate property, so it adds to a picture's own rotate or scale instead of replacing them. */
+.reveal {
+  opacity: 0;
+  translate: 0 2rem;
+  transition:
+    opacity 0.8s ease-out,
+    translate 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.is-in { opacity: 1; translate: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; translate: none; transition: none; }
+}

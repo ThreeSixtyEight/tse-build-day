@@ -56,5 +56,40 @@ const pageTitle = title ? `${title} | ${site.siteName}` : site.siteName;
     </main>
     <Footer />
     <SoundToggle />
+    <script>
+      // Scroll reveal: headings, eyebrows, paragraphs and pictures that aren't full width fade in and rise once, as they
+      // scroll into view (styles in global.css). Several arriving together follow one another a beat apart.
+      // Left alone, since they animate in their own way or fill the screen: the hero, the pull quotes (their words
+      // reveal one at a time), the piano, the music staff and the paintings behind the night openers.
+      const TARGETS = [
+        'h1, h2, h3, p',
+        // Pictures go by their frame or box, so the picture doesn't slide inside it.
+        '.opener__frame, .aside__frame, .aside__cutout, .aside__bleed',
+        '.eol__inst img',
+      ].join(', ');
+      const SKIP = '.hero, .quote, #piano, .staff';
+
+      const els = [...document.querySelectorAll<HTMLElement>(`main :is(${TARGETS}), footer p`)].filter(
+        (el) => !el.closest(SKIP),
+      );
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries
+            .filter((entry) => entry.isIntersecting)
+            .forEach((entry, i) => {
+              const el = entry.target as HTMLElement;
+              el.style.transitionDelay = `${i * 90}ms`;
+              el.classList.add('is-in');
+              io.unobserve(el);
+            });
+        },
+        // Starts a little before the element's top clears the bottom of the screen.
+        { rootMargin: '0px 0px -8% 0px' },
+      );
+      for (const el of els) {
+        el.classList.add('reveal');
+        io.observe(el);
+      }
+    </script>
   </body>
 </html>
