@@ -1,0 +1,58 @@
+---
+// A short beat after a chapter's panel (Build Day Figma, frame 10405:638): a small eyebrow and a paragraph on the
+// left, a photo in a white frame tilted the other way on the right. Without a photo the frame shows grey, as in Figma.
+interface Props {
+  id: string;
+  eyebrow?: string;
+  body: string;
+  image?: { src: string; alt: string };
+}
+
+const { id, eyebrow, body, image } = Astro.props;
+---
+
+<section class="aside" id={id} data-section={id}>
+  <div class="aside__text align-left">
+    {eyebrow && <p class="eyebrow eyebrow--caps">{eyebrow}</p>}
+    <div class="body"><p>{body}</p></div>
+  </div>
+  <div class="aside__frame">{image && <img src={image.src} alt={image.alt} />}</div>
+</section>
+
+<style>
+  /* Columns in Figma's proportions (1280 container): the copy's 515, a 144 gap, the frame's 507-wide slot, and
+     114 left empty, so the frame keeps the same share of the row at every width. */
+  .aside {
+    --gold: #2c409d;
+    display: grid;
+    grid-template-columns: minmax(0, 515fr) minmax(0, 144fr) minmax(0, 507fr) minmax(0, 114fr);
+    align-items: center;
+    padding: clamp(3rem, 5.56vw, 5rem) clamp(1rem, 5.56vw, 5rem);
+    overflow: hidden;
+    color: #141c41;
+    background: #efe7d8;
+  }
+  /* Set in 108px from the container's edge, the same indent as the pull quote below. */
+  .aside__text { grid-column: 1; padding-left: clamp(0rem, 7.5vw, 6.75rem); }
+  .aside .eyebrow { margin-bottom: 1.5rem; }
+  /* 482 × 293 inside its 507-wide slot, tilted. */
+  .aside__frame {
+    grid-column: 3;
+    justify-self: center;
+    width: 95%;
+    aspect-ratio: 482 / 293;
+    overflow: hidden;
+    border: 9px solid #fff;
+    background: #c4c4c4;
+    rotate: -5.34deg;
+  }
+  .aside__frame img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* Stacks a little earlier than the other panels: side by side, the copy gets too narrow below 900. */
+  @media (max-width: 900px) {
+    .aside { grid-template-columns: minmax(0, 1fr); row-gap: 2.5rem; }
+    .aside__text, .aside__frame { grid-column: 1; }
+    .aside__text { padding-left: 0; }
+    .aside__frame { width: 92%; border-width: 6px; rotate: -3deg; }
+  }
+</style>

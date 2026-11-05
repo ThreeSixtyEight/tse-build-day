@@ -55,6 +55,8 @@ a { color: inherit; }
 .heading--xl { font-size: clamp(3rem, 6.9vw, 4.2rem); }
 /* display: the larger chapter heading of the night look (99px at 1440 wide, Figma frame 152:212). */
 .heading--display { font-size: clamp(3rem, 6.9vw, 6.2rem); }
+/* h1: the chapter heading of the painted panel (80px at 1440 wide, Figma frame 10405:630). */
+.heading--h1 { font-size: clamp(3rem, 5.56vw, 5rem); line-height: 1.07; }
 .heading--lg { font-size: clamp(1.75rem, 3.5vw, 2.75rem); }
 /* Body: a paragraph, or a wrapper around several, in Outfit Light. --lead a little larger, --xl for a full-screen scene. */
 .body, .body > p { max-width: 34.25rem; margin: 0 0 1rem; }

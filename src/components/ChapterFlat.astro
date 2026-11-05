@@ -12,6 +12,8 @@ interface Props {
   number: number;
   // Gold line above the heading: the chapter number, a dash, then the place and year.
   eyebrow?: string;
+  // The year, at the right end of the eyebrow row (painted panel only).
+  date?: string;
   heading?: string;
   body?: string;
   subheading?: string;
@@ -25,7 +27,7 @@ interface Props {
   night?: boolean;
 }
 
-const { id, number, eyebrow, heading, body, subheading, cutout, prop, background, caption, takeaway, dark, night } = Astro.props;
+const { id, number, eyebrow, date, heading, body, subheading, cutout, prop, background, caption, takeaway, dark, night } = Astro.props;
 // A line break in the heading starts a new line. The spaces keep the words apart for screen readers.
 const headingLines = heading?.split('\n') ?? [];
 const paragraphs = body?.split(/\n\s*\n/).map((para) => para.trim()) ?? [];
@@ -52,18 +54,33 @@ const paragraphs = body?.split(/\n\s*\n/).map((para) => para.trim()) ?? [];
         {takeaway && <Takeaway text={takeaway} />}
       </div>
     </section>
+  ) : background ? (
+    <section class="section flat flat--painted" id={id} data-section={id}>
+      <div class="flat__head">
+        {eyebrow && <Eyebrow number={number} text={eyebrow} />}
+        {date && <p class="eyebrow eyebrow--caps">{date}</p>}
+      </div>
+      {eyebrow && heading && <h2 class="heading heading--h1 flat__heading">{heading}</h2>}
+      <div class="flat__text align-left">
+        {body && <div class="body">{paragraphs.map((para) => <p>{para}</p>)}</div>}
+        {caption && <p class="caption">{caption}</p>}
+        {takeaway && <Takeaway text={takeaway} />}
+      </div>
+      <div class="flat__frame" data-drift="0.04">
+        <img src={background.src} alt={background.alt} width="2000" height="1125" />
+      </div>
+    </section>
   ) : (
 
 <section
-  class:list={['section flat', background && 'flat--painted', !background && cutout.full && 'flat--full', dark && 'flat--dark']}
+  class:list={['section flat', cutout.full && 'flat--full', dark && 'flat--dark']}
   id={id}
   data-section={id}
 >
-  {background && <img class="flat__bg" src={background.src} alt={background.alt} />}
   <div class="flat__art" aria-hidden={cutout.alt ? undefined : 'true'}>
-    {!background && prop && <img class="flat__prop" src={prop.src} alt={prop.alt} data-drift="0.15" />}
+    {prop && <img class="flat__prop" src={prop.src} alt={prop.alt} data-drift="0.15" />}
     {
-      background ? null : cutout.full ? (
+      cutout.full ? (
         <img class="flat__cutout flat__cutout--full" src={cutout.src} alt={cutout.alt} data-rise="0.35" />
       ) : cutout.bleed ? (
         <img class="flat__cutout flat__cutout--bleed" src={cutout.src} alt={cutout.alt} data-roll />
@@ -72,7 +89,7 @@ const paragraphs = body?.split(/\n\s*\n/).map((para) => para.trim()) ?? [];
       )
     }
   </div>
-  <div class="flat__text align-left" data-drift={!background && cutout.full ? 0.12 : undefined}>
+  <div class="flat__text align-left" data-drift={cutout.full ? 0.12 : undefined}>
     {/* A heading only shows under an eyebrow. */}
     {eyebrow && <Eyebrow number={number} text={eyebrow} />}
     {eyebrow && heading && <h2 class="heading heading--xl">{heading}</h2>}
@@ -124,36 +141,45 @@ const paragraphs = body?.split(/\n\s*\n/).map((para) => para.trim()) ?? [];
   .flat--full .flat__text { grid-column: 2; }
   .flat__cutout--full { inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 30% 100%; }
 
-  /* Painted panel: the painting fills the art side, framed on the subject, and its right edge fades into the
-     panel colour where the text begins. */
-  .flat__bg {
-    position: absolute;
-    z-index: 0;
-    inset: 0 auto 0 0;
-    width: 62%;
-    height: 100%;
-    max-width: none;
-    object-fit: cover;
-    object-position: 36% center;
+  /* Painted panel (Build Day Figma, frame 10405:630, 1440 wide): the eyebrow row runs across the top with the year
+     at its right end, the heading below it on the left, the copy to the right under a short rule, and the painting
+     in a white frame, tilted, below the copy on the left. */
+  .flat--painted {
+    --text: #141c41;
+    --gold: #2c409d;
+    --pad: clamp(1rem, 5.56vw, 5rem);
+    grid-template-columns: minmax(0, 766fr) minmax(0, 514fr);
+    align-items: start;
+    align-content: start;
+    padding: clamp(3rem, 7.8vw, 7rem) var(--pad) clamp(3rem, 5vw, 4.5rem);
   }
-  /* Extra room on the left so the copy clears the painting. */
-  .flat--painted .flat__text { z-index: 2; padding-left: 3rem; }
-  .flat--painted::before {
-    content: '';
-    position: absolute;
-    z-index: 1;
-    inset: 0;
-    pointer-events: none;
-    background: linear-gradient(90deg, rgb(239 231 216 / 0) 38%, rgb(239 231 216 / 0.92) 54%, #efe7d8 62%);
+  .flat__head { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; }
+  .flat__head .eyebrow { margin-bottom: clamp(2rem, 4.44vw, 4rem); }
+  .flat__heading { grid-column: 1; max-width: 9em; margin: 0; text-wrap: balance; }
+  .flat--painted .flat__text { grid-column: 2; grid-row: 3; padding: 0; max-width: 25.3rem; margin-top: clamp(1rem, 1.1vw, 1rem); }
+  .flat--painted .flat__text::before { content: ''; display: block; width: 3rem; margin-bottom: 1.5rem; border-top: 2px solid var(--gold); }
+  .flat__frame {
+    grid-column: 1 / -1;
+    width: 54.2%;
+    margin: clamp(2.5rem, 4.65vw, 4.2rem) 0 2rem 10.1%;
+    aspect-ratio: 694 / 390;
+    overflow: hidden;
+    border: 9px solid #fff;
+    rotate: 5.78deg;
+  }
+  /* Framed on the boy and the drums: the painting is 142% of the frame, offset up and left. */
+  .flat__frame img { width: 141.86%; max-width: none; margin: -12.2% 0 0 -12.98%; }
+
+  @media (max-width: 760px) {
+    .flat.flat--painted { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; padding-top: 3rem; }
+    .flat--painted .flat__text { order: 0; grid-column: 1; grid-row: auto; margin-top: 2rem; }
+    .flat__frame { width: 92%; margin: 2.5rem auto 1.5rem; border-width: 6px; rotate: 3deg; }
   }
 
   @media (max-width: 760px) {
-    .flat__bg { width: 100%; height: 60svh; object-position: 42% center; }
-    .flat--painted::before { background: linear-gradient(180deg, rgb(239 231 216 / 0) 0, rgb(239 231 216 / 0) 32svh, #efe7d8 58svh); }
     .flat { grid-template-columns: 1fr; grid-template-rows: 45svh auto; align-content: start; }
     .flat__art { order: 0; }
     .flat__text { order: 1; padding-block: 1rem 3rem; }
-    .flat--painted .flat__text { padding-left: 1rem; }
     .flat__cutout { left: 50%; translate: -50% 0; height: 95%; }
     .flat__cutout--bleed { left: 0; translate: none; width: 100%; height: auto; bottom: 4%; }
     .flat__prop { left: -10%; width: 120%; bottom: 8%; }

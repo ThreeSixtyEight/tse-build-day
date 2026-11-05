@@ -1,25 +1,67 @@
 ---
-// A sourced, dated quote. Source and date are required; never invent a quote.
+// A pull quote on the light panel (Build Day Figma, frame 10405:644): a large opening mark, the words on the left,
+// the source low on the right. As it scrolls into view its words fade in one after another, then the source,
+// one word at a time. Source and date are required; never invent a quote.
 interface Props {
+  id: string;
   text: string;
   source: string;
   date: string;
   url?: string;
 }
 
-const { text, source, date, url } = Astro.props;
+const { id, text, source, date, url } = Astro.props;
 ---
 
-<figure class="quote">
-  <blockquote><p>{text}</p></blockquote>
-  <figcaption>
-    {url ? <a href={url}>{source}</a> : source}, {date}
-  </figcaption>
-</figure>
+<section class="quote" id={id} data-section={id}>
+  <figure data-quote>
+    <blockquote><p>{text}</p></blockquote>
+    <figcaption>Jon on {url ? <a href={url}>{source}</a> : source}, {date}</figcaption>
+  </figure>
+</section>
 
 <style>
-  .quote { margin: 1.5rem 0; }
-  .quote blockquote { margin: 0; font-family: var(--font-accent); font-size: 1.25rem; }
-  .quote blockquote p { margin: 0; }
-  .quote figcaption { color: var(--muted); font-size: 0.875rem; margin-top: 0.5rem; }
+  .quote {
+    padding: clamp(3rem, 5.56vw, 5rem) clamp(1rem, 5.56vw, 5rem) clamp(4rem, 11.1vw, 10rem);
+    color: #141c41;
+    background: #efe7d8;
+  }
+  /* Same columns as the chapter panel above, so the source lines up with its copy. The quote has the same indent
+     as the "Gaining confidence" copy above it. */
+  .quote figure { display: grid; grid-template-columns: minmax(0, 766fr) minmax(0, 514fr); align-items: end; margin: 0; }
+  .quote blockquote { margin: 0 0 0 clamp(0rem, 7.5vw, 6.75rem); max-width: 8.1em; font-family: var(--font-accent); font-size: clamp(2.5rem, 4.44vw, 4rem); }
+  .quote blockquote p { margin: 0; line-height: 1.03; letter-spacing: -0.03em; }
+  .quote blockquote p::before { content: '“'; display: block; margin-bottom: 0.15em; color: #2c409d; font-size: 1.75em; line-height: 0.6; }
+  .quote figcaption { max-width: 25.25rem; font-family: var(--font-body); font-weight: 300; font-size: 1.125rem; line-height: 1.5; letter-spacing: -0.02em; }
+  .quote figcaption a { color: inherit; }
+
+  @media (max-width: 760px) {
+    .quote figure { grid-template-columns: minmax(0, 1fr); row-gap: 2rem; }
+    .quote blockquote { margin-left: 0; }
+  }
 </style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+  import { SplitText } from 'gsap/SplitText';
+
+  gsap.registerPlugin(ScrollTrigger, SplitText);
+
+  // Scrolling back up past it hides the words again, so it plays each time. Reduced motion: the quote is simply there.
+  gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
+    const splits = [...document.querySelectorAll<HTMLElement>('[data-quote]')].map((quote) =>
+      SplitText.create(quote.querySelector('blockquote p')!, {
+        type: 'words',
+        // Re-split when the fonts load or the screen resizes, since the lines change.
+        autoSplit: true,
+        onSplit: (self) =>
+          gsap
+            .timeline({ scrollTrigger: { trigger: quote, start: 'top 75%', toggleActions: 'play none none reverse' } })
+            .from(self.words, { opacity: 0, y: '0.15em', duration: 0.7, ease: 'power2.out', stagger: 0.08 })
+            .from(quote.querySelector('figcaption'), { opacity: 0, duration: 0.6, ease: 'power1.out' }, '-=0.3'),
+      }),
+    );
+    return () => splits.forEach((split) => split.revert());
+  });
+</script>

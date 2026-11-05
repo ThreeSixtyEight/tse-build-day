@@ -13,15 +13,22 @@ interaction: "Collect the snare drum, the seat he started in."
 caption: Kenner, Louisiana, mid-1990s
 # Only the flat panel: the two full-screen scenes (the Kenner intro and his mother) were cut.
 fullScreen: false
+# After the panel: a short beat with a framed photo (Figma frame 10405:638), then a pull quote (frame 10405:644).
+# Figma shows chapter 2's Snug Harbor copy here as a placeholder, so this keeps chapter 1's own line about his mother.
+aside:
+  eyebrow: Gaining confidence
+  body: "His mother hears one drum too many. So she moves Jon to the piano–the one from Duke Ellington's orchestra. Mothers around here are usually right."
+  # image: grey placeholder frame until the photo is picked.
+pullQuote: fresh-air-family
 flat:
-  eyebrow: Kenner, Louisiana, mid-1990s
+  # New layout (Build Day Figma, frame 10405:630): place on the left of the eyebrow row, year on the right.
+  eyebrow: Kenner, Louisiana
+  date: Mid 1990s
   heading: The kid who kept the beat
   body: |
-    Kenner, LA sits out by the airport, where the planes come in low enough to rattle the dishes. Jon Batiste's father has 7 brothers, which makes for a lot of Batistes and a lot of drums. At 8 Jon is the youngest drummer in the family band and is already keeping time at Jazz Fest.
-
-    His mother hears one drum too many. So she moves Jon to the piano–the one from Duke Ellington’s orchestra. Mothers around here are usually right.
+    Jon's childhood home in Kenner, LA sits out by the airport, where the planes come in low enough to rattle the dishes. At 8 years old, Jon is the youngest drummer in the family band and is already keeping time at Jazz Fest.
   # Cut for now, coming back soon: the caption.
-  # The full playroom painting behind the panel. While it's set, the cutout below isn't shown.
+  # The playroom painting, in a tilted white frame below the copy. While it's set, the cutout below isn't shown.
   background:
     src: /chapter-1/playroom.jpg
     alt: Painting of a small boy in a green sweater playing a toy drum set in a wood-panelled living room, toys on the rug beside him

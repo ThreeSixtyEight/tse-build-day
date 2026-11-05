@@ -30,6 +30,10 @@ const sections = defineCollection({
     // Words spoken or sung in this section, shown on the transcript page.
     transcript: z.string().optional(),
     quotes: z.array(reference('quotes')).default([]),
+    // A short beat after the chapter's panel (Build Day Figma, frame 10405:638): eyebrow, a paragraph and a framed photo.
+    aside: z.object({ eyebrow: z.string().optional(), body: z.string(), image: z.object({ src: z.string(), alt: z.string() }).optional() }).optional(),
+    // A pull quote on its own panel after that (Figma frame 10405:644): an id from src/data/quotes.json.
+    pullQuote: reference('quotes').optional(),
     // A chapter as full-screen scenes in order (intro, resolution), each a background photo and its copy.
     // photo: an Unsplash photo id, credited in src/data/credits.json. Without scenes the section shows its body copy.
     scenes: z.array(z.object({ text: z.string(), photo: z.string().optional() })).default([]),
@@ -44,6 +48,8 @@ const sections = defineCollection({
       .object({
         // Gold line above the heading, after the chapter number: the place and year, e.g. "Kenner, Louisiana, mid-1990s".
         eyebrow: z.string().optional(),
+        // The year, at the right end of the eyebrow row (painted panel only), e.g. "Mid 1990s".
+        date: z.string().optional(),
         // Headings only show under an eyebrow, except on a night panel. A line break starts a new line;
         // on a night panel the last line is indented.
         heading: z.string().optional(),
