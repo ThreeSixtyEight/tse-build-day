@@ -4,10 +4,11 @@
 // and the label rolls up and out while a copy rises in from below (0.78s, the design's easing).
 // A link when given href, otherwise a <button>. Other attributes (data-*, aria-*) pass through.
 // tone="dark" is a black pill with white text, for light backgrounds.
+// tone="blue" is a blue pill with white text, for the cream page (Build Day Figma, frame 10440:153).
 interface Props {
   label: string;
   href?: string;
-  tone?: 'light' | 'dark';
+  tone?: 'light' | 'dark' | 'blue';
   class?: string;
   [attr: string]: unknown;
 }
@@ -49,6 +50,7 @@ const Tag = href ? 'a' : 'button';
     pointer-events: auto;
   }
   .roll--dark { --roll-fill: #000; --roll-ink: #fff; }
+  .roll--blue { --roll-fill: #2c409d; --roll-ink: #fff; }
 
   /* Four bars, 36px tall with 15px corners, starting 16px above the button as in the design. */
   .roll__bars {
