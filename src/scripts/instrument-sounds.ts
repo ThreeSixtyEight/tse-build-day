@@ -1,5 +1,4 @@
-// One short synth phrase per instrument (trumpet, tambourine, melodica, sousaphone), shared by the /instrument page
-// and End of the line. Tone.js loads on first use. Nothing plays unless the site's sound switch is on.
+// One short synth phrase per instrument (trumpet, tambourine, melodica, sousaphone), for End of the line. Tone.js loads on first use. Nothing plays unless the site's sound switch is on.
 import type * as ToneNS from 'tone';
 import { isSoundOn } from './sound';
 
