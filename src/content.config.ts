@@ -16,10 +16,8 @@ const sections = defineCollection({
     story: z.string().optional(),
     // One thing the visitor can do, shown as a card on the chapter's last panel.
     takeaway: z.string().optional(),
-    // With an image, the takeaway gets its own "Pass it on" panel after the chapter instead of the card.
-    takeawayImage: z.object({ src: z.string(), alt: z.string() }).optional(),
-    // The navy night look (Build Day Figma, frame 152:212): the scene fades into navy, the flat panel is navy with
-    // white text, and both headings use the larger display size.
+    // The navy night look (Build Day Figma, frame 10433:134): the opener, asides and pull quote are
+    // navy with white text and gold accents.
     night: z.boolean().default(false),
     purpose: z.string().default('TBD'),
     directives: z.array(z.string()).default([]),
@@ -30,9 +28,32 @@ const sections = defineCollection({
     // Words spoken or sung in this section, shown on the transcript page.
     transcript: z.string().optional(),
     quotes: z.array(reference('quotes')).default([]),
-    // A short beat after the chapter's panel (Build Day Figma, frame 10405:638): eyebrow, a paragraph and a framed photo.
-    aside: z.object({ eyebrow: z.string().optional(), body: z.string(), image: z.object({ src: z.string(), alt: z.string() }).optional() }).optional(),
-    // A pull quote on its own panel after that (Figma frame 10405:644): an id from src/data/quotes.json.
+    // The chapter's opening panel (ChapterOpener.astro): eyebrow row with the place and the year, the heading, the
+    // copy, and either a framed photo below the copy or a painting behind the whole panel (night chapters).
+    opener: z
+      .object({
+        eyebrow: z.string(),
+        date: z.string().optional(),
+        heading: z.string(),
+        body: z.string().optional(),
+        photo: z.object({ src: z.string(), alt: z.string() }).optional(),
+        backdrop: z.object({ src: z.string(), alt: z.string() }).optional(),
+        // Working notes for the team; kept in the file, never shown on the page.
+        notes: z.array(z.string()).default([]),
+      })
+      .optional(),
+    // Short beats after the opener (ChapterAside.astro), in order: eyebrow, a paragraph and a framed photo, or with
+    // bleed a picture running off the left edge of the screen.
+    asides: z
+      .array(
+        z.object({
+          eyebrow: z.string().optional(),
+          body: z.string(),
+          image: z.object({ src: z.string(), alt: z.string(), bleed: z.boolean().default(false) }).optional(),
+        }),
+      )
+      .default([]),
+    // A pull quote on its own panel after the asides (Figma frames 10405:644, 10405:670): an id from src/data/quotes.json.
     pullQuote: reference('quotes').optional(),
     // A chapter as full-screen scenes in order (intro, resolution), each a background photo and its copy.
     // photo: an Unsplash photo id, credited in src/data/credits.json. Without scenes the section shows its body copy.
@@ -48,10 +69,7 @@ const sections = defineCollection({
       .object({
         // Gold line above the heading, after the chapter number: the place and year, e.g. "Kenner, Louisiana, mid-1990s".
         eyebrow: z.string().optional(),
-        // The year, at the right end of the eyebrow row (painted panel only), e.g. "Mid 1990s".
-        date: z.string().optional(),
-        // Headings only show under an eyebrow, except on a night panel. A line break starts a new line;
-        // on a night panel the last line is indented.
+        // Headings only show under an eyebrow.
         heading: z.string().optional(),
         body: z.string().optional(),
         // A smaller heading (h3) below the body, e.g. "But New York calls louder."
@@ -61,9 +79,6 @@ const sections = defineCollection({
         // full: the cutout spans the panel's whole width, standing on its bottom edge, with the text over its empty side.
         cutout: z.object({ src: z.string(), alt: z.string(), bleed: z.boolean().default(false), full: z.boolean().default(false) }),
         prop: z.object({ src: z.string(), alt: z.string() }).optional(),
-        // A painting that fills the whole panel behind the text, fading into the panel colour on the text side.
-        // With one, the cutout and prop aren't shown.
-        background: z.object({ src: z.string(), alt: z.string() }).optional(),
         caption: z.string().optional(),
         // A dark panel with white text instead of the light one.
         dark: z.boolean().default(false),

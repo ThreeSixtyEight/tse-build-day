@@ -12,65 +12,19 @@ interface Props {
   number: number;
   // Gold line above the heading: the chapter number, a dash, then the place and year.
   eyebrow?: string;
-  // The year, at the right end of the eyebrow row (painted panel only).
-  date?: string;
   heading?: string;
   body?: string;
   subheading?: string;
   cutout: { src: string; alt: string; bleed?: boolean; full?: boolean };
   prop?: { src: string; alt: string };
-  background?: { src: string; alt: string };
   caption?: string;
   takeaway?: string;
   dark?: boolean;
-  // The navy night look: the heading runs across the top, the bus (a bleed cutout) below it, the copy beside it.
-  night?: boolean;
 }
 
-const { id, number, eyebrow, date, heading, body, subheading, cutout, prop, background, caption, takeaway, dark, night } = Astro.props;
-// A line break in the heading starts a new line. The spaces keep the words apart for screen readers.
-const headingLines = heading?.split('\n') ?? [];
+const { id, number, eyebrow, heading, body, subheading, cutout, prop, caption, takeaway, dark } = Astro.props;
 const paragraphs = body?.split(/\n\s*\n/).map((para) => para.trim()) ?? [];
 ---
-
-{
-  night ? (
-    <section class="section flat flat--night" id={id} data-section={id}>
-      {heading && (
-        <h2 class="heading heading--display flat__title">
-          {headingLines.map((line) => (
-            <>
-              <span class="flat__title-line">{line}</span>{' '}
-            </>
-          ))}
-        </h2>
-      )}
-      <img class="flat__ride" src={cutout.src} alt={cutout.alt} width="2048" height="1152" data-roll={cutout.bleed ? '' : undefined} />
-      <div class="flat__text align-left">
-        <img class="flat__rule" src="/ui/rule-gold.svg" width="48.3301" height="1" alt="" />
-        {body && <div class="body">{paragraphs.map((para) => <p>{para}</p>)}</div>}
-        {subheading && <h3 class="heading heading--lg">{subheading}</h3>}
-        {caption && <p class="caption">{caption}</p>}
-        {takeaway && <Takeaway text={takeaway} />}
-      </div>
-    </section>
-  ) : background ? (
-    <section class="section flat flat--painted" id={id} data-section={id}>
-      <div class="flat__head">
-        {eyebrow && <Eyebrow number={number} text={eyebrow} />}
-        {date && <p class="eyebrow eyebrow--caps">{date}</p>}
-      </div>
-      {eyebrow && heading && <h2 class="heading heading--h1 flat__heading">{heading}</h2>}
-      <div class="flat__text align-left">
-        {body && <div class="body">{paragraphs.map((para) => <p>{para}</p>)}</div>}
-        {caption && <p class="caption">{caption}</p>}
-        {takeaway && <Takeaway text={takeaway} />}
-      </div>
-      <div class="flat__frame" data-drift="0.04">
-        <img src={background.src} alt={background.alt} width="2000" height="1125" />
-      </div>
-    </section>
-  ) : (
 
 <section
   class:list={['section flat', cutout.full && 'flat--full', dark && 'flat--dark']}
@@ -99,8 +53,6 @@ const paragraphs = body?.split(/\n\s*\n/).map((para) => para.trim()) ?? [];
     {takeaway && <Takeaway text={takeaway} />}
   </div>
 </section>
-  )
-}
 
 <style>
   .flat {
@@ -141,41 +93,6 @@ const paragraphs = body?.split(/\n\s*\n/).map((para) => para.trim()) ?? [];
   .flat--full .flat__text { grid-column: 2; }
   .flat__cutout--full { inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 30% 100%; }
 
-  /* Painted panel (Build Day Figma, frame 10405:630, 1440 wide): the eyebrow row runs across the top with the year
-     at its right end, the heading below it on the left, the copy to the right under a short rule, and the painting
-     in a white frame, tilted, below the copy on the left. */
-  .flat--painted {
-    --text: #141c41;
-    --gold: #2c409d;
-    --pad: clamp(1rem, 5.56vw, 5rem);
-    grid-template-columns: minmax(0, 766fr) minmax(0, 514fr);
-    align-items: start;
-    align-content: start;
-    padding: clamp(3rem, 7.8vw, 7rem) var(--pad) clamp(3rem, 5vw, 4.5rem);
-  }
-  .flat__head { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; }
-  .flat__head .eyebrow { margin-bottom: clamp(2rem, 4.44vw, 4rem); }
-  .flat__heading { grid-column: 1; max-width: 9em; margin: 0; text-wrap: balance; }
-  .flat--painted .flat__text { grid-column: 2; grid-row: 3; padding: 0; max-width: 25.3rem; margin-top: clamp(1rem, 1.1vw, 1rem); }
-  .flat--painted .flat__text::before { content: ''; display: block; width: 3rem; margin-bottom: 1.5rem; border-top: 2px solid var(--gold); }
-  .flat__frame {
-    grid-column: 1 / -1;
-    width: 54.2%;
-    margin: clamp(2.5rem, 4.65vw, 4.2rem) 0 2rem 10.1%;
-    aspect-ratio: 694 / 390;
-    overflow: hidden;
-    border: 9px solid #fff;
-    rotate: 5.78deg;
-  }
-  /* Framed on the boy and the drums: the painting is 142% of the frame, offset up and left. */
-  .flat__frame img { width: 141.86%; max-width: none; margin: -12.2% 0 0 -12.98%; }
-
-  @media (max-width: 760px) {
-    .flat.flat--painted { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; padding-top: 3rem; }
-    .flat--painted .flat__text { order: 0; grid-column: 1; grid-row: auto; margin-top: 2rem; }
-    .flat__frame { width: 92%; margin: 2.5rem auto 1.5rem; border-width: 6px; rotate: 3deg; }
-  }
-
   @media (max-width: 760px) {
     .flat { grid-template-columns: 1fr; grid-template-rows: 45svh auto; align-content: start; }
     .flat__art { order: 0; }
@@ -204,41 +121,6 @@ const paragraphs = body?.split(/\n\s*\n/).map((para) => para.trim()) ?? [];
     .flat__cutout--full { height: 100vw; object-fit: cover; object-position: 30% 100%; }
   }
 
-  /* Night panel (Figma frame 152:212, 1440 wide): navy, the heading across the top with its last line indented,
-     the bus below running off the left edge of the screen, the copy to its right under a short gold rule. */
-  .flat--night {
-    --text: #fff;
-    --muted: rgb(255 255 255 / 0.75);
-    --line: rgb(255 255 255 / 0.25);
-    --pad: clamp(1rem, 7.4vw, 7rem);
-    grid-template-columns: minmax(0, 1fr) minmax(0, 26.4rem);
-    grid-template-rows: auto auto;
-    column-gap: 2rem;
-    align-items: start;
-    min-height: 0;
-    padding: clamp(1rem, 2vw, 2rem) clamp(1rem, 5.6vw, 5rem) clamp(3rem, 7vw, 6.5rem) var(--pad);
-    background: #070a18;
-  }
-  .flat__title { grid-column: 1 / -1; margin: 0; }
-  .flat__title-line { display: block; }
-  .flat__title-line:last-child:not(:first-child) { padding-left: 2.77em; }
-  /* 87% of the screen wide, starting 6.6% past the left edge, its top tucked just under the heading. */
-  .flat__ride {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    width: 87.4vw;
-    max-width: none;
-    margin: -1.95vw 0 0 calc(-6.6vw - var(--pad));
-  }
-  .flat--night .flat__text { grid-column: 2; grid-row: 2; margin-top: 6.9vw; padding: 0; max-width: none; }
-  .flat__rule { margin-bottom: 1.8rem; }
-
-  @media (max-width: 760px) {
-    .flat--night { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; padding-right: 1rem; }
-    .flat__title-line:last-child:not(:first-child) { padding-left: 1.5em; }
-    .flat__ride { grid-column: 1; width: 125vw; margin: 0.5rem 0 0 calc(-25vw - var(--pad)); }
-    .flat--night .flat__text { grid-column: 1; grid-row: 3; margin-top: 1.5rem; }
-  }
 </style>
 
 <script>

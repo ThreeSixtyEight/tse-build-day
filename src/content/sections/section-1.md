@@ -11,31 +11,26 @@ interaction: "Collect the snare drum, the seat he started in."
 # Cut for now, coming back soon.
 # takeaway: "Give a kid an instrument through Tipitina's Foundation's Instruments A Comin', which donates new and refurbished instruments to school band programs."
 caption: Kenner, Louisiana, mid-1990s
-# Only the flat panel: the two full-screen scenes (the Kenner intro and his mother) were cut.
+# No full-screen scenes: the two (the Kenner intro and his mother) were cut.
 fullScreen: false
-# After the panel: a short beat with a framed photo (Figma frame 10405:638), then a pull quote (frame 10405:644).
-# Figma shows chapter 2's Snug Harbor copy here as a placeholder, so this keeps chapter 1's own line about his mother.
-aside:
-  eyebrow: Gaining confidence
-  body: "His mother hears one drum too many. So she moves Jon to the piano–the one from Duke Ellington's orchestra. Mothers around here are usually right."
-  # image: grey placeholder frame until the photo is picked.
-pullQuote: fresh-air-family
-flat:
-  # New layout (Build Day Figma, frame 10405:630): place on the left of the eyebrow row, year on the right.
+# Opener (Build Day Figma, frame 10405:630): place on the left of the eyebrow row, year on the right, the playroom
+# painting in a tilted white frame below the copy.
+opener:
   eyebrow: Kenner, Louisiana
   date: Mid 1990s
   heading: The kid who kept the beat
   body: |
     Jon's childhood home in Kenner, LA sits out by the airport, where the planes come in low enough to rattle the dishes. At 8 years old, Jon is the youngest drummer in the family band and is already keeping time at Jazz Fest.
-  # Cut for now, coming back soon: the caption.
-  # The playroom painting, in a tilted white frame below the copy. While it's set, the cutout below isn't shown.
-  background:
+  photo:
     src: /chapter-1/playroom.jpg
     alt: Painting of a small boy in a green sweater playing a toy drum set in a wood-panelled living room, toys on the rug beside him
-  cutout:
-    src: /chapter-1/jon-drums.webp
-    alt: Painting of a small boy in a green sweater playing a toy drum set
-  # caption: Kenner, Louisiana, mid-1990s
   notes:
     - "Painting: confirm it's cleared for use before the alt text or caption names Jon."
+# Then a short beat with a framed photo (frame 10405:638), then a pull quote (frame 10405:644).
+# Figma shows chapter 2's Snug Harbor copy here as a placeholder, so this keeps chapter 1's own line about his mother.
+asides:
+  - eyebrow: Gaining confidence
+    body: "His mother hears one drum too many. So she moves Jon to the piano–the one from Duke Ellington's orchestra. Mothers around here are usually right."
+    # image: grey placeholder frame until the photo is picked.
+pullQuote: fresh-air-family
 ---

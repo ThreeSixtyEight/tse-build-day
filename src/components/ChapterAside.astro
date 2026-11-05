@@ -1,58 +1,108 @@
 ---
-// A short beat after a chapter's panel (Build Day Figma, frame 10405:638): a small eyebrow and a paragraph on the
-// left, a photo in a white frame tilted the other way on the right. Without a photo the frame shows grey, as in Figma.
+// A short beat after a chapter's opener (Build Day Figma: frames 10405:638 and 10405:657): a small eyebrow and a
+// paragraph on the left, a photo in a tilted white frame on the right. Without a photo the frame shows grey, as in Figma.
+// bleed (frame 10405:663): the picture runs off the left edge of the screen, unframed, with the copy on the right.
+// It rolls in from the left as the panel scrolls into view and comes to rest flush with the screen's edge.
+// night: white and gold on navy.
 interface Props {
   id: string;
   eyebrow?: string;
   body: string;
-  image?: { src: string; alt: string };
+  image?: { src: string; alt: string; bleed?: boolean };
+  night?: boolean;
 }
 
-const { id, eyebrow, body, image } = Astro.props;
+const { id, eyebrow, body, image, night } = Astro.props;
+const bleed = image?.bleed;
 ---
 
-<section class="aside" id={id} data-section={id}>
+<section class:list={['aside', night && 'aside--night', bleed && 'aside--bleed']} id={id} data-section={id}>
+  {
+    bleed && (
+      <div class="aside__bleed" data-roll>
+        <img src={image!.src} alt={image!.alt} width="2048" height="1152" />
+      </div>
+    )
+  }
   <div class="aside__text align-left">
     {eyebrow && <p class="eyebrow eyebrow--caps">{eyebrow}</p>}
     <div class="body"><p>{body}</p></div>
   </div>
-  <div class="aside__frame">{image && <img src={image.src} alt={image.alt} />}</div>
+  {!bleed && <div class="aside__frame">{image && <img src={image.src} alt={image.alt} />}</div>}
 </section>
 
 <style>
   /* Columns in Figma's proportions (1280 container): the copy's 515, a 144 gap, the frame's 507-wide slot, and
      114 left empty, so the frame keeps the same share of the row at every width. */
   .aside {
+    --text: #141c41;
     --gold: #2c409d;
+    --bg: #efe7d8;
+    --empty: #c4c4c4;
+    --pad: clamp(1rem, 5.56vw, 5rem);
+    --indent: clamp(0rem, 7.5vw, 6.75rem);
     display: grid;
     grid-template-columns: minmax(0, 515fr) minmax(0, 144fr) minmax(0, 507fr) minmax(0, 114fr);
     align-items: center;
-    padding: clamp(3rem, 5.56vw, 5rem) clamp(1rem, 5.56vw, 5rem);
+    padding: clamp(3rem, 5.56vw, 5rem) var(--pad);
     overflow: hidden;
-    color: #141c41;
-    background: #efe7d8;
+    color: var(--text);
+    background: var(--bg);
   }
+  .aside--night { --text: #fff; --gold: #e1ab44; --bg: #070a18; --empty: #cac2b5; }
   /* Set in 108px from the container's edge, the same indent as the pull quote below. */
-  .aside__text { grid-column: 1; padding-left: clamp(0rem, 7.5vw, 6.75rem); }
+  .aside__text { grid-column: 1; padding-left: var(--indent); }
   .aside .eyebrow { margin-bottom: 1.5rem; }
-  /* 482 × 293 inside its 507-wide slot, tilted. */
+  /* 482 × 293 inside its 507-wide slot, tilted. The margins hold the room its tilt takes (336 tall in all) plus
+     Figma's 10 above and below, since a rotated box doesn't push its neighbours apart. */
   .aside__frame {
     grid-column: 3;
     justify-self: center;
     width: 95%;
+    margin-block: 6.2%;
     aspect-ratio: 482 / 293;
     overflow: hidden;
     border: 9px solid #fff;
-    background: #c4c4c4;
+    background: var(--empty);
     rotate: -5.34deg;
   }
   .aside__frame img { width: 100%; height: 100%; object-fit: cover; }
 
+  /* Bleed: no left padding, the picture's 706 against the screen's left edge, 139 of gap, then the copy's 515
+     (406 of copy, 109 kept clear on its right), all in the 1360 left of the right margin. */
+  .aside--bleed { grid-template-columns: minmax(0, 706fr) minmax(0, 139fr) minmax(0, 515fr); padding-left: 0; }
+  .aside--bleed .aside__text { grid-column: 3; padding: 0 var(--indent) 0 0; }
+  .aside__bleed { grid-column: 1; aspect-ratio: 706 / 460; overflow: hidden; }
+  /* Framed on the bus door: the painting is 137% of the box, offset up and left. */
+  .aside__bleed img { width: 137.07%; max-width: none; margin: -9.2% 0 0 -5.07%; }
+
   /* Stacks a little earlier than the other panels: side by side, the copy gets too narrow below 900. */
   @media (max-width: 900px) {
-    .aside { grid-template-columns: minmax(0, 1fr); row-gap: 2.5rem; }
-    .aside__text, .aside__frame { grid-column: 1; }
+    .aside, .aside--bleed { grid-template-columns: minmax(0, 1fr); row-gap: 2.5rem; }
+    .aside__text, .aside__frame, .aside__bleed, .aside--bleed .aside__text { grid-column: 1; }
     .aside__text { padding-left: 0; }
-    .aside__frame { width: 92%; border-width: 6px; rotate: -3deg; }
+    .aside--bleed .aside__text { padding: 0 0 0 var(--pad); }
+    .aside__frame { width: 92%; margin-block: 0; border-width: 6px; rotate: -3deg; }
+    .aside__bleed { margin-right: 10%; }
   }
 </style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  // The bleed picture rolls left to right with the scroll: shifted left by part of its width as the panel enters,
+  // flush with the screen's left edge once the panel reaches the top. Scrolling back rolls it out again.
+  // It never moves right of the edge, so no gap opens. Reduced motion: it simply sits in place.
+  gsap.matchMedia().add('(prefers-reduced-motion: no-preference)', () => {
+    for (const el of document.querySelectorAll<HTMLElement>('.aside [data-roll]')) {
+      gsap.fromTo(
+        el,
+        { xPercent: -18 },
+        { xPercent: 0, ease: 'none', scrollTrigger: { trigger: el.closest('.aside'), start: 'top bottom', end: 'top top', scrub: 1 } },
+      );
+    }
+  });
+</script>

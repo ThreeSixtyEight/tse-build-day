@@ -4,12 +4,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ChapterFlat from '../components/ChapterFlat.astro';
 import Eyebrow from '../components/Eyebrow.astro';
 import Takeaway from '../components/Takeaway.astro';
-import PassItOn from '../components/PassItOn.astro';
 import Piano from '../components/Piano.astro';
 import Theater from '../components/Theater.astro';
 import MusicStaff from '../components/MusicStaff.astro';
 import BackgroundMusic from '../components/BackgroundMusic.astro';
 import EndOfTheLine from '../components/EndOfTheLine.astro';
+import ChapterOpener from '../components/ChapterOpener.astro';
 import ChapterAside from '../components/ChapterAside.astro';
 import Quote from '../components/Quote.astro';
 
@@ -104,34 +104,29 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
               {s.data.eyebrow && <h2 class:list={['heading', s.data.night ? 'heading--display' : 'heading--xl']}>{s.data.title}</h2>}
               <div class="body"><Content /></div>
               {s.data.caption && <p class="caption">{s.data.caption}</p>}
-              {!s.data.flat && s.data.takeaway && !s.data.takeawayImage && <Takeaway text={s.data.takeaway} />}
+              {!s.data.flat && s.data.takeaway && <Takeaway text={s.data.takeaway} />}
             </div>
           </section>
         ))}
+        {s.data.opener && <ChapterOpener id={s.id} number={s.data.order} {...s.data.opener} night={s.data.night} />}
         {s.data.flat && (
           <ChapterFlat
-            id={s.data.fullScreen ? `${s.id}-flat` : s.id}
+            id={s.data.fullScreen || s.data.opener ? `${s.id}-flat` : s.id}
             number={s.data.order}
             {...s.data.flat}
-            night={s.data.night}
-            takeaway={s.data.takeawayImage ? undefined : s.data.takeaway}
+            takeaway={s.data.takeaway}
           />
         )}
-        {s.data.aside && <ChapterAside id={`${s.id}-aside`} {...s.data.aside} />}
-        {pullQuote && <Quote id={`${s.id}-quote`} {...pullQuote} />}
-        {/* A takeaway with an image gets its own panel after the chapter. */}
-        {s.data.takeaway && s.data.takeawayImage && (
-          <PassItOn id={`${s.id}-pass`} text={s.data.takeaway} image={s.data.takeawayImage} night={s.data.night} />
-        )}
-        {/* The piano follows chapter 1, where Jon moves from drums to piano. */}
-        {s.data.order === 1 && (
-          <section class="section section--keys" id="piano" data-section="piano">
-            <Piano />
-          </section>
-        )}
-        {/* The theater follows chapter 2, after he boards the bus: the painted stage, Jon at the piano. */}
+        {s.data.asides.map((aside, i) => (
+          <ChapterAside id={`${s.id}-aside${i ? `-${i + 1}` : ''}`} {...aside} night={s.data.night} />
+        ))}
+        {pullQuote && <Quote id={`${s.id}-quote`} {...pullQuote} night={s.data.night} />}
+        {/* Chapter 2 ends with the playable piano, then the theater: the painted stage, Jon at the piano. */}
         {s.data.order === 2 && (
           <>
+            <section class="section section--keys" id="piano" data-section="piano">
+              <Piano />
+            </section>
             <Theater />
             {/* Below the theater, it fades into a dark band with a playable music staff. */}
             <MusicStaff />

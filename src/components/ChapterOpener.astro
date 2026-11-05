@@ -1,0 +1,128 @@
+---
+// A chapter's opening panel (Build Day Figma: chapter 1 frame 10405:630, chapter 2 frame 10405:650, both 1440 wide).
+// The eyebrow row runs across the top with the year at its right end, the heading sits below it on the left, and the
+// copy is to the right under a short rule.
+// Light: navy and blue on cream, with a photo in a tilted white frame below the copy.
+// Night: white and gold over a painting that fills the panel and fades into navy at the bottom; the copy sits on
+// the panel's bottom edge.
+import Eyebrow from './Eyebrow.astro';
+
+interface Props {
+  id: string;
+  number: number;
+  // The place, after the chapter number, e.g. "Kenner, Louisiana".
+  eyebrow: string;
+  // The year, at the right end of the eyebrow row, e.g. "Mid 1990s".
+  date?: string;
+  heading: string;
+  body?: string;
+  // A photo in a tilted white frame below the copy.
+  photo?: { src: string; alt: string };
+  // A painting behind the whole panel.
+  backdrop?: { src: string; alt: string };
+  night?: boolean;
+}
+
+const { id, number, eyebrow, date, heading, body, photo, backdrop, night } = Astro.props;
+const paragraphs = body?.split(/\n\s*\n/).map((para) => para.trim()) ?? [];
+---
+
+<section class:list={['opener', night && 'opener--night', backdrop && 'opener--backdrop']} id={id} data-section={id}>
+  {backdrop && <img class="opener__backdrop" src={backdrop.src} alt={backdrop.alt} width="2048" height="1152" />}
+  <div class="opener__head">
+    <Eyebrow number={number} text={eyebrow} />
+    {date && <p class="eyebrow eyebrow--caps">{date}</p>}
+  </div>
+  <h2 class="heading heading--h1 opener__heading">{heading}</h2>
+  {
+    body && (
+      <div class="opener__text align-left">
+        <div class="body">{paragraphs.map((para) => <p>{para}</p>)}</div>
+      </div>
+    )
+  }
+  {
+    photo && (
+      <div class="opener__frame">
+        <img src={photo.src} alt={photo.alt} width="2000" height="1125" />
+      </div>
+    )
+  }
+</section>
+
+<style>
+  .opener {
+    --text: #141c41;
+    --gold: #2c409d;
+    --bg: #efe7d8;
+    --pad: clamp(1rem, 5.56vw, 5rem);
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    /* The 1280 container split where the copy starts, 766 in. */
+    grid-template-columns: minmax(0, 766fr) minmax(0, 514fr);
+    align-items: start;
+    align-content: start;
+    padding: clamp(3rem, 7.8vw, 7rem) var(--pad) clamp(3rem, 5vw, 4.5rem);
+    overflow: hidden;
+    color: var(--text);
+    background: var(--bg);
+  }
+  .opener--night { --text: #fff; --gold: #e1ab44; --bg: #070a18; }
+  .opener > :not(.opener__backdrop) { position: relative; z-index: 1; }
+
+  .opener__head { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; }
+  .opener__head .eyebrow { margin-bottom: clamp(2rem, 4.44vw, 4rem); }
+  .opener__heading { grid-column: 1; max-width: 7.8em; margin: 0; text-wrap: balance; }
+  .opener__text { grid-column: 2; grid-row: 3; max-width: 25.3rem; margin-top: 1rem; }
+  .opener__text::before { content: ''; display: block; width: 3rem; margin-bottom: 1.5rem; border-top: 2px solid var(--gold); }
+
+  /* Light: the photo, 694 × 390 in a 9px white frame, tilted, 129 in from the container's edge. */
+  .opener__frame {
+    grid-column: 1 / -1;
+    width: 54.2%;
+    margin: clamp(2.5rem, 4.65vw, 4.2rem) 0 2rem 10.1%;
+    aspect-ratio: 694 / 390;
+    overflow: hidden;
+    border: 9px solid #fff;
+    rotate: 5.78deg;
+  }
+  /* Framed on the subject: the photo is 142% of the frame, offset up and left. */
+  .opener__frame img { width: 141.86%; max-width: none; margin: -12.2% 0 0 -12.98%; }
+
+  /* Night: 900 tall at 1440 wide, the copy on its bottom edge. */
+  .opener--backdrop { min-height: 62.5vw; grid-template-rows: auto auto 1fr; padding-bottom: clamp(3rem, 7.8vw, 7rem); }
+  .opener--backdrop .opener__text { align-self: end; }
+  /* The painting is 126% of the panel, shifted left so the piano and Jon sit right of centre. */
+  .opener__backdrop {
+    position: absolute;
+    z-index: -1;
+    left: -23.18%;
+    top: -11.43%;
+    width: 125.54%;
+    height: 112.98%;
+    max-width: none;
+    object-fit: cover;
+  }
+  /* Darkened at the top right, bottom right and left behind the type, and faded into navy along the bottom
+     (the four gradients from Figma). */
+  .opener--backdrop::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(1.1deg, var(--bg) 2.54%, rgb(7 10 24 / 0) 24.8%),
+      linear-gradient(235.78deg, rgb(0 0 0 / 0.4) 10.28%, rgb(0 0 0 / 0) 24.95%),
+      linear-gradient(-11.04deg, rgb(0 0 0 / 0.4) 26.04%, rgb(0 0 0 / 0) 37.77%),
+      linear-gradient(89.65deg, rgb(0 0 0 / 0.4) 17.38%, rgb(0 0 0 / 0) 68.97%);
+  }
+
+  @media (max-width: 760px) {
+    .opener { grid-template-columns: minmax(0, 1fr); padding-top: 3rem; }
+    .opener__text { grid-column: 1; grid-row: auto; margin-top: 2rem; }
+    .opener__frame { width: 92%; margin: 2.5rem auto 1.5rem; border-width: 6px; rotate: 3deg; }
+    /* Phones: the painting stays full height behind everything, framed on Jon at the piano. */
+    .opener--backdrop { min-height: 100svh; }
+    .opener__backdrop { inset: 0; width: 100%; height: 100%; object-position: 58% center; }
+  }
+</style>

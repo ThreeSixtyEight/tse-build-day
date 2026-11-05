@@ -8,12 +8,14 @@ interface Props {
   source: string;
   date: string;
   url?: string;
+  // White and gold on navy (Figma frame 10405:670).
+  night?: boolean;
 }
 
-const { id, text, source, date, url } = Astro.props;
+const { id, text, source, date, url, night } = Astro.props;
 ---
 
-<section class="quote" id={id} data-section={id}>
+<section class:list={['quote', night && 'quote--night']} id={id} data-section={id}>
   <figure data-quote>
     <blockquote><p>{text}</p></blockquote>
     <figcaption>Jon on {url ? <a href={url}>{source}</a> : source}, {date}</figcaption>
@@ -22,20 +24,25 @@ const { id, text, source, date, url } = Astro.props;
 
 <style>
   .quote {
+    --text: #141c41;
+    --gold: #2c409d;
+    --bg: #efe7d8;
     padding: clamp(3rem, 5.56vw, 5rem) clamp(1rem, 5.56vw, 5rem) clamp(4rem, 11.1vw, 10rem);
-    color: #141c41;
-    background: #efe7d8;
+    color: var(--text);
+    background: var(--bg);
   }
+  .quote--night { --text: #fff; --gold: #e1ab44; --bg: #070a18; padding-bottom: clamp(3rem, 7.8vw, 7rem); }
   /* Same columns as the chapter panel above, so the source lines up with its copy. The quote has the same indent
      as the "Gaining confidence" copy above it. */
   .quote figure { display: grid; grid-template-columns: minmax(0, 766fr) minmax(0, 514fr); align-items: end; margin: 0; }
   .quote blockquote { margin: 0 0 0 clamp(0rem, 7.5vw, 6.75rem); max-width: 8.1em; font-family: var(--font-accent); font-size: clamp(2.5rem, 4.44vw, 4rem); }
   .quote blockquote p { margin: 0; line-height: 1.03; letter-spacing: -0.03em; }
-  .quote blockquote p::before { content: '“'; display: block; margin-bottom: 0.15em; color: #2c409d; font-size: 1.75em; line-height: 0.6; }
+  .quote blockquote p::before { content: '“'; display: block; margin-bottom: 0.15em; color: var(--gold); font-size: 1.75em; line-height: 0.6; }
   .quote figcaption { max-width: 25.25rem; font-family: var(--font-body); font-weight: 300; font-size: 1.125rem; line-height: 1.5; letter-spacing: -0.02em; }
   .quote figcaption a { color: inherit; }
 
-  @media (max-width: 760px) {
+  /* Stacks at the same width as the asides above it, so the two stay aligned. */
+  @media (max-width: 900px) {
     .quote figure { grid-template-columns: minmax(0, 1fr); row-gap: 2rem; }
     .quote blockquote { margin-left: 0; }
   }
