@@ -38,7 +38,7 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
     <div class="eol__stage eol__stage--listen">
       <!-- Official Spotify artist embed: only Jon Batiste's own catalogue plays here. No AI voice or AI music.
            Analytics: embed clicks. -->
-      <!-- Taller than the Figma's 282px so the first three songs show under Spotify's header. -->
+      <!-- 352px, Spotify's standard height: taller than the Figma's 282px so three songs show under the header, no fourth. -->
       <div class="eol__player">
         <iframe
           title="Jon Batiste on Spotify"
@@ -99,7 +99,7 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
     margin-inline: auto;
   }
   .eol__stage--top { aspect-ratio: 1280 / 676; }
-  .eol__stage--listen { --player-h: 400px; height: var(--player-h); }
+  .eol__stage--listen { --player-h: 352px; height: var(--player-h); }
 
   .eol__intro {
     position: absolute;
