@@ -40,7 +40,15 @@ const sections = defineCollection({
         photo: z
           .object({ src: z.string(), alt: z.string(), crop: z.object({ size: z.number(), left: z.number(), top: z.number() }).optional() })
           .optional(),
-        backdrop: z.object({ src: z.string(), alt: z.string() }).optional(),
+        backdrop: z
+          .object({
+            src: z.string(),
+            alt: z.string(),
+            crop: z.object({ size: z.number(), left: z.number(), top: z.number() }).optional(),
+            // Heavier shading behind the type, for a busy painting.
+            darker: z.boolean().default(false),
+          })
+          .optional(),
         // Working notes for the team; kept in the file, never shown on the page.
         notes: z.array(z.string()).default([]),
       })

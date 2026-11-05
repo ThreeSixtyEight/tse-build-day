@@ -19,8 +19,10 @@ interface Props {
   // A photo in a tilted white frame below the copy. crop, from Figma: the photo's size as a % of the frame, and how
   // far its left and top edges sit outside the frame, as a % of the frame's width and height.
   photo?: { src: string; alt: string; crop?: { size: number; left: number; top: number } };
-  // A painting behind the whole panel.
-  backdrop?: { src: string; alt: string };
+  // A painting behind the whole panel. crop, from Figma: its width as a % of the panel, and how far its left and top
+  // edges sit outside the panel, as a % of the panel's width and height.
+  // darker: heavier shading behind the type, for a busy painting (chapter 4).
+  backdrop?: { src: string; alt: string; crop?: { size: number; left: number; top: number }; darker?: boolean };
   night?: boolean;
 }
 
@@ -28,10 +30,11 @@ const { id, number, eyebrow, date, heading, body, photo, backdrop, night } = Ast
 const paragraphs = body?.split(/\n\s*\n/).map((para) => para.trim()) ?? [];
 // The frame is 694 × 390, so a top offset in % of its height becomes a margin in % of its width.
 const crop = photo?.crop && `--size: ${photo.crop.size}%; --left: -${photo.crop.left}%; --top: -${(photo.crop.top * 390) / 694}%`;
+const backdropCrop = backdrop?.crop && `--size: ${backdrop.crop.size}; --left: ${backdrop.crop.left}; --top: ${backdrop.crop.top}`;
 ---
 
-<section class:list={['opener', night && 'opener--night', backdrop && 'opener--backdrop']} id={id} data-section={id}>
-  {backdrop && <img class="opener__backdrop" src={backdrop.src} alt={backdrop.alt} width="2048" height="1152" />}
+<section class:list={['opener', night && 'opener--night', backdrop && 'opener--backdrop', backdrop?.darker && 'opener--darker']} id={id} data-section={id}>
+  {backdrop && <img class="opener__backdrop" src={backdrop.src} alt={backdrop.alt} width="2048" height="1152" style={backdropCrop} />}
   <div class="opener__head">
     <Eyebrow number={number} text={eyebrow} />
     {date && <p class="eyebrow eyebrow--caps">{date}</p>}
@@ -96,14 +99,15 @@ const crop = photo?.crop && `--size: ${photo.crop.size}%; --left: -${photo.crop.
   /* Night: 900 tall at 1440 wide, the copy on its bottom edge. */
   .opener--backdrop { min-height: 62.5vw; grid-template-rows: auto auto 1fr; padding-bottom: clamp(3rem, 7.8vw, 7rem); }
   .opener--backdrop .opener__text { align-self: end; }
-  /* The painting is 126% of the panel, shifted left so the piano and Jon sit right of centre. */
+  /* The painting, enlarged and shifted by its crop. A 16:9 painting on the 1440 × 900 panel is 0.9 times as tall,
+     in % of the panel, as it is wide. */
   .opener__backdrop {
     position: absolute;
     z-index: -1;
-    left: -23.18%;
-    top: -11.43%;
-    width: 125.54%;
-    height: 112.98%;
+    left: calc(var(--left, 0) * -1%);
+    top: calc(var(--top, 0) * -1%);
+    width: calc(var(--size, 100) * 1%);
+    height: calc(var(--size, 100) * 0.9%);
     max-width: none;
     object-fit: cover;
   }
@@ -118,6 +122,14 @@ const crop = photo?.crop && `--size: ${photo.crop.size}%; --left: -${photo.crop.
       linear-gradient(235.78deg, rgb(0 0 0 / 0.4) 10.28%, rgb(0 0 0 / 0) 24.95%),
       linear-gradient(-11.04deg, rgb(0 0 0 / 0.4) 26.04%, rgb(0 0 0 / 0) 37.77%),
       linear-gradient(89.65deg, rgb(0 0 0 / 0.4) 17.38%, rgb(0 0 0 / 0) 68.97%);
+  }
+  /* Darker (Figma frame 10405:706): the bottom-right and left shades at 60%, angled up from the bottom left. */
+  .opener--darker::before {
+    background:
+      linear-gradient(1.1deg, var(--bg) 2.54%, rgb(7 10 24 / 0) 24.8%),
+      linear-gradient(235.78deg, rgb(0 0 0 / 0.4) 10.28%, rgb(0 0 0 / 0) 24.95%),
+      linear-gradient(-20.1deg, rgb(0 0 0 / 0.6) 30.16%, rgb(0 0 0 / 0) 44.79%),
+      linear-gradient(119.62deg, rgb(0 0 0 / 0.6) 27.71%, rgb(0 0 0 / 0) 50.2%);
   }
 
   @media (max-width: 760px) {

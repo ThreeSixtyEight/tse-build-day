@@ -24,6 +24,7 @@ opener:
   backdrop:
     src: /chapter-2/snug-harbor.webp
     alt: Painting of a teenage Jon Batiste in a white shirt and tie at a grand piano on a jazz club stage, a drum kit beside him under swirling purple light
+    crop: { size: 125.54, left: 23.18, top: 11.43 }
 asides:
   - eyebrow: Gaining confidence
     body: "It's Jon's first real gig outside the family and he's nervous. He'll tell you so himself. He plays anyway, and Alvin keeps calling him back. But New York calls louder."

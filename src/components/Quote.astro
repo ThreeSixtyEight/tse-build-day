@@ -18,7 +18,7 @@ const { id, text, source, date, url, night } = Astro.props;
 <section class:list={['quote', night && 'quote--night']} id={id} data-section={id}>
   <figure data-quote>
     <blockquote><p>{text}</p></blockquote>
-    <figcaption>Jon on {url ? <a href={url}>{source}</a> : source}, {date}</figcaption>
+    <figcaption>Jon Batiste, {url ? <a href={url}>{source}</a> : source}, {date}</figcaption>
   </figure>
 </section>
 
