@@ -80,6 +80,9 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
     --text: #141c41;
     --muted: rgb(20 28 65 / 0.7);
     --gold: #2c409d;
+    /* Instruments can reach past their box (the sousaphone does in the Figma, and they grow on hover), so the section
+       crops at the screen's sides rather than around the instruments. */
+    overflow-x: clip;
     color: var(--text);
     background: #efe7d8;
   }
@@ -96,13 +99,14 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
     max-width: 80rem;
     margin-inline: auto;
   }
-  .eol__stage--top { aspect-ratio: 1280 / 676; overflow: clip; }
+  .eol__stage--top { aspect-ratio: 1280 / 676; }
   .eol__stage--listen { aspect-ratio: 1280 / 282.216; }
 
   .eol__intro {
     position: absolute;
     z-index: 1;
-    left: calc(328 * var(--u));
+    /* Centred: the Figma's block sits 38px left of centre (left 328 of 1280); here it's centred on the content box. */
+    left: calc(50% - 274 * var(--u));
     top: calc(179.44 * var(--u));
     width: calc(548 * var(--u));
     display: flex;
