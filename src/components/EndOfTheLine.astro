@@ -38,8 +38,7 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
     <div class="eol__stage eol__stage--listen">
       <!-- Official Spotify artist embed: only Jon Batiste's own catalogue plays here. No AI voice or AI music.
            Analytics: embed clicks. -->
-      <!-- Spotify only shows its full layout (header and track list) at 352px or taller, so the player keeps that
-           height and its frame crops it to the Figma's 282px, as in the design. -->
+      <!-- Taller than the Figma's 282px so the first three songs show under Spotify's header. -->
       <div class="eol__player">
         <iframe
           title="Jon Batiste on Spotify"
@@ -100,7 +99,7 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
     margin-inline: auto;
   }
   .eol__stage--top { aspect-ratio: 1280 / 676; }
-  .eol__stage--listen { aspect-ratio: 1280 / 282.216; }
+  .eol__stage--listen { --player-h: 400px; height: var(--player-h); }
 
   .eol__intro {
     position: absolute;
@@ -159,7 +158,7 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
     overflow: hidden;
     border-radius: 13px;
   }
-  .eol__player iframe { display: block; width: 100%; height: 352px; border: 0; }
+  .eol__player iframe { display: block; width: 100%; height: var(--player-h); border: 0; }
   .eol__listen {
     position: absolute;
     left: calc(765 * var(--u));
@@ -227,8 +226,8 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
     .eol__inst--trumpet { left: calc(-30 * var(--u)); top: auto; bottom: calc(40 * var(--u)); }
     .eol__inst--sousaphone { left: auto; right: calc(-40 * var(--u)); top: auto; bottom: calc(-40 * var(--u)); }
 
-    .eol__stage--listen { aspect-ratio: auto; max-width: 37.5rem; }
-    .eol__player { position: static; width: 100%; height: 352px; }
+    .eol__stage--listen { height: auto; max-width: 37.5rem; }
+    .eol__player { position: static; width: 100%; height: var(--player-h); }
     .eol__listen { position: static; translate: none; width: auto; padding: 0; margin-top: 2.5rem; gap: 2rem; }
   }
   @media (max-width: 760px) {
