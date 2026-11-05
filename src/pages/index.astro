@@ -168,9 +168,9 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
     const toParade = innerHeight - (top + parade.offsetTop + parade.offsetHeight) - innerHeight * 0.02;
     const toEdge = innerHeight + 12 - (top + street.offsetHeight);
     const l = Math.min(0, Math.max(toParade, toEdge));
-    // The street settles higher on wider screens, so the invite line is placed from here: once settled it sits 12.5% down
-    // the screen (Figma: 113px of 900), whatever the screen's shape.
-    invite.style.top = `${innerHeight * 0.125 - top - l}px`;
+    // The street settles higher on wider screens, so the invite line is placed from here: once settled it sits 8% down
+    // the screen, high enough to clear the rooftops, whatever the screen's shape.
+    invite.style.top = `${innerHeight * 0.08 - top - l}px`;
     return l;
   };
 
@@ -292,21 +292,22 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
   }
 
 
-  /* Invite line in the sky (Figma Frame 60: Excon Bold 23px at 1440, centred, 113px down). The script sets its top to
-     land there once the street settles; the % is the fallback when reduced motion skips the scroll. Width in em so the copy always wraps to three lines; the type shrinks to keep it within the screen on a phone. */
+  /* Invite line in the sky (Figma Frame 60: Excon Bold 23px at 1440, centred), navy, kept narrow and high so it stays
+     clear of the buildings. The script sets its top to land 8% down the screen once the street settles; the % is the
+     fallback when reduced motion skips the scroll. Width in em so the copy always wraps the same way; the type shrinks
+     to keep it within the screen on a phone. */
   .hero__street .hero__invite {
     position: absolute;
     left: 50%;
-    top: 32.3%;
-    width: 29em;
+    top: 29.5%;
+    width: 20em;
     height: auto;
     margin: 0;
     translate: -50% 0;
-    font: 700 min(1.6cqw, 3.1vw) / normal 'Excon', system-ui, sans-serif;
+    font: 500 min(1.6cqw, 3.1vw) / normal 'Excon', system-ui, sans-serif;
     text-align: center;
     text-wrap: balance;
-    color: #eaeaea;
-    text-shadow: 1px 0 0 #380f2b;
+    color: var(--navy-100, #141c41);
   }
 
   /* Painted frame: one strip per edge, rotated copies of the Figma border. */
