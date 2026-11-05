@@ -168,9 +168,9 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
     const toParade = innerHeight - (top + parade.offsetTop + parade.offsetHeight) - innerHeight * 0.02;
     const toEdge = innerHeight + 12 - (top + street.offsetHeight);
     const l = Math.min(0, Math.max(toParade, toEdge));
-    // The street settles higher on wider screens, so the invite line is placed from here: once settled it sits 8% down
-    // the screen, high enough to clear the rooftops, whatever the screen's shape.
-    invite.style.top = `${innerHeight * 0.08 - top - l}px`;
+    // The street settles higher on wider screens, so this tells the invite line's CSS where the top of the screen will
+    // be, in the street, once settled. The CSS sets how far below that the line sits.
+    invite.style.setProperty('--screen-top', `${-top - l}px`);
     return l;
   };
 
@@ -206,7 +206,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
       // The painted border grows past the screen edges in the first stretch of scrolling.
       .to('.hero__border', { scale: 1.2, duration: 0.25, ease: 'power2.in' }, 0)
       .to('.hero__street', { x: () => -pan(), duration: 1 }, 1)
-      .from('.hero__invite', { autoAlpha: 0, y: 16, duration: 0.35 }, 0.55);
+      .from('.hero__invite', { autoAlpha: 0, y: 16, duration: 0.35 }, 0.35);
   });
 
   // Mouse parallax: the pointer sets --mx/--my (-1 to 1) on the stage and each layer drifts by its own depth (CSS).
@@ -293,14 +293,16 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
 
 
   /* Invite line in the sky (Figma Frame 60: Excon Bold 23px at 1440, centred), navy, kept narrow and high so it stays
-     clear of the buildings. The script sets its top to land 8% down the screen once the street settles; the % is the
-     fallback when reduced motion skips the scroll. Width in em so the copy always wraps the same way; the type shrinks
-     to keep it within the screen on a phone. */
+     clear of the buildings. --screen-top (set by the script) is where the top of the screen is once the street settles;
+     the line sits the added distance below it. Change that distance to move it up or down. The 25% is the fallback
+     when reduced motion skips the scroll. A fixed width, never wider than the screen; the type shrinks to keep it
+     within the screen on a phone. */
   .hero__street .hero__invite {
     position: absolute;
     left: 50%;
-    top: 29.5%;
-    width: 20em;
+    top: 20%;
+    width: 800px;
+    max-width: calc(100vw - 32px);
     height: auto;
     margin: 0;
     translate: -50% 0;
