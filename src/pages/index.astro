@@ -1,11 +1,9 @@
 ---
 import { getCollection, getEntry, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ChapterFlat from '../components/ChapterFlat.astro';
 import Eyebrow from '../components/Eyebrow.astro';
 import Takeaway from '../components/Takeaway.astro';
 import Piano from '../components/Piano.astro';
-import Theater from '../components/Theater.astro';
 import MusicStaff from '../components/MusicStaff.astro';
 import BackgroundMusic from '../components/BackgroundMusic.astro';
 import EndOfTheLine from '../components/EndOfTheLine.astro';
@@ -66,7 +64,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
   </section>
 
   <!-- The second line: one section per file in src/content/sections. A chapter with scenes gets one full-screen panel per scene,
-       and a chapter with a flat panel ends on it. -->
+       otherwise it starts with its opener, then its asides and pull quote. -->
   <div id="line">
     {
       rendered.map(({ s, Content, pullQuote }) => (
@@ -86,7 +84,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
                   {/* No eyebrow on a scene, so no heading. A "[Quote] " marker left in the copy is dropped. */}
                   <p class="body body--xl">{scene.text.replace(/^\[Quote\]\s*/, '')}</p>
                   {i === 0 && s.data.caption && <p class="caption">{s.data.caption}</p>}
-                  {last && !s.data.flat && s.data.takeaway && <Takeaway text={s.data.takeaway} />}
+                  {last && s.data.takeaway && <Takeaway text={s.data.takeaway} />}
                 </div>
               </section>
             );
@@ -104,34 +102,23 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
               {s.data.eyebrow && <h2 class:list={['heading', s.data.night ? 'heading--display' : 'heading--xl']}>{s.data.title}</h2>}
               <div class="body"><Content /></div>
               {s.data.caption && <p class="caption">{s.data.caption}</p>}
-              {!s.data.flat && s.data.takeaway && <Takeaway text={s.data.takeaway} />}
+              {s.data.takeaway && <Takeaway text={s.data.takeaway} />}
             </div>
           </section>
         ))}
         {s.data.opener && <ChapterOpener id={s.id} number={s.data.order} {...s.data.opener} night={s.data.night} />}
-        {s.data.flat && (
-          <ChapterFlat
-            id={s.data.fullScreen || s.data.opener ? `${s.id}-flat` : s.id}
-            number={s.data.order}
-            {...s.data.flat}
-            takeaway={s.data.takeaway}
-          />
-        )}
         {s.data.asides.map((aside, i) => (
           <ChapterAside id={`${s.id}-aside${i ? `-${i + 1}` : ''}`} {...aside} night={s.data.night} />
         ))}
         {pullQuote && <Quote id={`${s.id}-quote`} {...pullQuote} night={s.data.night} />}
-        {/* Chapter 2 ends with the playable piano, then the theater: the painted stage, Jon at the piano. */}
+        {/* Chapter 2 ends with the playable piano. */}
         {s.data.order === 2 && (
-          <>
-            <section class="section section--keys" id="piano" data-section="piano">
-              <Piano />
-            </section>
-            <Theater />
-            {/* Below the theater, it fades into a dark band with a playable music staff. */}
-            <MusicStaff />
-          </>
+          <section class="section section--keys" id="piano" data-section="piano">
+            <Piano />
+          </section>
         )}
+        {/* Chapter 3 ends on the playable music staff, below the love riot quote. */}
+        {s.data.order === 3 && <MusicStaff />}
         </>
       ))
     }

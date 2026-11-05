@@ -16,8 +16,9 @@ interface Props {
   date?: string;
   heading: string;
   body?: string;
-  // A photo in a tilted white frame below the copy.
-  photo?: { src: string; alt: string };
+  // A photo in a tilted white frame below the copy. crop, from Figma: the photo's size as a % of the frame, and how
+  // far its left and top edges sit outside the frame, as a % of the frame's width and height.
+  photo?: { src: string; alt: string; crop?: { size: number; left: number; top: number } };
   // A painting behind the whole panel.
   backdrop?: { src: string; alt: string };
   night?: boolean;
@@ -25,6 +26,8 @@ interface Props {
 
 const { id, number, eyebrow, date, heading, body, photo, backdrop, night } = Astro.props;
 const paragraphs = body?.split(/\n\s*\n/).map((para) => para.trim()) ?? [];
+// The frame is 694 × 390, so a top offset in % of its height becomes a margin in % of its width.
+const crop = photo?.crop && `--size: ${photo.crop.size}%; --left: -${photo.crop.left}%; --top: -${(photo.crop.top * 390) / 694}%`;
 ---
 
 <section class:list={['opener', night && 'opener--night', backdrop && 'opener--backdrop']} id={id} data-section={id}>
@@ -43,7 +46,7 @@ const paragraphs = body?.split(/\n\s*\n/).map((para) => para.trim()) ?? [];
   }
   {
     photo && (
-      <div class="opener__frame">
+      <div class="opener__frame" style={crop}>
         <img src={photo.src} alt={photo.alt} width="2000" height="1125" />
       </div>
     )
@@ -71,7 +74,7 @@ const paragraphs = body?.split(/\n\s*\n/).map((para) => para.trim()) ?? [];
   .opener--night { --text: #fff; --gold: #e1ab44; --bg: #070a18; }
   .opener > :not(.opener__backdrop) { position: relative; z-index: 1; }
 
-  .opener__head { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: flex-end; gap: 1rem; }
+  .opener__head { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: last baseline; gap: 1rem; }
   .opener__head .eyebrow { margin-bottom: clamp(2rem, 4.44vw, 4rem); }
   .opener__heading { grid-column: 1; max-width: 7.8em; margin: 0; text-wrap: balance; }
   .opener__text { grid-column: 2; grid-row: 3; max-width: 25.3rem; margin-top: 1rem; }
@@ -87,8 +90,8 @@ const paragraphs = body?.split(/\n\s*\n/).map((para) => para.trim()) ?? [];
     border: 9px solid #fff;
     rotate: 5.78deg;
   }
-  /* Framed on the subject: the photo is 142% of the frame, offset up and left. */
-  .opener__frame img { width: 141.86%; max-width: none; margin: -12.2% 0 0 -12.98%; }
+  /* Framed on the subject by the photo's crop. */
+  .opener__frame img { width: var(--size, 100%); max-width: none; margin: var(--top, 0) 0 0 var(--left, 0); }
 
   /* Night: 900 tall at 1440 wide, the copy on its bottom edge. */
   .opener--backdrop { min-height: 62.5vw; grid-template-rows: auto auto 1fr; padding-bottom: clamp(3rem, 7.8vw, 7rem); }

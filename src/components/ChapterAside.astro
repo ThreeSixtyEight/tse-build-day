@@ -3,17 +3,20 @@
 // paragraph on the left, a photo in a tilted white frame on the right. Without a photo the frame shows grey, as in Figma.
 // bleed (frame 10405:663): the picture runs off the left edge of the screen, unframed, with the copy on the right.
 // It rolls in from the left as the panel scrolls into view and comes to rest flush with the screen's edge.
+// cutout (frame 10405:685): an unframed cutout painting on the right instead of the frame, its top fading into the
+// panel; flip mirrors it.
 // night: white and gold on navy.
 interface Props {
   id: string;
   eyebrow?: string;
   body: string;
-  image?: { src: string; alt: string; bleed?: boolean };
+  image?: { src: string; alt: string; bleed?: boolean; cutout?: boolean; flip?: boolean };
   night?: boolean;
 }
 
 const { id, eyebrow, body, image, night } = Astro.props;
 const bleed = image?.bleed;
+const cutout = image?.cutout;
 ---
 
 <section class:list={['aside', night && 'aside--night', bleed && 'aside--bleed']} id={id} data-section={id}>
@@ -28,7 +31,15 @@ const bleed = image?.bleed;
     {eyebrow && <p class="eyebrow eyebrow--caps">{eyebrow}</p>}
     <div class="body"><p>{body}</p></div>
   </div>
-  {!bleed && <div class="aside__frame">{image && <img src={image.src} alt={image.alt} />}</div>}
+  {
+    cutout ? (
+      <div class:list={['aside__cutout', image!.flip && 'aside__cutout--flip']}>
+        <img src={image!.src} alt={image!.alt} width="2000" height="1125" />
+      </div>
+    ) : (
+      !bleed && <div class="aside__frame">{image && <img src={image.src} alt={image.alt} />}</div>
+    )
+  }
 </section>
 
 <style>
@@ -68,6 +79,20 @@ const bleed = image?.bleed;
   }
   .aside__frame img { width: 100%; height: 100%; object-fit: cover; }
 
+  /* Cutout: 733 × 461, from 547 in to the container's right edge, the painting 112% of the box so it's cropped
+     a little at the sides, and its top faded into the panel. */
+  .aside__cutout {
+    grid-column: 2 / -1;
+    justify-self: end;
+    position: relative;
+    width: 95.8%;
+    aspect-ratio: 733 / 461;
+    overflow: hidden;
+  }
+  .aside__cutout img { width: 111.63%; max-width: none; margin-left: -3.13%; }
+  .aside__cutout::after { content: ''; position: absolute; inset: 0; background: linear-gradient(179.6deg, var(--bg) 0.7%, transparent 14%); }
+  .aside__cutout--flip { scale: -1 1; }
+
   /* Bleed: no left padding, the picture's 706 against the screen's left edge, 139 of gap, then the copy's 515
      (406 of copy, 109 kept clear on its right), all in the 1360 left of the right margin. */
   .aside--bleed { grid-template-columns: minmax(0, 706fr) minmax(0, 139fr) minmax(0, 515fr); padding-left: 0; }
@@ -79,11 +104,12 @@ const bleed = image?.bleed;
   /* Stacks a little earlier than the other panels: side by side, the copy gets too narrow below 900. */
   @media (max-width: 900px) {
     .aside, .aside--bleed { grid-template-columns: minmax(0, 1fr); row-gap: 2.5rem; }
-    .aside__text, .aside__frame, .aside__bleed, .aside--bleed .aside__text { grid-column: 1; }
+    .aside__text, .aside__frame, .aside__bleed, .aside__cutout, .aside--bleed .aside__text { grid-column: 1; }
     .aside__text { padding-left: 0; }
     .aside--bleed .aside__text { padding: 0 0 0 var(--pad); }
     .aside__frame { width: 92%; margin-block: 0; border-width: 6px; rotate: -3deg; }
     .aside__bleed { margin-right: 10%; }
+    .aside__cutout { width: 100%; }
   }
 </style>
 

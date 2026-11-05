@@ -36,20 +36,32 @@ const sections = defineCollection({
         date: z.string().optional(),
         heading: z.string(),
         body: z.string().optional(),
-        photo: z.object({ src: z.string(), alt: z.string() }).optional(),
+        // crop, from Figma: the photo's size as a % of its frame, and how far its left and top edges sit outside it.
+        photo: z
+          .object({ src: z.string(), alt: z.string(), crop: z.object({ size: z.number(), left: z.number(), top: z.number() }).optional() })
+          .optional(),
         backdrop: z.object({ src: z.string(), alt: z.string() }).optional(),
         // Working notes for the team; kept in the file, never shown on the page.
         notes: z.array(z.string()).default([]),
       })
       .optional(),
     // Short beats after the opener (ChapterAside.astro), in order: eyebrow, a paragraph and a framed photo, or with
-    // bleed a picture running off the left edge of the screen.
+    // bleed a picture running off the left edge of the screen, or with cutout an unframed cutout on the right
+    // (flip mirrors it).
     asides: z
       .array(
         z.object({
           eyebrow: z.string().optional(),
           body: z.string(),
-          image: z.object({ src: z.string(), alt: z.string(), bleed: z.boolean().default(false) }).optional(),
+          image: z
+            .object({
+              src: z.string(),
+              alt: z.string(),
+              bleed: z.boolean().default(false),
+              cutout: z.boolean().default(false),
+              flip: z.boolean().default(false),
+            })
+            .optional(),
         }),
       )
       .default([]),
@@ -58,34 +70,12 @@ const sections = defineCollection({
     // A chapter as full-screen scenes in order (intro, resolution), each a background photo and its copy.
     // photo: an Unsplash photo id, credited in src/data/credits.json. Without scenes the section shows its body copy.
     scenes: z.array(z.object({ text: z.string(), photo: z.string().optional() })).default([]),
-    // false: the chapter is only its flat panel, with no full-screen scene before it.
+    // false: no full-screen scene; the chapter starts with its opener.
     fullScreen: z.boolean().default(true),
-    // Small gold line above the full-screen scene's headline, in the style of the flat panel's chapter number.
+    // Small gold line above the full-screen scene's headline, in the style of the opener's chapter number.
     eyebrow: z.string().optional(),
     // Full-screen scene behind the section's first panel. Without one, the placeholder photo in index.astro shows.
     background: z.string().optional(),
-    // Each chapter is two panels: the full-screen scene, then a flat neutral panel with a cutout and text.
-    flat: z
-      .object({
-        // Gold line above the heading, after the chapter number: the place and year, e.g. "Kenner, Louisiana, mid-1990s".
-        eyebrow: z.string().optional(),
-        // Headings only show under an eyebrow.
-        heading: z.string().optional(),
-        body: z.string().optional(),
-        // A smaller heading (h3) below the body, e.g. "But New York calls louder."
-        subheading: z.string().optional(),
-        // Transparent cutout in front, and an optional prop behind it that moves slower as the page scrolls.
-        // bleed: a wide cutout cropped at its left end, so it runs off the left edge of the screen.
-        // full: the cutout spans the panel's whole width, standing on its bottom edge, with the text over its empty side.
-        cutout: z.object({ src: z.string(), alt: z.string(), bleed: z.boolean().default(false), full: z.boolean().default(false) }),
-        prop: z.object({ src: z.string(), alt: z.string() }).optional(),
-        caption: z.string().optional(),
-        // A dark panel with white text instead of the light one.
-        dark: z.boolean().default(false),
-        // Working notes for the team; kept in the file, never shown on the page.
-        notes: z.array(z.string()).default([]),
-      })
-      .optional(),
   }),
 });
 

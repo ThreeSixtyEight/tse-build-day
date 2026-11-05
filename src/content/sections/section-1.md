@@ -24,6 +24,7 @@ opener:
   photo:
     src: /chapter-1/playroom.jpg
     alt: Painting of a small boy in a green sweater playing a toy drum set in a wood-panelled living room, toys on the rug beside him
+    crop: { size: 141.86, left: 12.98, top: 21.63 }
   notes:
     - "Painting: confirm it's cleared for use before the alt text or caption names Jon."
 # Then a short beat with a framed photo (frame 10405:638), then a pull quote (frame 10405:644).
