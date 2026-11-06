@@ -101,7 +101,8 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
   .eol .body { max-width: none; margin: 0; font-size: 1.125rem; line-height: 1.5; }
 
   /* Each instrument: its Figma box, with the picture centred in it and turned (some flipped) as in the design.
-     Hover or tap: it grows a little and wiggles. */
+     Hover: the one under the cursor is drawn toward it, like a magnet (--mx/--my in px, set by the script), and
+     grows a touch. Playing: a small sway. */
   .eol__inst {
     position: absolute;
     display: flex;
@@ -111,19 +112,18 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
     border: 0;
     background: none;
     cursor: pointer;
-    transition: scale 300ms ease;
+    translate: calc(var(--mx, 0) * 1px) calc(var(--my, 0) * 1px);
+    transition: scale 400ms ease;
   }
   .eol__inst img { flex: none; max-width: none; pointer-events: none; }
   .eol__inst:hover,
-  .eol__inst.is-playing { scale: 1.1; }
-  .eol__inst.is-playing { animation: eol-wiggle 600ms ease-in-out; }
+  .eol__inst.is-playing { scale: 1.04; }
+  .eol__inst.is-playing { animation: eol-sway 700ms ease-in-out; }
   .eol__inst:focus-visible { outline: 2px solid #2c409d; outline-offset: 4px; }
-  @keyframes eol-wiggle {
+  @keyframes eol-sway {
     0%, 100% { rotate: 0deg; }
-    20% { rotate: -7deg; }
-    40% { rotate: 6deg; }
-    60% { rotate: -4deg; }
-    80% { rotate: 2deg; }
+    35% { rotate: -2.5deg; }
+    70% { rotate: 1.5deg; }
   }
   .eol__inst--melodica { left: calc(878.7 * var(--u)); top: calc(1.32 * var(--u)); width: calc(364.03 * var(--u)); height: calc(187.86 * var(--u)); }
   .eol__inst--melodica img { width: calc(349.88 * var(--u)); height: calc(100.74 * var(--u)); rotate: -15deg; }
@@ -181,12 +181,13 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
     .eol .body { font-size: 1rem; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .eol__inst { transition: none; }
+    .eol__inst { transition: none; translate: none; }
     .eol__inst.is-playing { animation: none; }
   }
 </style>
 
 <script>
+  import { gsap } from 'gsap';
   import { isSoundOn, setSound, soundChoiceMade } from '../scripts/sound';
   import { loadInstrumentSounds, playInstrument } from '../scripts/instrument-sounds';
 
@@ -203,7 +204,7 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
     button.classList.remove('is-playing');
     void button.offsetWidth;
     button.classList.add('is-playing');
-    window.setTimeout(() => button.classList.remove('is-playing'), 600);
+    window.setTimeout(() => button.classList.remove('is-playing'), 700);
     playInstrument(id);
   }
 
@@ -222,6 +223,45 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
 
   if (isSoundOn()) loadInstrumentSounds();
   document.addEventListener('sound:change', () => isSoundOn() && loadInstrumentSounds());
+
+  // ---------- Magnetic instruments ----------
+  // The instrument under the cursor leans toward it, a share of the way from its centre (capped), and eases back
+  // when the cursor leaves. Mouse and trackpad only.
+  const PULL = 0.3;
+  const MAX = 40;
+  gsap.matchMedia().add('(prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine)', () => {
+    const buttons = [...document.querySelectorAll<HTMLElement>('.eol [data-instrument]')];
+    const off = buttons.map((button) => {
+      const toX = gsap.quickTo(button, '--mx', { duration: 0.6, ease: 'power3' });
+      const toY = gsap.quickTo(button, '--my', { duration: 0.6, ease: 'power3' });
+      // Its centre at rest, measured on entering, so its own movement doesn't shift the target.
+      let cx = 0;
+      let cy = 0;
+      const enter = () => {
+        const r = button.getBoundingClientRect();
+        const mx = parseFloat(getComputedStyle(button).getPropertyValue('--mx')) || 0;
+        const my = parseFloat(getComputedStyle(button).getPropertyValue('--my')) || 0;
+        cx = r.left + r.width / 2 - mx;
+        cy = r.top + r.height / 2 - my;
+      };
+      const clamp = gsap.utils.clamp(-MAX, MAX);
+      const move = (e: PointerEvent) => {
+        toX(clamp((e.clientX - cx) * PULL));
+        toY(clamp((e.clientY - cy) * PULL));
+      };
+      const leave = () => (toX(0), toY(0));
+      button.addEventListener('pointerenter', enter);
+      button.addEventListener('pointermove', move);
+      button.addEventListener('pointerleave', leave);
+      return () => {
+        button.removeEventListener('pointerenter', enter);
+        button.removeEventListener('pointermove', move);
+        button.removeEventListener('pointerleave', leave);
+        gsap.set(button, { '--mx': 0, '--my': 0 });
+      };
+    });
+    return () => off.forEach((fn) => fn());
+  });
 
   // ---------- Spotify player ----------
   // Spotify's iFrame API swaps the placeholder for the embed and reports play and pause, which goes out as a
