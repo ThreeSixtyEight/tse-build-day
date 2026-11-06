@@ -1,7 +1,7 @@
 ---
 // A pull quote on the light panel (Build Day Figma, frame 10405:644): a large opening mark, the words on the left,
-// the source low on the right. As it scrolls into view its words fade in one after another, then the source,
-// one word at a time. Source and date are required; never invent a quote.
+// the source low on the right. As it scrolls into view its words fade in one after another, and the source fades in
+// soon after they start. Source and date are required; never invent a quote.
 interface Props {
   id: string;
   text: string;
@@ -66,7 +66,8 @@ const { id, text, source, date, url, night } = Astro.props;
           gsap
             .timeline({ scrollTrigger: { trigger: quote, start: 'top 75%', toggleActions: 'play none none reverse' } })
             .from(self.words, { opacity: 0, y: '0.15em', duration: 0.7, ease: 'power2.out', stagger: 0.08 })
-            .from(quote.querySelector('figcaption'), { opacity: 0, duration: 0.6, ease: 'power1.out' }, '-=0.3'),
+            // The source fades in soon after the first words, rather than waiting for the last.
+            .from(quote.querySelector('figcaption'), { opacity: 0, duration: 0.6, ease: 'power1.out' }, 0.4),
       }),
     );
     return () => splits.forEach((split) => split.revert());
