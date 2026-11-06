@@ -19,7 +19,7 @@ fullScreen: false
 opener:
   eyebrow: New Orleans, Louisiana
   date: Early 2000s
-  heading: The gig at Snug Harbor
+  heading: Fifteen on Frenchman
   body: "On Frenchmen Street there's a band behind every open door. Playing at Snug Harbor is clarinetist Alvin Batiste, with a new kid on piano: 15-year-old Jon Batiste."
   backdrop:
     src: /chapter-2/snug-harbor.webp
