@@ -63,7 +63,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
       <div class="hero__border" aria-hidden="true"></div>
       <!-- The way in to sound: turns it on, then goes, and the corner sound button takes over (scripts/sound.ts). -->
       <div class="hero__audio">
-        <RollButton tone="blue" label="Start The Music" data-sound-start />
+        <RollButton label="Start The Music" data-sound-start />
       </div>
     </div>
   </section>
@@ -328,6 +328,11 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
     left: 50%;
     bottom: calc(clamp(20px, 3vw, 44px) + 5svh);
     translate: -50% 0;
+  }
+  /* The white site button, with navy text and a soft shadow (drop-shadow, so it follows the notched pill). */
+  .hero__audio :global(.roll.roll--light) {
+    --roll-ink: var(--navy-100, #141c41);
+    filter: drop-shadow(0 4px 10px rgb(20 28 65 / 0.25));
   }
   .hero__audio :global(.roll.is-gone) {
     opacity: 0 !important;

@@ -1,13 +1,15 @@
 // Site-wide sound switch. Sound stays off until the visitor opts in.
 // Anything that makes sound checks isSoundOn() and listens for the 'sound:change' event on document.
 // Audio and video elements on the page are muted while sound is off; ones marked muted stay muted.
-// Wires up the corner toggle ([data-sound-toggle]), which stays hidden until a choice is made, and the hero's
+// Wires up the corner toggle ([data-sound-toggle]), which stays hidden until the visitor scrolls or makes a choice, and the hero's
 // "Start The Music" button ([data-sound-start]), which turns sound on and then goes away.
 
 const STORAGE_KEY = 'sound';
 
 let soundOn = false;
 let chosen = false;
+// The corner toggle fades in once the visitor starts scrolling.
+let scrolled = scrollY > 0;
 
 export const isSoundOn = () => soundOn;
 
@@ -28,8 +30,8 @@ function render() {
   // The label says what a click does.
   document.querySelectorAll<HTMLButtonElement>('[data-sound-toggle]').forEach((button) => {
     button.querySelectorAll('.roll__label').forEach((label) => (label.textContent = soundOn ? 'Sound Off' : 'Sound On'));
-    button.classList.toggle('is-shown', chosen);
-    button.inert = !chosen;
+    button.classList.toggle('is-shown', chosen || scrolled);
+    button.inert = !(chosen || scrolled);
   });
   document.querySelectorAll<HTMLButtonElement>('[data-sound-start]').forEach((button) => {
     button.classList.toggle('is-gone', chosen);
@@ -59,6 +61,17 @@ document.querySelectorAll<HTMLButtonElement>('[data-sound-toggle]').forEach((but
 document.querySelectorAll<HTMLButtonElement>('[data-sound-start]').forEach((button) => {
   button.addEventListener('click', () => setSound(true));
 });
+
+if (!scrolled) {
+  addEventListener(
+    'scroll',
+    () => {
+      scrolled = true;
+      render();
+    },
+    { once: true, passive: true },
+  );
+}
 
 // Keep the choice from earlier in this tab across reloads.
 const saved = savedChoice();
