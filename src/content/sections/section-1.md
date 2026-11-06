@@ -30,7 +30,7 @@ opener:
 # Then a short beat with a framed photo (frame 10405:638), then a pull quote (frame 10405:644).
 # Figma shows chapter 2's Snug Harbor copy here as a placeholder, so this keeps chapter 1's own line about his mother.
 asides:
-  - eyebrow: Gaining confidence
+  - eyebrow: Finding His Instrument
     body: "His mother hears one drum too many. So she moves Jon to the piano–the one from Duke Ellington's orchestra. Mothers around here are usually right."
     # image: grey placeholder frame until the photo is picked.
 pullQuote: fresh-air-family
