@@ -28,7 +28,9 @@ opener:
 asides:
   - eyebrow: Gaining confidence
     body: "It's Jon's first real gig outside the family and he's nervous. He'll tell you so himself. He plays anyway, and Alvin keeps calling him back. But New York calls louder."
-    # image: grey placeholder frame until the photo is picked.
+    image:
+      src: /chapter-2/snug-harbor-exterior.webp
+      alt: Painting of Snug Harbor on Frenchmen Street at night, its sign lit by a street lamp and people at tables behind the front windows
   - eyebrow: Leaving for New York
     body: "In 2004, Jon Batiste packs a suitcase and heads north for an audition at Juilliard. Frenchmen Street stays behind, but the sound of it rides along."
     image:

@@ -32,6 +32,9 @@ opener:
 asides:
   - eyebrow: Finding His Instrument
     body: "His mother hears one drum too many. So she moves Jon to the piano–the one from Duke Ellington's orchestra. Mothers around here are usually right."
-    # image: grey placeholder frame until the photo is picked.
+    # Figma 10405:643, cropped as the design frames it.
+    image:
+      src: /chapter-1/duke-piano.webp
+      alt: Painting of a black grand piano with its lid raised and its bench beside it, lit by a glowing orange sunset
 pullQuote: fresh-air-family
 ---

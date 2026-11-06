@@ -26,13 +26,11 @@ asides:
   - eyebrow: Falling In
     body: "When the set ends he climbs off the stage and falls in with Nine Times, the parade club born in the Desire projects. The 9th Ward is marching again, and Nine Times is back in the street."
     image:
-      src: /chapter-4/festival-stage.webp
-      alt: Photo of Jon Batiste in a gold suit dancing across an outdoor festival stage with dancers and a brass band
+      src: /chapter-4/festival-stage-painting.webp
+      alt: Painting of Jon Batiste in a green and gold striped suit dancing across an outdoor festival stage, reaching for a dancer's hand, with more dancers and a brass band behind him
 pullQuote: grammys
 # Notes for the team, never shown on the page:
-# - The festival photo is a real photograph from Figma: confirm its source, credit and rights before launch, and add it
-#   to src/data/credits.json.
-# - The festival photo shows dancers: check it against the Nine Times regalia and colors directive.
+# - The festival painting (Figma 10405:718) shows dancers: check it against the Nine Times regalia and colors directive.
 ---
 
 In November 2024 violence stops the 9th Ward's annual second line. A neighborhood that marches every year stands still. Three months later, Jon Batiste comes home to Desire, New Orleans with a free festival and his father on the bill.
