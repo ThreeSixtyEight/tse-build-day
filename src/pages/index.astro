@@ -61,7 +61,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
         <img class="hero__jon" src="/hero/jon.webp" alt="Painted portrait of Jon Batiste on a New Orleans street" />
       </div>
       <div class="hero__border" aria-hidden="true"></div>
-      <!-- The way in to sound: turns it on, then goes, and the corner sound button takes over (scripts/sound.ts). -->
+      <!-- Turns the music on and off, and stays for the whole hero; the corner sound button takes over below it (scripts/sound.ts). -->
       <div class="hero__audio">
         <RollButton label="Start The Music" data-sound-start />
       </div>
@@ -212,7 +212,6 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
       .to('.hero__jon', { y: () => 720 * frame(), duration: 0.6 }, 0)
       // The painted border grows past the screen edges in the first stretch of scrolling.
       .to('.hero__border', { scale: 1.2, duration: 0.25, ease: 'power2.in' }, 0)
-      .to('.hero__audio', { autoAlpha: 0, duration: 0.15 }, 0)
       .to('.hero__street', { x: () => -pan(), duration: 1 }, 1)
       .from('.hero__invite', { autoAlpha: 0, y: 16, duration: 0.35 }, 0.35);
   });
@@ -320,24 +319,18 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
     color: var(--navy-100, #141c41);
   }
 
-  /* "Start The Music": centred near the bottom of the screen, inside the painted frame. Fades as the hero
-     scrolls (script), and goes once clicked (.is-gone, set in scripts/sound.ts; !important over GSAP's inline styles). */
+  /* "Start The Music" / "Stop The Music": centred near the bottom of the screen, inside the painted frame, for the whole hero. */
   .hero__audio {
     position: absolute;
     z-index: 1;
     left: 50%;
-    bottom: calc(clamp(20px, 3vw, 44px) + 5svh);
+    bottom: calc(clamp(20px, 3vw, 44px) + 5svh - 16px);
     translate: -50% 0;
   }
   /* The white site button, with navy text and a soft shadow (drop-shadow, so it follows the notched pill). */
   .hero__audio :global(.roll.roll--light) {
     --roll-ink: var(--navy-100, #141c41);
     filter: drop-shadow(0 4px 10px rgb(20 28 65 / 0.25));
-  }
-  .hero__audio :global(.roll.is-gone) {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    transition: opacity 400ms ease, visibility 0s 400ms;
   }
 
   /* Painted frame: one strip per edge, rotated copies of the Figma border. */
@@ -402,8 +395,8 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
 
   /* width: auto so the left margin narrows the column instead of pushing it past the right edge. */
   .section--stage .wrap { width: auto; box-sizing: content-box; max-width: 34.25rem; margin-inline: clamp(1rem, 6vw, 6rem) auto; }
-  /* The piano panel is just the painted keys, right below the chapter before it: no screen height, padding or dark backdrop. */
-  .section.section--keys { min-height: 0; padding: 0; border-bottom: 0; background: none; }
+  /* The piano panel (Figma frame 10473:235): the painting edge to edge on the dark page, 80px above and below. */
+  .section.section--keys { min-height: 0; padding: 80px 0; border-bottom: 0; background: #070a18; }
 
   .section { padding-block: 3rem; border-bottom: 1px solid var(--line); }
 </style>

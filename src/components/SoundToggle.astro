@@ -1,7 +1,7 @@
 ---
 // Sound on/off, fixed to the bottom right corner: the site's blue roll button (Build Day Figma, frame 10474:249),
 // labelled with what a click does, "Sound On" while sound is off and "Sound Off" while it's on.
-// Hidden until the visitor starts scrolling or makes a choice (the hero's "Start The Music" button).
+// Hidden while the hero is on screen, since the hero has its own Start / Stop The Music button.
 // Wired up in scripts/sound.ts.
 import RollButton from './RollButton.astro';
 ---
@@ -13,14 +13,12 @@ import RollButton from './RollButton.astro';
 </script>
 
 <style>
-  /* button.roll.… to outweigh RollButton's own scoped styles. Outfit Light 18px as in the design. */
+  /* button.roll.… to outweigh RollButton's own scoped styles. */
   :global(button.roll.sound-toggle) {
     position: fixed;
     right: var(--gutter);
     bottom: var(--gutter);
     z-index: 50;
-    font: 300 18px / 1.5 var(--font-body);
-    letter-spacing: -0.02em;
     /* A faint light edge and glow around the pill, so it still shows on dark sections. */
     filter: drop-shadow(0 0 1px rgb(255 255 255 / 0.4)) drop-shadow(0 0 10px rgb(255 184 0 / 0.15));
     transition: opacity 400ms ease, translate 400ms ease, visibility 0s 400ms;

@@ -1,15 +1,16 @@
 // Site-wide sound switch. Sound stays off until the visitor opts in.
 // Anything that makes sound checks isSoundOn() and listens for the 'sound:change' event on document.
 // Audio and video elements on the page are muted while sound is off; ones marked muted stay muted.
-// Wires up the corner toggle ([data-sound-toggle]), which stays hidden until the visitor scrolls or makes a choice, and the hero's
-// "Start The Music" button ([data-sound-start]), which turns sound on and then goes away.
+// Wires up the hero's "Start The Music" / "Stop The Music" button ([data-sound-start]) and the corner toggle
+// ([data-sound-toggle]), which stays hidden while the hero is on screen, since the hero has its own button.
 
 const STORAGE_KEY = 'sound';
 
 let soundOn = false;
 let chosen = false;
-// The corner toggle fades in once the visitor starts scrolling.
-let scrolled = scrollY > 0;
+// True while the hero (the section holding the hero's button) fills most of the screen.
+let inHero = false;
+const hero = document.querySelector('[data-sound-start]')?.closest('section');
 
 export const isSoundOn = () => soundOn;
 
@@ -27,15 +28,16 @@ function savedChoice(): boolean | null {
 }
 
 function render() {
-  // The label says what a click does.
+  // Each label says what a click does.
+  const label = (button: HTMLElement, text: string) =>
+    button.querySelectorAll('.roll__label').forEach((el) => (el.textContent = text));
   document.querySelectorAll<HTMLButtonElement>('[data-sound-toggle]').forEach((button) => {
-    button.querySelectorAll('.roll__label').forEach((label) => (label.textContent = soundOn ? 'Sound Off' : 'Sound On'));
-    button.classList.toggle('is-shown', chosen || scrolled);
-    button.inert = !(chosen || scrolled);
+    label(button, soundOn ? 'Sound Off' : 'Sound On');
+    button.classList.toggle('is-shown', !inHero);
+    button.inert = inHero;
   });
   document.querySelectorAll<HTMLButtonElement>('[data-sound-start]').forEach((button) => {
-    button.classList.toggle('is-gone', chosen);
-    button.inert = chosen;
+    label(button, soundOn ? 'Stop The Music' : 'Start The Music');
   });
   // Media marked muted in the page (like the hero's sky video) is decorative and stays silent.
   document.querySelectorAll<HTMLMediaElement>('audio, video').forEach((media) => {
@@ -59,19 +61,19 @@ document.querySelectorAll<HTMLButtonElement>('[data-sound-toggle]').forEach((but
   button.addEventListener('click', () => setSound(!soundOn));
 });
 document.querySelectorAll<HTMLButtonElement>('[data-sound-start]').forEach((button) => {
-  button.addEventListener('click', () => setSound(true));
+  button.addEventListener('click', () => setSound(!soundOn));
 });
 
-if (!scrolled) {
-  addEventListener(
-    'scroll',
-    () => {
-      scrolled = true;
-      render();
-    },
-    { once: true, passive: true },
-  );
+// The corner toggle comes back once the hero is more than half off the screen.
+function checkHero() {
+  const now = !!hero && hero.getBoundingClientRect().bottom > innerHeight / 2;
+  if (now === inHero) return;
+  inHero = now;
+  render();
 }
+addEventListener('scroll', checkHero, { passive: true });
+addEventListener('resize', checkHero);
+inHero = !!hero && hero.getBoundingClientRect().bottom > innerHeight / 2;
 
 // Keep the choice from earlier in this tab across reloads.
 const saved = savedChoice();

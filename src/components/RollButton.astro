@@ -43,7 +43,9 @@ const Tag = href ? 'a' : 'button';
     border: 0;
     background: none;
     color: var(--roll-ink);
-    font: 400 18.868px / 1 'Excon', system-ui, sans-serif;
+    /* The Figma's Text Main style, on every button: Outfit Light 18px, 1.5 line height, -2% tracking. */
+    font: 300 18px / 1.5 var(--font-body);
+    letter-spacing: -0.02em;
     text-decoration: none;
     white-space: nowrap;
     cursor: pointer;
