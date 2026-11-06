@@ -158,8 +158,8 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
     gap: 48px;
   }
   .eol__listen-copy { display: flex; flex-direction: column; gap: 24px; }
-  /* The eyebrow is Eyebrow.astro's markup, so it's reached with :global. 20px, sitting 24px over the copy. */
-  .eol__listen :global(.eyebrow) { margin: 0; font-size: 1.25rem; line-height: 1.5; }
+  /* The eyebrow is Eyebrow.astro's markup, so it's reached with :global. It sits 24px over the copy. */
+  .eol__listen :global(.eyebrow) { margin: 0; }
 
 
   /* Below 1200px the Figma's composition gets too small for its copy and the player, so it stacks: the heading and

@@ -36,20 +36,21 @@ a { color: inherit; }
 /* Shared type for every content block: eyebrow, then heading, then body, then caption. Use these classes instead of
    styling a block's own h2 or p, so every block on the page reads the same. Colours come from the block's --text and --muted. */
 /* Sizes from the Build Day Figma (frame 166:792, 1440 wide), scaling down with the screen. 48px between the parts. */
-/* Eyebrow: the chapter number in the heading font (Gunter), 24px gap, then the place in the accent font (Arnika),
-   all caps, both gold. Every eyebrow is .eyebrow.eyebrow--caps (Eyebrow.astro adds both). */
+/* Eyebrow (Figma frame 10405:650, at 1440 wide): the chapter number in the heading font (Gunter, H6: 24px), 32px gap,
+   then the place in the accent font (Arnika, Eyebrow style: 20px, 1.5 line height), all caps, both gold, centred
+   on one line. Every eyebrow is .eyebrow.eyebrow--caps (Eyebrow.astro adds both). */
 .eyebrow {
   display: flex;
-  align-items: flex-end;
-  column-gap: clamp(0.75rem, 1.67vw, 1.5rem);
+  align-items: center;
+  column-gap: clamp(1rem, 2.22vw, 2rem);
   margin: 0 0 clamp(1.5rem, 3.33vw, 3rem);
   font-family: var(--font-accent);
-  font-size: clamp(1.125rem, 1.6vw, 1.4375rem);
-  line-height: 1.22;
+  font-size: clamp(1rem, 1.39vw, 1.25rem);
+  line-height: 1.5;
   color: var(--gold);
 }
-.eyebrow--caps { letter-spacing: 0.01em; text-transform: uppercase; }
-.eyebrow__num { font-family: 'gunter', 'Melodrama', serif; font-size: 1.71em; line-height: 0.94; letter-spacing: 0; }
+.eyebrow--caps { letter-spacing: 0; text-transform: uppercase; }
+.eyebrow__num { font-family: 'gunter', 'Melodrama', serif; font-size: 1.2em; line-height: 1.3; letter-spacing: 0; }
 /* Headings: .heading plus a size. xl is a chapter heading, lg a heading within a chapter (a step down). */
 .heading { margin: 0 0 clamp(1.5rem, 3.33vw, 3rem); line-height: 0.94; }
 .heading--xl { font-size: clamp(3rem, 6.9vw, 4.2rem); }
@@ -58,13 +59,14 @@ a { color: inherit; }
 /* h1: the chapter heading of the painted panel (80px at 1440 wide, Figma frame 10405:630). */
 .heading--h1 { font-size: clamp(3rem, 5.56vw, 5rem); line-height: 1.07; }
 .heading--lg { font-size: clamp(1.75rem, 3.5vw, 2.75rem); }
-/* Body: a paragraph, or a wrapper around several, in Outfit Light. --lead a little larger, --xl for a full-screen scene. */
+/* Body: a paragraph, or a wrapper around several, in Outfit Light: the Figma's Text Main (18px, 1.5 line height,
+   -2% tracking at 1440 wide). --lead a little larger, --xl for a full-screen scene. */
 .body, .body > p { max-width: 34.25rem; margin: 0 0 1rem; }
 .body {
   font-family: var(--font-body);
   font-weight: 300;
-  font-size: clamp(1.0625rem, 1.41vw, 1.27rem);
-  line-height: 1.47;
+  font-size: clamp(1rem, 1.25vw, 1.125rem);
+  line-height: 1.5;
   letter-spacing: -0.02em;
 }
 .body > p:last-child { margin-bottom: 0; }
