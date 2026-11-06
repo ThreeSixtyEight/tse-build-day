@@ -16,7 +16,7 @@ fullScreen: false
 opener:
   eyebrow: New York, New York
   date: 2004 – 2011
-  heading: The Juilliard years
+  heading: Uptown, then underground
   body: "Juilliard is all travertine and good posture. At his audition Jon Batiste can't read the sheet music in front of him. So he plays what he hears, and the music in his heart opens the door to Juilliard."
   photo:
     src: /theater/stage.jpg
