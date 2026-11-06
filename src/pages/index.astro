@@ -398,7 +398,7 @@ const bg = (id: string, own?: string) => (own ? `--photo: url(${own})` : photos[
   /* width: auto so the left margin narrows the column instead of pushing it past the right edge. */
   .section--stage .wrap { width: auto; box-sizing: content-box; max-width: 34.25rem; margin-inline: clamp(1rem, 6vw, 6rem) auto; }
   /* The piano panel (Figma frame 10473:235): the painting edge to edge on the dark page, 80px above and below. */
-  .section.section--keys { min-height: 0; padding: 80px 0; border-bottom: 0; background: #070a18; }
+  .section.section--keys { min-height: 0; padding: 0 0 80px; border-bottom: 0; background: #070a18; }
 
   .section { padding-block: 3rem; border-bottom: 1px solid var(--line); }
 </style>
