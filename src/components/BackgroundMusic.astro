@@ -2,6 +2,8 @@
 // Background music: a recording of a wedding second line, looping under the page.
 // It follows the site's sound switch (scripts/sound.ts): it plays only once the visitor turns sound on, fading in,
 // and stops when they turn it off (the switch mutes it at once). It also pauses while the tab is hidden.
+// While the Spotify player plays ('spotify:playback', from EndOfTheLine), it fades out under it, and fades back in
+// once Spotify pauses.
 ---
 
 <audio data-bg-music src="/audio/wedding-second-line.mp3" loop preload="none"></audio>
@@ -15,9 +17,11 @@
   const music = document.querySelector<HTMLAudioElement>('[data-bg-music]');
   if (music) {
     let fade = 0;
+    // True while the Spotify player is playing.
+    let spotify = false;
 
-    // Ease the volume up to the target.
-    function fadeTo(target: number) {
+    // Ease the volume to the target, then call done.
+    function fadeTo(target: number, done?: () => void) {
       cancelAnimationFrame(fade);
       const from = music!.volume;
       const start = performance.now();
@@ -26,6 +30,7 @@
         const t = Math.min(1, Math.max(0, (now - start) / FADE_MS));
         music!.volume = from + (target - from) * t;
         if (t < 1) fade = requestAnimationFrame(step);
+        else done?.();
       };
       fade = requestAnimationFrame(step);
     }
@@ -43,7 +48,7 @@
     }
 
     function start() {
-      if (document.hidden) return;
+      if (document.hidden || spotify) return;
       if (music!.paused) music!.volume = 0;
       music!.play().then(() => fadeTo(VOLUME), waitForGesture);
     }
@@ -53,6 +58,11 @@
       music!.pause();
     }
 
+    document.addEventListener('spotify:playback', (e) => {
+      spotify = (e as CustomEvent<{ playing: boolean }>).detail.playing;
+      if (spotify) fadeTo(0, () => music!.pause());
+      else if (isSoundOn()) start();
+    });
     document.addEventListener('sound:change', () => (isSoundOn() ? start() : stop()));
     document.addEventListener('visibilitychange', () => {
       if (!isSoundOn()) return;

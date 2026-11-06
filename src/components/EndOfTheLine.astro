@@ -40,15 +40,9 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
       <!-- Official Spotify artist embed: only Jon Batiste's own catalogue plays here. No AI voice or AI music.
            Analytics: embed clicks. -->
       <!-- 352px, Spotify's standard height: taller than the Figma's 282px so three songs show under the header, no fourth. -->
+      <!-- Built with Spotify's iFrame API (script below) so the page hears when it plays and fades the site's music out. -->
       <div class="eol__player">
-        <iframe
-          title="Jon Batiste on Spotify"
-          src="https://open.spotify.com/embed/artist/0eRbECAGCLLiTyVXPBRexU?utm_source=generator"
-          frameborder="0"
-          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
-          data-embed="spotify"
-        ></iframe>
+        <div data-spotify-embed data-uri="spotify:artist:0eRbECAGCLLiTyVXPBRexU"></div>
       </div>
       <div class="eol__listen align-left">
         <div class="eol__listen-copy">
@@ -149,7 +143,8 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
     overflow: hidden;
     border-radius: 13px;
   }
-  .eol__player iframe { display: block; width: 100%; height: var(--player-h); border: 0; }
+  /* :global because the script makes the iframe, so it doesn't carry this component's scope. */
+  .eol__player :global(iframe) { display: block; width: 100%; height: var(--player-h); border: 0; }
   .eol__listen {
     position: absolute;
     left: calc(765 * var(--u));
@@ -227,4 +222,52 @@ const SPOTIFY = 'https://open.spotify.com/artist/0eRbECAGCLLiTyVXPBRexU';
 
   if (isSoundOn()) loadInstrumentSounds();
   document.addEventListener('sound:change', () => isSoundOn() && loadInstrumentSounds());
+
+  // ---------- Spotify player ----------
+  // Spotify's iFrame API swaps the placeholder for the embed and reports play and pause, which goes out as a
+  // 'spotify:playback' event ({ playing }) on document so the background music can step aside.
+  // The API loads as the section nears the screen. If it can't load, the plain embed goes in instead.
+  type Controller = { addListener: (event: string, fn: (e: { data: { isPaused: boolean } }) => void) => void };
+  type IFrameAPI = { createController: (el: Element, options: object, ready: (c: Controller) => void) => void };
+
+  const slot = document.querySelector<HTMLElement>('[data-spotify-embed]');
+  if (slot) {
+    const uri = slot.dataset.uri!;
+    const height = 352;
+    const player = slot.parentElement!;
+    const titleIframe = () => player.querySelector('iframe')?.setAttribute('title', 'Jon Batiste on Spotify');
+
+    (window as unknown as { onSpotifyIframeApiReady: (api: IFrameAPI) => void }).onSpotifyIframeApiReady = (api) => {
+      api.createController(slot, { uri, width: '100%', height }, (controller) => {
+        titleIframe();
+        let playing = false;
+        controller.addListener('playback_update', ({ data }) => {
+          if (data.isPaused !== playing) return;
+          playing = !data.isPaused;
+          document.dispatchEvent(new CustomEvent('spotify:playback', { detail: { playing } }));
+        });
+      });
+    };
+
+    const load = () => {
+      const script = document.createElement('script');
+      script.src = 'https://open.spotify.com/embed/iframe-api/v1';
+      script.async = true;
+      script.onerror = () => {
+        const [, type, id] = uri.split(':');
+        slot.outerHTML = `<iframe src="https://open.spotify.com/embed/${type}/${id}" height="${height}" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>`;
+        titleIframe();
+      };
+      document.head.append(script);
+    };
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        load();
+      },
+      { rootMargin: '800px 0px' },
+    );
+    io.observe(slot);
+  }
 </script>
