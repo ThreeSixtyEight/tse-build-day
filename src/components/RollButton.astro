@@ -38,7 +38,9 @@ const Tag = href ? 'a' : 'button';
     justify-content: center;
     min-width: 156px;
     height: 38px;
-    padding: 0 22px;
+    /* Side padding grows with the text (about 32px at 18px), so a long label gets the same room as a short one
+       does inside the 156px minimum. */
+    padding: 0 1.75em;
     overflow: hidden;
     border: 0;
     background: none;
